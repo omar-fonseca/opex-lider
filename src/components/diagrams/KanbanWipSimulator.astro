@@ -1,103 +1,256 @@
 ---
-// Página 07 — Tablero Kanban y flujo (Fase 5B: Exploración ampliable de actividades, restricciones y WIP con motor FLIP)
-// Secuencia visual explorable: avance de actividades, control de trabajo en curso (WIP) y gestión de restricciones
+// Página 07 — Tablero Kanban físico digital (EDU-UX-01 - Hito A.2)
+// Refinamiento del tablero: notas adhesivas 2.5D, FLIP nativo, bandeja de trazabilidad flotante,
+// corrección de alerta WIP 0/2 y preservación del modelo de 1.000 barras y diagnósticos M1–M4.
 ---
 
 <div class="expandable-workbench" id="kanban-wip-workbench" data-expanded="false">
+  <!-- Cabecera del banco de trabajo con kicker y feedback vivo -->
   <div class="expandable-header">
     <div class="canvas-Topline">
-      <span class="canvas-kicker">SIMULACIÓN VISUAL DE FLUJO KANBAN Y LÍMITE WIP</span>
-      <span class="canvas-hint" id="wip-state-hint">Selecciona un momento (M1–M4) o toca cualquier tarjeta/columna del tablero para ampliar su diagnóstico</span>
-    </div>
-
-    <div class="stage-selector-bar" role="tablist" aria-label="Secuencia del flujo Kanban y WIP">
-      <button type="button" class="stage-pill-btn is-active" role="tab" aria-selected="true" data-wip-state="estable" data-interactive-node>
-        <span class="stage-pill-num">M1</span> Flujo estable
-      </button>
-      <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-wip-state="avance" data-interactive-node>
-        <span class="stage-pill-num">M2</span> Avance por jalón
-      </button>
-      <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-wip-state="restriccion" data-interactive-node>
-        <span class="stage-pill-num">M3</span> Restricción y tope WIP
-      </button>
-      <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-wip-state="desbloqueo" data-interactive-node>
-        <span class="stage-pill-num">M4</span> Desbloqueo del flujo
-      </button>
+      <div class="kb-header-meta">
+        <span class="canvas-kicker">TABLERO FÍSICO DIGITAL · APRENDIZAJE VISUAL KANBAN</span>
+        <span class="canvas-hint" id="wip-feedback-banner" role="status" aria-live="polite">
+          Haz clic en una nota para inspeccionar su trayectoria, o pulsa «Iniciar lote (Jalar)» para avanzar el flujo.
+        </span>
+      </div>
+      <div class="kb-header-actions">
+        <button type="button" class="kb-action-btn kb-reset-btn" id="kb-reset-btn" title="Restaurar el pedido al estado inicial (50 barras listas, 950 pendientes)">
+          <span aria-hidden="true">↺</span> Reiniciar pedido
+        </button>
+        <button type="button" class="kb-action-btn kb-history-btn" id="kb-open-tray-btn" aria-haspopup="dialog" title="Consultar la bandeja de trabajos terminados">
+          <span aria-hidden="true">📁</span> Archivo (<span id="tray-count-badge">1</span>)
+        </button>
+        <button type="button" class="kb-action-btn kb-tech-btn" id="wip-open-detail-btn" aria-haspopup="dialog" title="Abrir análisis técnico profundo del flujo (M1–M4)">
+          <span aria-hidden="true">↗</span> Diagnóstico técnico [M1–M4]
+        </button>
+      </div>
     </div>
   </div>
 
   <div class="expandable-stage">
-    <div class="expandable-canvas-wrap">
-      <!-- Tablero de flujo de ancho completo con 4 etapas y límites WIP explícitos -->
-      <div class="wip-board-grid" id="wip-board-grid" aria-label="Estados del proceso en el tablero Kanban">
-        <!-- Columna 1: Cola autorizada -->
-        <div class="wip-lane" data-lane="cola" tabindex="0" role="button" aria-label="Ampliar análisis desde columna 01 Listo para iniciar">
-          <div class="wip-lane-head">
-            <div class="wip-lane-title-row">
-              <span class="wip-lane-name">01 · Listo para iniciar</span>
-              <span class="wip-expand-mini" aria-hidden="true">↗</span>
-            </div>
-            <span class="wip-counter" id="wip-count-cola">2 en espera</span>
-          </div>
-          <div class="wip-cards-slot" id="wip-slot-cola"></div>
-        </div>
+    <!-- Lienzo del Tablero Físico en 2.5D -->
+    <div class="expandable-canvas-wrap kb-physical-board-wrap" id="kb-physical-board-wrap">
 
-        <!-- Columna 2: Preparación -->
-        <div class="wip-lane" data-lane="preparacion" tabindex="0" role="button" aria-label="Ampliar análisis desde columna 02 Preparación">
-          <div class="wip-lane-head">
-            <div class="wip-lane-title-row">
-              <span class="wip-lane-name">02 · Preparación</span>
-              <span class="wip-expand-mini" aria-hidden="true">↗</span>
-            </div>
-            <span class="wip-counter" id="wip-count-prep">2 / 2 MÁX</span>
-          </div>
-          <div class="wip-cards-slot" id="wip-slot-prep"></div>
+      <!-- Barra superior de telemetría del pedido del cliente: 1.000 barras en 20 lotes de 50 -->
+      <div class="kb-order-telemetry" role="region" aria-label="Telemetría del pedido en curso">
+        <div class="kb-telemetry-item">
+          <span class="kb-telemetry-label">PEDIDO CLIENTE</span>
+          <strong class="kb-telemetry-val">1.000 barras</strong>
+          <span class="kb-telemetry-sub">20 lotes de 50</span>
         </div>
-
-        <!-- Columna 3: Ejecución y Prueba -->
-        <div class="wip-lane" data-lane="ejecucion" id="wip-lane-ejecucion" tabindex="0" role="button" aria-label="Ampliar análisis desde columna 03 Ejecución y Prueba">
-          <div class="wip-lane-head">
-            <div class="wip-lane-title-row">
-              <span class="wip-lane-name">03 · Ejecución / Prueba</span>
-              <span class="wip-expand-mini" aria-hidden="true">↗</span>
-            </div>
-            <span class="wip-counter" id="wip-count-ejec">1 / 2 MÁX</span>
-          </div>
-          <div class="wip-cards-slot" id="wip-slot-ejec"></div>
+        <div class="kb-telemetry-divider" aria-hidden="true"></div>
+        <div class="kb-telemetry-item">
+          <span class="kb-telemetry-label">POR INICIAR (COLA)</span>
+          <strong class="kb-telemetry-val" id="telemetry-pending-bars">950 barras</strong>
+          <span class="kb-telemetry-sub" id="telemetry-pending-lots">19 lotes pendientes</span>
         </div>
-
-        <!-- Columna 4: Entregado -->
-        <div class="wip-lane" data-lane="entregado" tabindex="0" role="button" aria-label="Ampliar análisis desde columna 04 Completado">
-          <div class="wip-lane-head">
-            <div class="wip-lane-title-row">
-              <span class="wip-lane-name">04 · Completado</span>
-              <span class="wip-expand-mini" aria-hidden="true">↗</span>
-            </div>
-            <span class="wip-counter" id="wip-count-done">1 completada</span>
-          </div>
-          <div class="wip-cards-slot" id="wip-slot-done"></div>
+        <div class="kb-telemetry-divider" aria-hidden="true"></div>
+        <div class="kb-telemetry-item">
+          <span class="kb-telemetry-label">EN PROCESO (WIP)</span>
+          <strong class="kb-telemetry-val" id="telemetry-wip-bars">0 barras</strong>
+          <span class="kb-telemetry-sub kb-wip-sub-badge" id="telemetry-wip-badge">0 / 2 lotes MÁX</span>
+        </div>
+        <div class="kb-telemetry-divider" aria-hidden="true"></div>
+        <div class="kb-telemetry-item">
+          <span class="kb-telemetry-label">COMPLETADAS</span>
+          <strong class="kb-telemetry-val kb-val-success" id="telemetry-done-bars">50 barras</strong>
+          <span class="kb-telemetry-sub" id="telemetry-done-lots">1 lote entregado</span>
         </div>
       </div>
 
-      <!-- Barra inferior de telemetría WIP + botón de ampliación directa -->
-      <div class="wip-telemetry-bar" id="wip-telemetry-bar">
-        <div>
-          <span class="telemetry-label">TRABAJO EN CURSO (WIP ACTIVO):</span>
-          <strong id="wip-total-value">3 órdenes en curso (Límite WIP: 4)</strong>
+      <!-- Alerta visual de límite WIP (solo se muestra cuando se intenta sobrepasar 2/2) -->
+      <div class="kb-wip-alert-toast" id="kb-wip-alert-toast" role="alert" hidden aria-hidden="true">
+        <div class="kb-alert-icon-wrap" aria-hidden="true">⛔</div>
+        <div class="kb-alert-body">
+          <strong class="kb-alert-headline">TOPE WIP ALCANZADO (2 / 2 LOTES MÁX)</strong>
+          <p class="kb-alert-text" id="kb-alert-text">
+            El sistema impide ingresar más trabajo para evitar sobreproducción y congestión. Regla de oro de Kanban: <em>«Deja de empezar y empieza a terminar»</em>. Completa un lote en proceso para liberar cupo.
+          </p>
         </div>
-        <div class="wip-telemetry-actions">
-          <span class="status-badge is-ok" id="wip-status-pill">Flujo balanceado</span>
-          <button type="button" class="wip-expand-trigger-btn" id="wip-open-detail-btn" aria-haspopup="dialog">
-            Ampliar diagnóstico del flujo ↗
-          </button>
+        <button type="button" class="kb-alert-dismiss" id="kb-alert-dismiss" aria-label="Cerrar advertencia de límite WIP" title="Cerrar advertencia">✕</button>
+      </div>
+
+      <!-- Superficie del Tablero Físico Digital con Columnas y Ranuras -->
+      <div class="kb-board-surface" id="kb-board-surface">
+
+        <!-- COLUMNA 1: PENDIENTE (POR INICIAR) -->
+        <div class="kb-column" id="kb-col-pending" data-col="pending">
+          <div class="kb-column-header">
+            <div class="kb-col-title-wrap">
+              <span class="kb-col-pill">01</span>
+              <h3 class="kb-col-title">Pendiente</h3>
+            </div>
+            <span class="kb-col-counter" id="col-pending-counter">19 por iniciar</span>
+          </div>
+          <div class="kb-card-slot kb-slot-pending" id="slot-pending" aria-label="Ranura de lotes pendientes">
+            <!-- Nota adhesiva visible al frente de la cola -->
+          </div>
+          <div class="kb-col-footer-action">
+            <button type="button" class="kb-step-btn kb-btn-primary" id="btn-start-lot" title="Jalar el siguiente lote hacia En Proceso">
+              <span aria-hidden="true">▶</span> Iniciar lote (Jalar)
+            </button>
+          </div>
+        </div>
+
+        <!-- COLUMNA 2: EN PROCESO (CON LÍMITE WIP ESTRICTO) -->
+        <div class="kb-column kb-column-wip" id="kb-col-process" data-col="process">
+          <div class="kb-column-header">
+            <div class="kb-col-title-wrap">
+              <span class="kb-col-pill">02</span>
+              <h3 class="kb-col-title">En proceso</h3>
+            </div>
+            <span class="kb-wip-tag" id="col-wip-tag">WIP: 0 / 2 MÁX</span>
+          </div>
+          <div class="kb-cards-stack-slot" id="slot-process" aria-label="Ranura de trabajos en proceso">
+            <!-- 2 Ranuras fijas para notas en proceso o espacios disponibles -->
+          </div>
+          <div class="kb-col-footer-action">
+            <button type="button" class="kb-step-btn kb-btn-finish" id="btn-finish-lot" title="Completar lote activo y enviarlo a Terminado">
+              <span aria-hidden="true">✓</span> Terminar lote
+            </button>
+          </div>
+        </div>
+
+        <!-- COLUMNA 3: TERMINADO (REGISTRO Y ARCHIVO) -->
+        <div class="kb-column" id="kb-col-done" data-col="done">
+          <div class="kb-column-header">
+            <div class="kb-col-title-wrap">
+              <span class="kb-col-pill">03</span>
+              <h3 class="kb-col-title">Terminado</h3>
+            </div>
+            <span class="kb-col-counter" id="col-done-counter">1 completado (50 barras)</span>
+          </div>
+          <div class="kb-card-slot kb-slot-done" id="slot-done" aria-label="Ranura de última orden terminada">
+            <!-- Última nota terminada con sello conforme -->
+          </div>
+          <div class="kb-col-footer-action">
+            <button type="button" class="kb-step-btn kb-btn-tray" id="btn-open-tray-inline" title="Abrir bandeja de archivo histórico">
+              <span aria-hidden="true">📁</span> Archivo (<span id="tray-btn-count">1</span>)
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Leyenda de colores con significado por TIPO DE TRABAJO -->
+      <div class="kb-color-legend" aria-label="Significado de los colores de las notas adhesivas según tipo de trabajo">
+        <span class="kb-legend-title">TIPO DE TRABAJO (COLOR DE LA NOTA):</span>
+        <div class="kb-legend-item">
+          <span class="kb-swatch kb-swatch-yellow" aria-hidden="true"></span>
+          <span>Mecanizado estándar (50 barras)</span>
+        </div>
+        <div class="kb-legend-item">
+          <span class="kb-swatch kb-swatch-orange" aria-hidden="true"></span>
+          <span>Prioridad alta / Cliente urgente (50 barras)</span>
+        </div>
+        <div class="kb-legend-item">
+          <span class="kb-swatch kb-swatch-green" aria-hidden="true"></span>
+          <span>Tratamiento térmico / Inspección especial (50 barras)</span>
         </div>
       </div>
+
     </div>
 
-    <!-- Velo contextual -->
-    <div class="expandable-scrim" id="wip-stage-scrim" aria-hidden="true" title="Cerrar diagnóstico ampliado"></div>
+    <!-- Velo azulado semitransparente (scrim) para modales flotantes -->
+    <div class="kb-floating-scrim" id="kb-floating-scrim" aria-hidden="true" hidden></div>
 
-    <!-- Tarjeta editorial ampliada (FLIP) -->
+    <!-- BANDEJA DE TRAZABILIDAD (DRAWER FLOTANTE DE HISTORIAL) -->
+    <aside
+      class="kb-tray-drawer"
+      id="kb-tray-drawer"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tray-drawer-title"
+      hidden
+      aria-hidden="true"
+    >
+      <div class="kb-tray-header">
+        <div>
+          <span class="inspector-tag">REGISTRO DE SALIDAS Y TRAZABILIDAD</span>
+          <h3 class="kb-tray-title" id="tray-drawer-title">Bandeja de Trabajos Terminados</h3>
+        </div>
+        <button type="button" class="expanded-close-btn" id="kb-tray-close-btn" aria-label="Cerrar bandeja de terminados" title="Cerrar (Escape)">
+          ✕ Cerrar
+        </button>
+      </div>
+      <p class="kb-tray-desc">
+        Ninguna orden se pierde: cada nota adhesiva completada conserva su código, tipo de trabajo y sello de calidad conforme.
+      </p>
+      <div class="kb-tray-summary-bar">
+        <span>Total entregado: <strong id="tray-sum-bars">50</strong> barras</span>
+        <span>Lotes archivados: <strong id="tray-sum-lots">1</strong> de 20</span>
+      </div>
+      <div class="kb-tray-list" id="kb-tray-list" role="list" aria-label="Lista histórica de lotes completados">
+        <!-- Tarjetas terminadas registradas dinámicamente -->
+      </div>
+    </aside>
+
+    <!-- INSPECTOR DETALLADO DE NOTA ADHESIVA (TRAYECTORIA Y DETALLE) -->
+    <aside
+      class="kb-note-inspector"
+      id="kb-note-inspector"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="note-inspector-title"
+      hidden
+      aria-hidden="true"
+    >
+      <div class="kb-note-inspector-header">
+        <div>
+          <span class="inspector-tag" id="note-insp-tag">NOTA KANBAN · LOT-02</span>
+          <h3 class="kb-tray-title" id="note-inspector-title">Detalle de la Orden de Producción</h3>
+        </div>
+        <button type="button" class="expanded-close-btn" id="kb-note-close-btn" aria-label="Cerrar detalle de la nota" title="Cerrar (Escape)">
+          ✕ Cerrar
+        </button>
+      </div>
+
+      <div class="kb-note-inspector-body">
+        <div class="kb-note-card-preview" id="note-insp-preview">
+          <!-- Vista previa de la nota -->
+        </div>
+
+        <div class="kb-note-spec-grid">
+          <div class="inspector-detail-box">
+            <span>CANTIDAD DEL LOTE</span>
+            <strong id="note-insp-qty">50 barras de acero</strong>
+          </div>
+          <div class="inspector-detail-box">
+            <span>TIPO DE TRABAJO</span>
+            <strong id="note-insp-type">Mecanizado estándar</strong>
+          </div>
+          <div class="inspector-detail-box">
+            <span>ESTADO ACTUAL</span>
+            <strong id="note-insp-status">En cola (Pendiente)</strong>
+          </div>
+          <div class="inspector-detail-box">
+            <span>CRITERIO DE CALIDAD</span>
+            <strong>Tolerancia ±0.02 mm · Inspección 100%</strong>
+          </div>
+        </div>
+
+        <div class="kb-trajectory-box">
+          <span class="kb-trajectory-label">TRAYECTORIA DEL LOTE EN EL FLUJO:</span>
+          <div class="kb-trajectory-steps" id="note-insp-trajectory">
+            <!-- Pasos de trayectoria -->
+          </div>
+        </div>
+
+        <div class="expanded-leader-box">
+          <div class="leader-box-header">
+            <span class="leader-box-icon" aria-hidden="true">💡</span>
+            <span class="leader-box-title">REGLA OPEX DE LA TARJETA FÍSICA</span>
+          </div>
+          <p class="leader-box-quote">
+            «La nota adhesiva Kanban no es un recordatorio pasivo: es la orden física de fabricación. Nadie produce sin tarjeta, y nadie acumula más tarjetas que el límite autorizado. La tarjeta viaja con el lote hasta la entrega.»
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Modal Editorial FLIP Existente para diagnóstico técnico profundo (M1–M4) -->
+    <div class="expandable-scrim" id="wip-stage-scrim" aria-hidden="true" title="Cerrar diagnóstico ampliado"></div>
     <aside
       class="expanded-editorial-card"
       id="wip-inspector"
@@ -129,6 +282,21 @@
       </div>
 
       <div class="expanded-body">
+        <div class="stage-selector-bar" role="tablist" aria-label="Momentos del flujo técnico M1 a M4">
+          <button type="button" class="stage-pill-btn is-active" role="tab" aria-selected="true" data-wip-state="estable">
+            <span class="stage-pill-num">M1</span> Flujo estable
+          </button>
+          <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-wip-state="avance">
+            <span class="stage-pill-num">M2</span> Avance por jalón
+          </button>
+          <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-wip-state="restriccion">
+            <span class="stage-pill-num">M3</span> Restricción y tope WIP
+          </button>
+          <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-wip-state="desbloqueo">
+            <span class="stage-pill-num">M4</span> Desbloqueo del flujo
+          </button>
+        </div>
+
         <div class="expanded-magnified-box">
           <div class="expanded-magnified-head">
             <span class="expanded-magnified-label" id="wip-magnified-label">LECTURA DE CAPACIDAD Y WIP EN EL TABLERO</span>
@@ -154,499 +322,1758 @@
             </p>
           </div>
           <div class="inspector-detail-box">
-            <span>DECISIÓN DEL LÍDER Y DEL EQUIPO</span>
+            <span>ACCIÓN DEL LÍDER</span>
             <p id="wip-leader-note">
-              Priorizar terminar lo que ya está en Ejecución antes de iniciar nuevas órdenes desde la cola inicial.
+              Supervisar que nadie inicie una tercera orden en Preparación hasta que Ejecución termine su tarea y jale la siguiente.
             </p>
           </div>
         </div>
-      </div>
 
-      <div class="expanded-footer">
-        <div class="expanded-nav-group">
-          <button type="button" class="step-nav-btn" id="wip-prev-btn">← Momento anterior</button>
-          <button type="button" class="step-nav-btn" id="wip-next-btn">Siguiente momento →</button>
+        <div class="expanded-footer-nav">
+          <button type="button" class="step-nav-btn" id="wip-prev-btn" aria-label="Ver momento anterior del flujo">
+            ← Momento anterior
+          </button>
+          <button type="button" class="expanded-return-btn" id="wip-return-btn">
+            Volver al simulador Kanban
+          </button>
+          <button type="button" class="step-nav-btn" id="wip-next-btn" aria-label="Ver siguiente momento del flujo">
+            Siguiente momento →
+          </button>
         </div>
-        <button type="button" class="expanded-return-btn" id="wip-return-btn">
-          Volver al tablero Kanban [ESC]
-        </button>
       </div>
     </aside>
+
   </div>
 </div>
 
 <style>
-  .wip-board-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
-    min-height: 335px;
+  /* =========================================================================
+     ESTILOS DEL TABLERO FÍSICO DIGITAL 2.5D (EDU-UX-01 - Hito A.2)
+     ========================================================================= */
+
+  /* REGLA CRUCIAL DE OCULTAMIENTO: [hidden] debe tener display: none !important */
+  .kb-wip-alert-toast[hidden],
+  .kb-floating-scrim[hidden],
+  .kb-tray-drawer[hidden],
+  .kb-note-inspector[hidden],
+  .expanded-editorial-card[hidden],
+  .expandable-scrim[hidden] {
+    display: none !important;
   }
 
-  .wip-lane {
-    background: rgba(11, 22, 42, 0.84);
-    border: 1.5px solid rgba(148, 163, 184, 0.28);
-    border-radius: 13px;
-    padding: 13px;
+  .kb-physical-board-wrap {
+    position: relative;
+    padding: 24px;
+    background: radial-gradient(circle at 50% 10%, rgba(30, 41, 59, 0.45), transparent 70%),
+                var(--surface-sunken, #080f1e);
+    border: 1px solid var(--line, #1e293b);
+    border-radius: 16px;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
+    min-height: 520px;
+  }
+
+  html[data-theme="light"] .kb-physical-board-wrap {
+    background: radial-gradient(circle at 50% 10%, rgba(226, 232, 240, 0.6), transparent 70%),
+                #f8fafc;
+    border-color: #cbd5e1;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Acciones de la cabecera */
+  .kb-header-meta {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 4px;
+  }
+
+  .kb-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .kb-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: border-color 0.22s ease, background 0.22s ease, transform 0.22s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    background: var(--surface-card, #0f172a);
+    border: 1px solid var(--line, #334155);
+    color: var(--text-secondary, #94a3b8);
   }
 
-  html[data-theme="light"] .wip-lane {
-    background: rgba(235, 242, 250, 0.9);
-    border-color: rgba(71, 85, 105, 0.24);
+  .kb-action-btn:hover {
+    border-color: var(--accent-strong, #38bdf8);
+    color: var(--text-primary, #f8fafc);
+    transform: translateY(-1px);
   }
 
-  .wip-lane:hover {
-    border-color: var(--blue-bright);
-    transform: translateY(-2px);
-  }
-
-  .wip-lane:focus-visible {
-    outline: 2px solid #93c5fd;
+  .kb-action-btn:focus-visible {
+    outline: 2px solid var(--accent-strong, #38bdf8);
     outline-offset: 2px;
   }
 
-  .wip-lane.is-bottleneck {
-    border-color: #f59e0b;
-    background: rgba(65, 38, 12, 0.42);
-    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
-  }
-
-  html[data-theme="light"] .wip-lane.is-bottleneck {
-    background: rgba(254, 243, 199, 0.8);
-    border-color: #d97706;
-  }
-
-  .wip-lane-head {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--line-soft);
-  }
-
-  .wip-lane-title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-  }
-
-  .wip-lane-name {
-    font-family: "DM Sans", sans-serif;
-    font-size: 11.5px;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-
-  .wip-expand-mini {
-    font-family: "DM Sans", sans-serif;
-    font-size: 11px;
-    color: var(--blue-soft);
-    opacity: 0.8;
-  }
-
-  .wip-counter {
-    font-family: "DM Sans", sans-serif;
-    font-size: 10.5px;
-    font-weight: 700;
-    color: var(--blue-soft);
-  }
-
-  .wip-cards-slot {
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-  }
-
-  :global(.wip-work-card) {
-    background: rgba(23, 45, 84, 0.9);
-    border: 1px solid rgba(96, 165, 250, 0.42);
-    border-left: 3.5px solid #60a5fa;
-    border-radius: 9px;
-    padding: 10px 11px;
-    font-family: "DM Sans", sans-serif;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    cursor: pointer;
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-  }
-
-  :global(.wip-work-card:hover) {
-    transform: scale(1.02);
-    box-shadow: 0 8px 18px rgba(4, 12, 28, 0.35);
-  }
-
-  html[data-theme="light"] :global(.wip-work-card) {
+  html[data-theme="light"] .kb-action-btn {
     background: #ffffff;
-    border-color: rgba(37, 99, 235, 0.35);
-    border-left: 3.5px solid #2563eb;
+    border-color: #cbd5e1;
+    color: #475569;
   }
 
-  :global(.wip-work-card.is-blocked) {
-    background: rgba(88, 28, 28, 0.72);
-    border-color: rgba(248, 113, 113, 0.65);
-    border-left: 3.5px solid #ef4444;
+  html[data-theme="light"] .kb-action-btn:hover {
+    border-color: var(--accent-strong, #0284c7);
+    color: #0f172a;
+    background: #f1f5f9;
   }
 
-  html[data-theme="light"] :global(.wip-work-card.is-blocked) {
-    background: #fef2f2;
-    border-color: #ef4444;
+  .kb-history-btn {
+    border-color: var(--accent-border, rgba(56, 189, 248, 0.4));
+    color: var(--accent-text, #38bdf8);
   }
 
-  :global(.wip-work-card.is-done) {
-    border-left-color: #10b981;
-    border-color: rgba(16, 185, 129, 0.42);
+  /* Telemetría superior del pedido */
+  .kb-order-telemetry {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid var(--line, #334155);
+    border-radius: 12px;
+    padding: 12px 18px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(8px);
   }
 
-  :global(.wip-card-id) {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: var(--blue-soft);
+  html[data-theme="light"] .kb-order-telemetry {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   }
 
-  :global(.wip-card-title) {
-    font-size: 12.5px;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-
-  :global(.wip-card-note) {
-    font-size: 10.5px;
-    color: var(--text-secondary);
-  }
-
-  .wip-telemetry-bar {
+  .kb-telemetry-item {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    background: rgba(10, 20, 38, 0.78);
-    border: 1px solid var(--line-soft);
-    border-radius: 11px;
-    padding: 11px 15px;
-    font-family: "DM Sans", sans-serif;
-    font-size: 12.5px;
+    flex-direction: column;
+    gap: 2px;
   }
 
-  html[data-theme="light"] .wip-telemetry-bar {
-    background: rgba(226, 235, 246, 0.88);
+  .kb-telemetry-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--text-muted, #64748b);
   }
 
-  .telemetry-label {
-    font-size: 10.5px;
+  html[data-theme="light"] .kb-telemetry-label {
+    color: #64748b;
+  }
+
+  .kb-telemetry-val {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary, #f8fafc);
+    font-variant-numeric: tabular-nums;
+  }
+
+  html[data-theme="light"] .kb-telemetry-val {
+    color: #0f172a;
+  }
+
+  .kb-val-success {
+    color: #4ade80 !important;
+  }
+
+  html[data-theme="light"] .kb-val-success {
+    color: #16a34a !important;
+  }
+
+  .kb-telemetry-sub {
+    font-size: 0.72rem;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  html[data-theme="light"] .kb-telemetry-sub {
+    color: #475569;
+  }
+
+  .kb-wip-sub-badge {
+    color: var(--accent-text, #38bdf8);
     font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--blue-soft);
-    margin-right: 6px;
   }
 
-  .wip-telemetry-actions {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+  .kb-telemetry-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--line, #334155);
+    margin: 0 12px;
   }
 
-  .wip-expand-trigger-btn {
-    appearance: none;
-    background: rgba(59, 130, 246, 0.16);
-    border: 1px solid rgba(96, 165, 250, 0.45);
-    color: var(--text-primary);
-    border-radius: 999px;
-    padding: 5px 12px;
-    font-family: "DM Sans", sans-serif;
-    font-size: 11.5px;
-    font-weight: 700;
+  html[data-theme="light"] .kb-telemetry-divider {
+    background: #e2e8f0;
+  }
+
+  /* Alerta visual de límite WIP (Toast interactivo) */
+  .kb-wip-alert-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: rgba(127, 29, 29, 0.95);
+    border: 1.5px solid #ef4444;
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #fee2e2;
+    margin-bottom: 20px;
+    box-shadow: 0 12px 30px rgba(239, 68, 68, 0.25);
+    animation: toastSlideDown 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html[data-theme="light"] .kb-wip-alert-toast {
+    background: #fef2f2;
+    border-color: #dc2626;
+    color: #991b1b;
+    box-shadow: 0 12px 24px rgba(220, 38, 38, 0.12);
+  }
+
+  .kb-alert-icon-wrap {
+    font-size: 1.4rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .kb-alert-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .kb-alert-headline {
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #fecaca;
+  }
+
+  html[data-theme="light"] .kb-alert-headline {
+    color: #991b1b;
+  }
+
+  .kb-alert-text {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    margin: 0;
+    color: #fee2e2;
+  }
+
+  html[data-theme="light"] .kb-alert-text {
+    color: #7f1d1d;
+  }
+
+  .kb-alert-dismiss {
+    background: transparent;
+    border: none;
+    color: #fca5a5;
+    font-size: 1.1rem;
     cursor: pointer;
-    transition: all 0.18s ease;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
   }
 
-  .wip-expand-trigger-btn:hover {
-    background: rgba(59, 130, 246, 0.28);
-    border-color: #93c5fd;
+  .kb-alert-dismiss:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
   }
 
-  @media (max-width: 780px) {
-    .wip-board-grid {
-      grid-template-columns: 1fr 1fr;
+  html[data-theme="light"] .kb-alert-dismiss {
+    color: #991b1b;
+  }
+
+  html[data-theme="light"] .kb-alert-dismiss:hover {
+    background: #fee2e2;
+    color: #7f1d1d;
+  }
+
+  @keyframes toastSlideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
-  @media (max-width: 520px) {
-    .wip-board-grid {
+  /* Superficie del Tablero y Columnas */
+  .kb-board-surface {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .kb-column {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-card, #0c182e);
+    border: 1.5px solid var(--line, #1e293b);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+    min-height: 380px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  html[data-theme="light"] .kb-column {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .kb-column-wip {
+    border-color: var(--accent-border, rgba(56, 189, 248, 0.4));
+    background: linear-gradient(180deg, rgba(56, 189, 248, 0.04) 0%, var(--surface-card, #0c182e) 100%);
+  }
+
+  html[data-theme="light"] .kb-column-wip {
+    background: linear-gradient(180deg, rgba(2, 132, 199, 0.04) 0%, #ffffff 100%);
+    border-color: var(--accent-strong, #0284c7);
+  }
+
+  .kb-column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line, #1e293b);
+    margin-bottom: 16px;
+  }
+
+  html[data-theme="light"] .kb-column-header {
+    border-bottom-color: #e2e8f0;
+  }
+
+  .kb-col-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .kb-col-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--surface-sunken, #080f1e);
+    border: 1px solid var(--line, #334155);
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  html[data-theme="light"] .kb-col-pill {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  .kb-col-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-primary, #f8fafc);
+    margin: 0;
+  }
+
+  html[data-theme="light"] .kb-col-title {
+    color: #0f172a;
+  }
+
+  .kb-col-counter {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted, #64748b);
+  }
+
+  html[data-theme="light"] .kb-col-counter {
+    color: #64748b;
+  }
+
+  .kb-wip-tag {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--accent-subtle, rgba(56, 189, 248, 0.15));
+    border: 1px solid var(--accent-border, rgba(56, 189, 248, 0.4));
+    color: var(--accent-text, #38bdf8);
+  }
+
+  html[data-theme="light"] .kb-wip-tag {
+    background: #e0f2fe;
+    border-color: #0284c7;
+    color: #0369a1;
+  }
+
+  /* Ranuras de tarjetas y notas adhesivas */
+  .kb-card-slot,
+  .kb-cards-stack-slot {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 8px 4px;
+  }
+
+  .kb-cards-stack-slot {
+    min-height: 220px;
+  }
+
+  /* Placeholder de cupo libre en En Proceso */
+  .kb-empty-wip-slot {
+    border: 2px dashed rgba(148, 163, 184, 0.25);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 80px;
+    color: var(--text-muted, #64748b);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  html[data-theme="light"] .kb-empty-wip-slot {
+    border-color: #cbd5e1;
+    color: #94a3b8;
+    background: rgba(241, 245, 249, 0.5);
+  }
+
+  /* =========================================================================
+     NOTAS ADHESIVAS FÍSICAS EN 2.5D (ESTILO POST-IT CON CINTA Y PAPEL TÁCTIL)
+     ========================================================================= */
+
+  .kb-sticky-note {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 14px 14px 12px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    border: none;
+    outline: none;
+    user-select: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15),
+                0 10px 20px -3px rgba(0, 0, 0, 0.25),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: center top;
+  }
+
+  /* Cinta adhesiva semitransparente superior */
+  .kb-sticky-note::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 14px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(2px);
+    z-index: 2;
+  }
+
+  html[data-theme="light"] .kb-sticky-note::before {
+    background: rgba(255, 255, 255, 0.65);
+    border-color: rgba(203, 213, 225, 0.8);
+  }
+
+  /* Efecto de elevación táctil en hover y foco accesible */
+  .kb-sticky-note:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35),
+                0 6px 10px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+  }
+
+  .kb-sticky-note:focus-visible {
+    outline: 2.5px solid var(--accent-strong, #38bdf8);
+    outline-offset: 3px;
+    transform: translateY(-4px) scale(1.02);
+    z-index: 10;
+  }
+
+  /* Clase durante animación FLIP nativa */
+  .kb-sticky-note.is-flipping {
+    z-index: 50 !important;
+    pointer-events: none;
+  }
+
+  /* VARIANTES DE COLOR SEGÚN TIPO DE TRABAJO (MANTIENEN SU COLOR EN CUALQUIER COLUMNA) */
+  .kb-note-yellow {
+    background: #fef08a; /* Amarillo Post-it clásico */
+    color: #713f12;
+    border-left: 3px solid #eab308;
+  }
+
+  .kb-note-orange {
+    background: #fed7aa; /* Naranja cálido (Urgente/Prioridad) */
+    color: #7c2d12;
+    border-left: 3px solid #f97316;
+  }
+
+  .kb-note-green {
+    background: #bbf7d0; /* Verde menta (Calidad/Especial) */
+    color: #14532d;
+    border-left: 3px solid #22c55e;
+  }
+
+  /* Cabecera interna de la nota */
+  .kb-note-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .kb-note-id {
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+
+  .kb-note-type-badge {
+    font-size: 0.62rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.08);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  /* Cuerpo de la nota */
+  .kb-note-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    line-height: 1.25;
+    margin: 0 0 6px 0;
+  }
+
+  .kb-note-desc {
+    font-size: 0.75rem;
+    line-height: 1.3;
+    margin: 0 0 10px 0;
+    opacity: 0.88;
+  }
+
+  /* Pie de la nota */
+  .kb-note-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    font-weight: 700;
+    border-top: 1px dashed rgba(0, 0, 0, 0.15);
+    padding-top: 6px;
+  }
+
+  .kb-note-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-weight: 800;
+  }
+
+  .kb-note-status-stamp {
+    font-size: 0.62rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 5px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  .kb-stamp-done {
+    background: rgba(20, 83, 45, 0.2);
+    color: #14532d;
+    border: 1px solid rgba(20, 83, 45, 0.4);
+  }
+
+  /* Cola apilada en Pendiente */
+  .kb-stack-cue {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-sunken, #080f1e);
+    border: 1px solid var(--line, #334155);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.72rem;
+    color: var(--text-secondary, #94a3b8);
+    margin-top: 6px;
+  }
+
+  html[data-theme="light"] .kb-stack-cue {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  /* Botones de acción al pie de cada columna */
+  .kb-col-footer-action {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--line, #1e293b);
+  }
+
+  html[data-theme="light"] .kb-col-footer-action {
+    border-top-color: #e2e8f0;
+  }
+
+  .kb-step-btn {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .kb-btn-primary {
+    background: var(--accent-primary, #0284c7);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+  }
+
+  .kb-btn-primary:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
+  }
+
+  .kb-btn-finish {
+    background: #16a34a;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+  }
+
+  .kb-btn-finish:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4);
+  }
+
+  .kb-btn-tray {
+    background: var(--surface-sunken, #080f1e);
+    border: 1px solid var(--line, #334155);
+    color: var(--text-primary, #f8fafc);
+  }
+
+  html[data-theme="light"] .kb-btn-tray {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0f172a;
+  }
+
+  .kb-btn-tray:hover {
+    border-color: var(--accent-strong, #38bdf8);
+    color: var(--accent-text, #38bdf8);
+  }
+
+  /* Leyenda de colores inferior */
+  .kb-color-legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--line, #334155);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 0.72rem;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  html[data-theme="light"] .kb-color-legend {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  .kb-legend-title {
+    font-weight: 800;
+    color: var(--text-primary, #f8fafc);
+    letter-spacing: 0.05em;
+  }
+
+  html[data-theme="light"] .kb-legend-title {
+    color: #0f172a;
+  }
+
+  .kb-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .kb-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  .kb-swatch-yellow {
+    background: #fef08a;
+    border: 1px solid #eab308;
+  }
+
+  .kb-swatch-orange {
+    background: #fed7aa;
+    border: 1px solid #f97316;
+  }
+
+  .kb-swatch-green {
+    background: #bbf7d0;
+    border: 1px solid #22c55e;
+  }
+
+  /* =========================================================================
+     VELO FLOTANTE (SCRIM) Y BANDEJAS FLOTANTES (TRAY Y NOTA DETALLE)
+     ========================================================================= */
+
+  .kb-floating-scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 18, 38, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 35;
+    border-radius: 16px;
+    animation: fadeInScrim 0.2s ease-out;
+  }
+
+  html[data-theme="light"] .kb-floating-scrim {
+    background: rgba(15, 23, 42, 0.45);
+  }
+
+  @keyframes fadeInScrim {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Bandeja de Trazabilidad (Drawer lateral/flotante) */
+  .kb-tray-drawer {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    bottom: 16px;
+    width: min(440px, calc(100% - 32px));
+    background: var(--surface-card, #0c182e);
+    border: 1.5px solid var(--accent-border, rgba(56, 189, 248, 0.4));
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    animation: drawerSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html[data-theme="light"] .kb-tray-drawer {
+    background: #ffffff;
+    border-color: var(--accent-strong, #0284c7);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.15);
+  }
+
+  @keyframes drawerSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .kb-tray-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--line, #1e293b);
+    padding-bottom: 12px;
+  }
+
+  html[data-theme="light"] .kb-tray-header {
+    border-bottom-color: #e2e8f0;
+  }
+
+  .kb-tray-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary, #f8fafc);
+    margin: 4px 0 0 0;
+  }
+
+  html[data-theme="light"] .kb-tray-title {
+    color: #0f172a;
+  }
+
+  .kb-tray-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #94a3b8);
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  html[data-theme="light"] .kb-tray-desc {
+    color: #475569;
+  }
+
+  .kb-tray-summary-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-sunken, #080f1e);
+    border: 1px solid var(--line, #334155);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  html[data-theme="light"] .kb-tray-summary-bar {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #334155;
+  }
+
+  .kb-tray-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .kb-tray-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--surface-sunken, #080f1e);
+    border: 1px solid var(--line, #334155);
+    transition: transform 0.15s ease;
+  }
+
+  html[data-theme="light"] .kb-tray-item {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  .kb-tray-item-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .kb-tray-item-id {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #4ade80;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  html[data-theme="light"] .kb-tray-item-id {
+    color: #16a34a;
+  }
+
+  .kb-tray-item-meta {
+    font-size: 0.72rem;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  html[data-theme="light"] .kb-tray-item-meta {
+    color: #64748b;
+  }
+
+  .kb-tray-item-qty {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-primary, #f8fafc);
+  }
+
+  html[data-theme="light"] .kb-tray-item-qty {
+    color: #0f172a;
+  }
+
+  /* =========================================================================
+     INSPECTOR DETALLADO DE NOTA ADHESIVA (TRAYECTORIA)
+     ========================================================================= */
+
+  .kb-note-inspector {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(560px, calc(100% - 32px));
+    max-height: calc(100% - 40px);
+    background: var(--surface-card, #0c182e);
+    border: 1.5px solid var(--accent-border, rgba(56, 189, 248, 0.4));
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
+    z-index: 45;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    animation: modalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html[data-theme="light"] .kb-note-inspector {
+    background: #ffffff;
+    border-color: var(--accent-strong, #0284c7);
+    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.15);
+  }
+
+  @keyframes modalPopIn {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+  }
+
+  .kb-note-inspector-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--line, #1e293b);
+    padding-bottom: 12px;
+  }
+
+  html[data-theme="light"] .kb-note-inspector-header {
+    border-bottom-color: #e2e8f0;
+  }
+
+  .kb-note-inspector-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .kb-note-card-preview {
+    display: flex;
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  .kb-note-spec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .kb-trajectory-box {
+    background: var(--surface-sunken, #080f1e);
+    border: 1px solid var(--line, #334155);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+
+  html[data-theme="light"] .kb-trajectory-box {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  .kb-trajectory-label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--text-muted, #64748b);
+    margin-bottom: 10px;
+  }
+
+  html[data-theme="light"] .kb-trajectory-label {
+    color: #475569;
+  }
+
+  .kb-trajectory-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .kb-traj-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.82rem;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  html[data-theme="light"] .kb-traj-step {
+    color: #334155;
+  }
+
+  .kb-traj-step.is-done {
+    color: #4ade80;
+    font-weight: 700;
+  }
+
+  html[data-theme="light"] .kb-traj-step.is-done {
+    color: #16a34a;
+  }
+
+  .kb-traj-step.is-current {
+    color: var(--accent-text, #38bdf8);
+    font-weight: 800;
+  }
+
+  html[data-theme="light"] .kb-traj-step.is-current {
+    color: #0284c7;
+  }
+
+  .kb-traj-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+    font-size: 0.72rem;
+  }
+
+  /* =========================================================================
+     ACCESIBILIDAD Y PREFERS-REDUCED-MOTION
+     ========================================================================= */
+
+  @media (prefers-reduced-motion: reduce) {
+    .kb-sticky-note,
+    .kb-action-btn,
+    .kb-step-btn,
+    .kb-tray-drawer,
+    .kb-note-inspector,
+    .kb-wip-alert-toast {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .kb-board-surface {
       grid-template-columns: 1fr;
+    }
+    .kb-order-telemetry {
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .kb-telemetry-divider {
+      display: none;
+    }
+    .kb-note-inspector {
+      width: calc(100% - 24px);
+    }
+    .kb-tray-drawer {
+      width: calc(100% - 24px);
     }
   }
 </style>
 
 <script>
-  import { animateFlipOpen, animateFlipClose, makeCardDraggable } from '../../lib/expandableCardEngine';
+  // Motor interactivo del Tablero Kanban Físico Digital (EDU-UX-01 - Hito A.2)
+  // Control de notas adhesivas 2.5D, FLIP nativo, límites WIP, telemetría y modales accesibles
 
-  function initKanbanWipSimulator() {
-    const root = document.getElementById('kanban-wip-workbench');
-    if (!root || root.hasAttribute('data-initialized')) return;
-    root.setAttribute('data-initialized', 'true');
+  interface KanbanLot {
+    id: string;             // ej. 'LOT-01'
+    lotNumber: number;      // 1 a 20
+    bars: number;           // 50
+    workType: 'standard' | 'urgent' | 'quality';
+    workTypeName: string;   // 'Mecanizado estándar' | 'Prioridad alta' | 'Tratamiento e inspección'
+    colorClass: 'kb-note-yellow' | 'kb-note-orange' | 'kb-note-green';
+    taskTitle: string;
+    taskDesc: string;
+    status: 'pending' | 'process' | 'done';
+    completedTimestamp?: string;
+  }
 
-    interface CardItem {
-      id: string;
-      title: string;
-      note: string;
-      status?: 'normal' | 'blocked' | 'done';
-    }
+  const TOTAL_LOTS = 20;
+  const BARS_PER_LOT = 50;
+  const WIP_LIMIT = 2;
 
-    interface WipScenario {
-      tag: string;
-      step: string;
-      title: string;
-      summary: string;
-      flowNote: string;
-      leaderNote: string;
-      wipTotal: string;
-      badgeText: string;
-      badgeClass: 'is-ok' | 'is-warn' | 'is-alert';
-      bottleneck: boolean;
-      magnifiedHtml: string;
-      counts: { cola: string; prep: string; ejec: string; done: string };
-      lanes: {
-        cola: CardItem[];
-        prep: CardItem[];
-        ejec: CardItem[];
-        done: CardItem[];
-      };
-    }
+  // Catálogo representativo de tipos de trabajo (ciclo de las 20 notas)
+  const WORK_TYPES = [
+    {
+      type: 'standard' as const,
+      name: 'Mecanizado estándar',
+      colorClass: 'kb-note-yellow' as const,
+      taskTitle: 'Torneado y rectificado de precisión',
+      taskDesc: 'Corte cilíndrico de barras 50 mm bajo tolerancia ±0.02 mm.',
+    },
+    {
+      type: 'urgent' as const,
+      name: 'Prioridad alta / Urgente',
+      colorClass: 'kb-note-orange' as const,
+      taskTitle: 'Fresado CNC y taladrado de ejes',
+      taskDesc: 'Orden prioritaria para ensamblaje crítico de cliente.',
+    },
+    {
+      type: 'quality' as const,
+      name: 'Tratamiento e inspección',
+      colorClass: 'kb-note-green' as const,
+      taskTitle: 'Tratamiento térmico y temple superficial',
+      taskDesc: 'Control de dureza Rockwell C y calibración óptica final.',
+    },
+  ];
 
-    const SCENARIOS: Record<string, WipScenario> = {
-      estable: {
-        tag: 'MOMENTO 01 · FLUJO BALANCEADO',
-        step: 'Estado 1 de 4',
-        title: 'El trabajo en curso (WIP) bajo control',
-        summary:
-          'Cada etapa del proceso tiene un número máximo de actividades permitidas al mismo tiempo (límite WIP). Cuando el equipo respeta ese tope, cada orden avanza sin colas ocultas ni cambios constantes de prioridad.',
-        flowNote:
-          'Preparación tiene 2 órdenes activas (en su límite de 2) y Ejecución tiene 1 orden activa (con 1 cupo libre para recibir trabajo).',
-        leaderNote:
-          'Priorizar terminar lo que ya está en Ejecución antes de iniciar nuevas órdenes desde la cola inicial.',
-        wipTotal: '3 órdenes en curso (Límite WIP: 4)',
-        badgeText: 'Flujo balanceado',
-        badgeClass: 'is-ok',
-        bottleneck: false,
-        magnifiedHtml:
-          '<strong>3 órdenes en curso (Límite WIP: 4):</strong> Preparación (2/2 MÁX) · Ejecución (1/2 MÁX, 1 cupo libre) · Completado (1 entregada).',
-        counts: { cola: '2 en espera', prep: '2 / 2 MÁX', ejec: '1 / 2 MÁX', done: '1 completada' },
-        lanes: {
-          cola: [
-            { id: 'OT-105', title: 'Ajuste línea B', note: 'Lista para iniciar' },
-            { id: 'OT-106', title: 'Inspección válvula', note: 'En turno programado' },
-          ],
-          prep: [
-            { id: 'OT-103', title: 'Kit rodamientos', note: 'Material completo' },
-            { id: 'OT-104', title: 'Calibración sensor', note: 'Lista para pasar →' },
-          ],
-          ejec: [
-            { id: 'OT-102', title: 'Cambio sello bomba', note: 'En verificación final' },
-          ],
-          done: [
-            { id: 'OT-101', title: 'Limpieza filtro A', note: 'Cerrada conforme', status: 'done' },
-          ],
-        },
-      },
-      avance: {
-        tag: 'MOMENTO 02 · AVANCE POR JALÓN (PULL)',
-        step: 'Estado 2 de 4',
-        title: 'Una actividad avanza solo cuando hay cupo adelante',
-        summary:
-          'Al completarse OT-102 y pasar a «Completado», se libera capacidad en Ejecución. Esa señal permite jalar OT-104 desde Preparación y, a su vez, abrir espacio para que OT-105 ingrese desde la cola.',
-        flowNote:
-          'El trabajo se mueve de derecha a izquierda en señales: primero sale una entrega y luego ingresa una nueva tarea.',
-        leaderNote:
-          'Mantener el ritmo (Takt) observando la salida real de órdenes completadas, no la cantidad de órdenes empezadas.',
-        wipTotal: '3 órdenes en curso (Límite WIP: 4)',
-        badgeText: 'Avance sincronizado',
-        badgeClass: 'is-ok',
-        bottleneck: false,
-        magnifiedHtml:
-          '<strong>Efecto Jalón (Pull):</strong> OT-102 pasa a Completado → libera cupo en Ejecución → entra OT-104 → entra OT-105 a Preparación.',
-        counts: { cola: '1 en espera', prep: '2 / 2 MÁX', ejec: '1 / 2 MÁX', done: '2 completadas' },
-        lanes: {
-          cola: [
-            { id: 'OT-106', title: 'Inspección válvula', note: 'Siguiente en cola' },
-          ],
-          prep: [
-            { id: 'OT-103', title: 'Kit rodamientos', note: 'Preparación 80%' },
-            { id: 'OT-105', title: 'Ajuste línea B', note: 'Recién jalada →' },
-          ],
-          ejec: [
-            { id: 'OT-104', title: 'Calibración sensor', note: 'En prueba funcional' },
-          ],
-          done: [
-            { id: 'OT-101', title: 'Limpieza filtro A', note: 'Cerrada conforme', status: 'done' },
-            { id: 'OT-102', title: 'Cambio sello bomba', note: 'Entregada a tiempo', status: 'done' },
-          ],
-        },
-      },
-      restriccion: {
-        tag: 'MOMENTO 03 · RESTRICCIÓN VISIBLE',
-        step: 'Estado 3 de 4',
-        title: 'Qué ocurre cuando aparece un cuello de botella',
-        summary:
-          'OT-104 detecta una desviación técnica durante la prueba y OT-103 entra al segundo cupo de Ejecución. Ahora Ejecución alcanzó su límite (2/2). Aunque Preparación termine sus tareas, NO puede empujar más trabajo hacia adelante.',
-        flowNote:
-          'El límite WIP detiene la sobreproducción y hace visible de inmediato dónde está la restricción del proceso.',
-        leaderNote:
-          'No forzar la entrada de más órdenes. Toda la atención del líder se concentra en resolver el bloqueo de OT-104.',
-        wipTotal: '4 órdenes en curso (TOPE WIP 4/4 ALCANZADO)',
-        badgeText: 'Restricción en Ejecución',
-        badgeClass: 'is-alert',
-        bottleneck: true,
-        magnifiedHtml:
-          '<strong>ALERTA DE TOPE WIP (2/2 en Ejecución):</strong> OT-104 bloqueada por patrón fuera de rango. Preparación detiene el empuje hasta resolver.',
-        counts: { cola: '1 retenida', prep: '2 / 2 MÁX', ejec: '2 / 2 TOPE', done: '2 completadas' },
-        lanes: {
-          cola: [
-            { id: 'OT-107', title: 'Revisión tablero', note: 'Espera cupo WIP' },
-          ],
-          prep: [
-            { id: 'OT-105', title: 'Ajuste línea B', note: 'Lista (espera cupo)' },
-            { id: 'OT-106', title: 'Inspección válvula', note: 'En preparación' },
-          ],
-          ejec: [
-            { id: 'OT-104', title: 'Calibración sensor', note: 'BLOQUEO: patrón fuera de rango', status: 'blocked' },
-            { id: 'OT-103', title: 'Kit rodamientos', note: 'En montaje activo' },
-          ],
-          done: [
-            { id: 'OT-101', title: 'Limpieza filtro A', note: 'Cerrada conforme', status: 'done' },
-            { id: 'OT-102', title: 'Cambio sello bomba', note: 'Entregada a tiempo', status: 'done' },
-          ],
-        },
-      },
-      desbloqueo: {
-        tag: 'MOMENTO 04 · DESBLOQUEO COLABORATIVO',
-        step: 'Estado 4 de 4',
-        title: 'Resolver la restricción restablece el flujo',
-        summary:
-          'En lugar de seguir acumulando tareas en Preparación, el líder y un especialista apoyan la etapa bloqueada: reemplazan el patrón de calibración, liberan OT-104 y documentan la causa para que no se repita.',
-        flowNote:
-          'Al destrabar la etapa restrictiva, tanto OT-104 como OT-103 avanzan a Completado y el sistema recupera su capacidad normal.',
-        leaderNote:
-          'Lección clave de Kanban: «Deja de empezar y empieza a terminar». El flujo mejora al aliviar el cuello de botella.',
-        wipTotal: '2 órdenes en curso (Capacidad restablecida)',
-        badgeText: 'Flujo recuperado',
-        badgeClass: 'is-ok',
-        bottleneck: false,
-        magnifiedHtml:
-          '<strong>Cuello de botella resuelto:</strong> 4 órdenes completadas conformes y capacidad liberada en Preparación (1/2) y Ejecución (1/2).',
-        counts: { cola: '0 en espera', prep: '1 / 2 MÁX', ejec: '1 / 2 MÁX', done: '4 completadas' },
-        lanes: {
-          cola: [],
-          prep: [
-            { id: 'OT-107', title: 'Revisión tablero', note: 'Ingresa con flujo limpio' },
-          ],
-          ejec: [
-            { id: 'OT-105', title: 'Ajuste línea B', note: 'Avanza sin fricción' },
-          ],
-          done: [
-            { id: 'OT-101', title: 'Limpieza filtro A', note: 'Cerrada conforme', status: 'done' },
-            { id: 'OT-102', title: 'Cambio sello bomba', note: 'Entregada a tiempo', status: 'done' },
-            { id: 'OT-104', title: 'Calibración sensor', note: 'Desbloqueada y validada', status: 'done' },
-            { id: 'OT-103', title: 'Kit rodamientos', note: 'Completada en estándar', status: 'done' },
-          ],
-        },
-      },
+  function createLot(lotNumber: number, initialStatus: 'pending' | 'process' | 'done'): KanbanLot {
+    const typeDef = WORK_TYPES[(lotNumber - 1) % WORK_TYPES.length];
+    const padNum = lotNumber < 10 ? `0${lotNumber}` : `${lotNumber}`;
+    return {
+      id: `LOT-${padNum}`,
+      lotNumber,
+      bars: BARS_PER_LOT,
+      workType: typeDef.type,
+      workTypeName: typeDef.name,
+      colorClass: typeDef.colorClass,
+      taskTitle: `Lote ${padNum} · ${typeDef.taskTitle}`,
+      taskDesc: typeDef.taskDesc,
+      status: initialStatus,
+      completedTimestamp: initialStatus === 'done' ? 'Turno mañana · 08:30 (Conforme)' : undefined,
     };
+  }
 
-    const keys = ['estable', 'avance', 'restriccion', 'desbloqueo'];
-    let currentIdx = 0;
-    let isExpanded = false;
-    let lastOriginEl: HTMLElement | null = null;
+  // Momentos M1-M4 para el diagnóstico técnico profundo existente
+  const TECHNICAL_MOMENTS: Record<string, {
+    tag: string;
+    step: string;
+    title: string;
+    summary: string;
+    flowNote: string;
+    leaderNote: string;
+    badgeText: string;
+    badgeClass: string;
+    magnifiedHtml: string;
+  }> = {
+    estable: {
+      tag: 'MOMENTO 01 · FLUJO BALANCEADO',
+      step: 'Estado 1 de 4',
+      title: 'El trabajo en curso (WIP) bajo control',
+      summary: 'Cada etapa del proceso tiene un número máximo de actividades permitidas al mismo tiempo (límite WIP = 2). Cuando el equipo respeta ese tope, cada orden avanza sin colas ocultas ni cambios constantes de prioridad.',
+      flowNote: 'Pendiente tiene la cola organizada; En proceso mantiene estrictamente el cupo máximo de 2 lotes para evitar saturación.',
+      leaderNote: 'Supervisar que ningún operador inicie un tercer lote hasta que el anterior haya sido completado y entregado.',
+      badgeText: 'Flujo balanceado',
+      badgeClass: 'is-ok',
+      magnifiedHtml: '<strong>Capacidad balanceada:</strong> 1 lote completado (50 barras) · 2 lotes en proceso (100 barras) · 17 lotes en espera.',
+    },
+    avance: {
+      tag: 'MOMENTO 02 · AVANCE POR JALÓN (PULL)',
+      step: 'Estado 2 de 4',
+      title: 'El jalón (Pull): sólo se produce si hay capacidad libre',
+      summary: 'El trabajo no se empuja por presión ni estimaciones teóricas: se jala hacia adelante únicamente cuando la estación receptora tiene un espacio disponible dentro de su límite WIP.',
+      flowNote: 'Al terminar una orden, se abre una tarjeta de autorización (señal Kanban) que habilita jalar el siguiente lote de la cola.',
+      leaderNote: 'Proteger la disciplina del jalón: si un puesto se detiene, el puesto anterior no debe seguir acumulando inventario.',
+      badgeText: 'Avance controlado',
+      badgeClass: 'is-ok',
+      magnifiedHtml: '<strong>Señal Pull activa:</strong> La finalización de un lote libera exactamente 1 cupo WIP para jalar la orden siguiente.',
+    },
+    restriccion: {
+      tag: 'MOMENTO 03 · DETECCIÓN DE RESTRICCIÓN Y TOPE WIP',
+      step: 'Estado 3 de 4',
+      title: 'Cuando el WIP se llena, la restricción se vuelve visible',
+      summary: 'Si una etapa del proceso se congestiona y alcanza 2/2 lotes, el tablero bloquea el ingreso de nuevo trabajo. La regla de oro: «Deja de empezar y empieza a terminar».',
+      flowNote: 'Al intentar ingresar un tercer lote con WIP 2/2, el sistema dispara una alerta roja que prohíbe sobrecargar la línea.',
+      leaderNote: 'Acudir de inmediato al cuello de botella y colaborar para desbloquear la tarea en lugar de iniciar trabajo secundario.',
+      badgeText: 'Tope alcanzado (2/2)',
+      badgeClass: 'is-warning',
+      magnifiedHtml: '<strong>Restricción activa:</strong> Capacidad WIP completa (2/2). Nadie introduce trabajo nuevo hasta desbloquear el proceso.',
+    },
+    desbloqueo: {
+      tag: 'MOMENTO 04 · DESBLOQUEO Y TRAZABILIDAD TOTAL',
+      step: 'Estado 4 de 4',
+      title: 'Desbloqueo del flujo y entrega conforme',
+      summary: 'Al completar el lote atascado, la pieza pasa a Terminado con su sello de calidad y se archiva en la bandeja de trazabilidad sin perder ningún dato.',
+      flowNote: 'El lote terminado pasa al archivo de salidas, el contador de completadas sube y el WIP se libera inmediatamente a 1/2.',
+      leaderNote: 'Revisar la causa raíz del bloqueo durante la reunión diaria de 10 minutos para evitar que se repita en el siguiente turno.',
+      badgeText: 'Flujo restablecido',
+      badgeClass: 'is-ok',
+      magnifiedHtml: '<strong>Entrega asegurada:</strong> Orden entregada al cliente y cupo liberado para mantener el ritmo constante.',
+    },
+  };
 
-    const pills = root.querySelectorAll<HTMLButtonElement>('[data-wip-state]');
-    const lanes = root.querySelectorAll<HTMLElement>('.wip-lane');
-    const inspector = document.getElementById('wip-inspector');
-    const scrim = document.getElementById('wip-stage-scrim');
-    const stateHint = document.getElementById('wip-state-hint');
+  function initKanbanPhysicalBoard() {
+    const root = document.getElementById('kanban-wip-workbench');
+    if (!root) return;
+
+    // Elementos de telemetría y contadores
+    const pendingBarsEl = document.getElementById('telemetry-pending-bars');
+    const pendingLotsEl = document.getElementById('telemetry-pending-lots');
+    const wipBarsEl = document.getElementById('telemetry-wip-bars');
+    const wipBadgeEl = document.getElementById('telemetry-wip-badge');
+    const doneBarsEl = document.getElementById('telemetry-done-bars');
+    const doneLotsEl = document.getElementById('telemetry-done-lots');
+
+    const colPendingCounter = document.getElementById('col-pending-counter');
+    const colWipTag = document.getElementById('col-wip-tag');
+    const colDoneCounter = document.getElementById('col-done-counter');
+    const feedbackBanner = document.getElementById('wip-feedback-banner');
+
+    // Ranuras de columnas
+    const slotPending = document.getElementById('slot-pending');
+    const slotProcess = document.getElementById('slot-process');
+    const slotDone = document.getElementById('slot-done');
+
+    // Botones de acción del tablero
+    const btnStartLot = document.getElementById('btn-start-lot');
+    const btnFinishLot = document.getElementById('btn-finish-lot');
+    const resetBtn = document.getElementById('kb-reset-btn');
+
+    // Alerta de límite WIP
+    const alertToast = document.getElementById('kb-wip-alert-toast');
+    const alertDismissBtn = document.getElementById('kb-alert-dismiss');
+
+    // Velo flotante compartido
+    const floatingScrim = document.getElementById('kb-floating-scrim');
+
+    // Bandeja de terminados (Tray Drawer)
+    const trayDrawer = document.getElementById('kb-tray-drawer');
+    const trayCloseBtn = document.getElementById('kb-tray-close-btn');
+    const trayList = document.getElementById('kb-tray-list');
+    const trayCountBadge = document.getElementById('tray-count-badge');
+    const trayBtnCount = document.getElementById('tray-btn-count');
+    const traySumBars = document.getElementById('tray-sum-bars');
+    const traySumLots = document.getElementById('tray-sum-lots');
+    const openTrayBtn = document.getElementById('kb-open-tray-btn');
+    const openTrayInlineBtn = document.getElementById('btn-open-tray-inline');
+
+    // Inspector de Nota Adhesiva
+    const noteInspector = document.getElementById('kb-note-inspector');
+    const noteCloseBtn = document.getElementById('kb-note-close-btn');
+    const noteInspTag = document.getElementById('note-insp-tag');
+    const noteInspectorTitle = document.getElementById('note-inspector-title');
+    const noteInspPreview = document.getElementById('note-insp-preview');
+    const noteInspQty = document.getElementById('note-insp-qty');
+    const noteInspType = document.getElementById('note-insp-type');
+    const noteInspStatus = document.getElementById('note-insp-status');
+    const noteInspTrajectory = document.getElementById('note-insp-trajectory');
+
+    // Diagnóstico técnico M1-M4 (FLIP inspector editorial)
     const openDetailBtn = document.getElementById('wip-open-detail-btn');
+    const inspector = document.getElementById('wip-inspector');
     const closeBtn = document.getElementById('wip-close-btn');
     const returnBtn = document.getElementById('wip-return-btn');
+    const prevBtn = document.getElementById('wip-prev-btn');
+    const nextBtn = document.getElementById('wip-next-btn');
+    const scrim = document.getElementById('wip-stage-scrim');
 
+    const pills = Array.from(root.querySelectorAll<HTMLButtonElement>('.stage-pill-btn'));
     const tagEl = document.getElementById('wip-tag');
     const stepEl = document.getElementById('wip-step');
     const titleEl = document.getElementById('wip-title');
     const summaryEl = document.getElementById('wip-summary');
     const flowEl = document.getElementById('wip-flow-note');
     const leaderEl = document.getElementById('wip-leader-note');
-    const totalEl = document.getElementById('wip-total-value');
-    const statusPill = document.getElementById('wip-status-pill');
     const magBadge = document.getElementById('wip-magnified-badge');
     const magCopy = document.getElementById('wip-magnified-copy');
-    const laneEjec = document.getElementById('wip-lane-ejecucion');
 
-    const countCola = document.getElementById('wip-count-cola');
-    const countPrep = document.getElementById('wip-count-prep');
-    const countEjec = document.getElementById('wip-count-ejec');
-    const countDone = document.getElementById('wip-count-done');
+    const techKeys = ['estable', 'avance', 'restriccion', 'desbloqueo'];
+    let techCurrentIdx = 0;
 
-    const slotCola = document.getElementById('wip-slot-cola');
-    const slotPrep = document.getElementById('wip-slot-prep');
-    const slotEjec = document.getElementById('wip-slot-ejec');
-    const slotDone = document.getElementById('wip-slot-done');
+    // Estado interno del pedido de 1.000 barras (20 lotes de 50)
+    // Estado inicial: 1 lote terminado (Lote 01), 19 lotes pendientes (Lote 02 al 20), 0 en proceso.
+    let completedLots: KanbanLot[] = [ createLot(1, 'done') ];
+    let processLots: KanbanLot[] = [];
+    let nextLotNumber = 2; // El siguiente en cola es el Lote 02
 
-    const prevBtn = document.getElementById('wip-prev-btn');
-    const nextBtn = document.getElementById('wip-next-btn');
+    let lastActiveTrigger: HTMLElement | null = null;
+    let alertTimer: number | null = null;
 
-    if (inspector) {
-      const stageEl = root.querySelector<HTMLElement>('.expandable-stage') || root;
-      const handleEl = inspector.querySelector<HTMLElement>('.expanded-topbar') || inspector;
-      makeCardDraggable({
-        cardEl: inspector,
-        handleEl,
-        boundsEl: stageEl,
-        storageKey: 'opex-drag-page-07',
+    // =========================================================================
+    // UTILIDADES DE ANIMACIÓN FLIP NATIVA EN 2.5D
+    // =========================================================================
+
+    function prefersReducedMotion(): boolean {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    // Ejecuta animación FLIP de una nota entre ranuras
+    function animateNoteFlip(element: HTMLElement, firstRect: DOMRect, rotationDeg: number) {
+      if (prefersReducedMotion()) return;
+      const lastRect = element.getBoundingClientRect();
+      const deltaX = firstRect.left - lastRect.left;
+      const deltaY = firstRect.top - lastRect.top;
+
+      if (deltaX === 0 && deltaY === 0) return;
+
+      element.classList.add('is-flipping');
+      element.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.05) rotate(${rotationDeg + 2}deg)`;
+      element.style.transition = 'none';
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          element.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease';
+          element.style.transform = `translate3d(0, 0, 0) scale(1) rotate(${rotationDeg}deg)`;
+
+          const cleanup = () => {
+            element.classList.remove('is-flipping');
+            element.style.transition = '';
+            element.style.transform = `rotate(${rotationDeg}deg)`;
+            element.removeEventListener('transitionend', cleanup);
+          };
+          element.addEventListener('transitionend', cleanup, { once: true });
+        });
       });
     }
 
-    function renderCards(container: HTMLElement | null, cards: CardItem[]) {
-      if (!container) return;
-      container.innerHTML = '';
-      if (cards.length === 0) {
-        const empty = document.createElement('div');
-        empty.style.fontSize = '11px';
-        empty.style.color = 'var(--text-muted)';
-        empty.style.padding = '8px 4px';
-        empty.textContent = 'Cupo disponible';
-        container.appendChild(empty);
+    // =========================================================================
+    // CREACIÓN Y RENDERIZADO DE LAS NOTAS ADHESIVAS TÁCTILES
+    // =========================================================================
+
+    function createNoteElement(lot: KanbanLot, rotationDeg: number): HTMLButtonElement {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `kb-sticky-note ${lot.colorClass}`;
+      btn.id = `note-${lot.id}`;
+      btn.setAttribute('data-lot-id', lot.id);
+      btn.setAttribute('aria-haspopup', 'dialog');
+      btn.setAttribute('aria-label', `${lot.id}: ${lot.taskTitle}, ${lot.bars} barras. Estado: ${lot.status}. Pulsa para ver trayectoria.`);
+      btn.style.transform = `rotate(${rotationDeg}deg)`;
+
+      const statusStampText = lot.status === 'done'
+        ? '✓ CONFORME'
+        : lot.status === 'process'
+        ? 'EN PROCESO'
+        : 'EN COLA';
+
+      const statusStampClass = lot.status === 'done' ? 'kb-stamp-done' : '';
+
+      btn.innerHTML = `
+        <div class="kb-note-head">
+          <span class="kb-note-id">${lot.id}</span>
+          <span class="kb-note-type-badge">${lot.workTypeName}</span>
+        </div>
+        <h4 class="kb-note-title">${lot.taskTitle}</h4>
+        <p class="kb-note-desc">${lot.taskDesc}</p>
+        <div class="kb-note-foot">
+          <span class="kb-note-qty"><span aria-hidden="true">📦</span> ${lot.bars} barras</span>
+          <span class="kb-note-status-stamp ${statusStampClass}">${statusStampText}</span>
+        </div>
+      `;
+
+      btn.addEventListener('click', () => {
+        lastActiveTrigger = btn;
+        openNoteInspector(lot);
+      });
+
+      return btn;
+    }
+
+    // =========================================================================
+    // RENDERIZADO DEL ESTADO COMPLETO DEL TABLERO
+    // =========================================================================
+
+    function renderBoardState() {
+      const pendingLotsCount = TOTAL_LOTS - completedLots.length - processLots.length;
+      const pendingBars = pendingLotsCount * BARS_PER_LOT;
+      const wipBars = processLots.length * BARS_PER_LOT;
+      const doneBars = completedLots.length * BARS_PER_LOT;
+
+      // Actualizar Telemetría Superior
+      if (pendingBarsEl) pendingBarsEl.textContent = `${pendingBars.toLocaleString()} barras`;
+      if (pendingLotsEl) pendingLotsEl.textContent = `${pendingLotsCount} lotes pendientes`;
+      if (wipBarsEl) wipBarsEl.textContent = `${wipBars} barras`;
+      if (wipBadgeEl) {
+        wipBadgeEl.textContent = `${processLots.length} / ${WIP_LIMIT} lotes MÁX`;
+        wipBadgeEl.style.color = processLots.length >= WIP_LIMIT ? '#ef4444' : 'var(--accent-text)';
+      }
+      if (doneBarsEl) doneBarsEl.textContent = `${doneBars.toLocaleString()} barras`;
+      if (doneLotsEl) doneLotsEl.textContent = `${completedLots.length} lote${completedLots.length === 1 ? '' : 's'} entregado${completedLots.length === 1 ? '' : 's'}`;
+
+      // Actualizar Encabezados de Columna
+      if (colPendingCounter) colPendingCounter.textContent = `${pendingLotsCount} por iniciar`;
+      if (colWipTag) {
+        colWipTag.textContent = `WIP: ${processLots.length} / ${WIP_LIMIT} MÁX`;
+        if (processLots.length >= WIP_LIMIT) {
+          colWipTag.style.borderColor = '#ef4444';
+          colWipTag.style.color = '#ef4444';
+        } else {
+          colWipTag.style.borderColor = '';
+          colWipTag.style.color = '';
+        }
+      }
+      if (colDoneCounter) {
+        colDoneCounter.textContent = `${completedLots.length} completado${completedLots.length === 1 ? '' : 's'} (${doneBars} barras)`;
+      }
+
+      // Actualizar Botones y Badges de Archivo
+      if (trayCountBadge) trayCountBadge.textContent = String(completedLots.length);
+      if (trayBtnCount) trayBtnCount.textContent = String(completedLots.length);
+      if (traySumBars) traySumBars.textContent = doneBars.toLocaleString();
+      if (traySumLots) traySumLots.textContent = String(completedLots.length);
+
+      // COLUMNA 1: PENDIENTE
+      if (slotPending) {
+        slotPending.innerHTML = '';
+        if (nextLotNumber <= TOTAL_LOTS) {
+          const nextLot = createLot(nextLotNumber, 'pending');
+          const noteBtn = createNoteElement(nextLot, -1.2);
+          slotPending.appendChild(noteBtn);
+
+          if (pendingLotsCount > 1) {
+            const stackCue = document.createElement('div');
+            stackCue.className = 'kb-stack-cue';
+            stackCue.innerHTML = `
+              <span>En cola detrás: <strong>LOT-${nextLotNumber + 1 < 10 ? '0' + (nextLotNumber + 1) : nextLotNumber + 1}</strong> al <strong>LOT-20</strong></span>
+              <span>(${pendingLotsCount - 1} lotes)</span>
+            `;
+            slotPending.appendChild(stackCue);
+          }
+        } else {
+          const emptyCue = document.createElement('div');
+          emptyCue.className = 'kb-empty-wip-slot';
+          emptyCue.textContent = '✓ Toda la cola ha sido iniciada';
+          slotPending.appendChild(emptyCue);
+        }
+      }
+
+      // COLUMNA 2: EN PROCESO (WIP)
+      if (slotProcess) {
+        slotProcess.innerHTML = '';
+        processLots.forEach((lot, i) => {
+          const rot = i === 0 ? 1.0 : -1.5;
+          const noteBtn = createNoteElement(lot, rot);
+          slotProcess.appendChild(noteBtn);
+        });
+
+        // Ranuras libres
+        const freeSlots = WIP_LIMIT - processLots.length;
+        for (let i = 0; i < freeSlots; i++) {
+          const emptySlot = document.createElement('div');
+          emptySlot.className = 'kb-empty-wip-slot';
+          emptySlot.innerHTML = `
+            <span>Cupo disponible ${processLots.length + i + 1} de ${WIP_LIMIT}</span>
+            <small>Listo para jalar lote</small>
+          `;
+          slotProcess.appendChild(emptySlot);
+        }
+      }
+
+      // COLUMNA 3: TERMINADO
+      if (slotDone) {
+        slotDone.innerHTML = '';
+        if (completedLots.length > 0) {
+          const lastDoneLot = completedLots[completedLots.length - 1];
+          const noteBtn = createNoteElement(lastDoneLot, 0.8);
+          slotDone.appendChild(noteBtn);
+        }
+      }
+
+      // Habilitación de botones de acción
+      if (btnStartLot) {
+        (btnStartLot as HTMLButtonElement).disabled = nextLotNumber > TOTAL_LOTS;
+      }
+      if (btnFinishLot) {
+        (btnFinishLot as HTMLButtonElement).disabled = processLots.length === 0;
+      }
+    }
+
+    // =========================================================================
+    // GESTIÓN DE ACCIONES: INICIAR (JALAR), TERMINAR Y REINICIAR
+    // =========================================================================
+
+    function showWipAlert() {
+      if (!alertToast) return;
+      alertToast.hidden = false;
+      alertToast.setAttribute('aria-hidden', 'false');
+
+      if (feedbackBanner) {
+        feedbackBanner.textContent = '⛔ Límite WIP alcanzado (2 / 2 lotes). Completa un lote en proceso antes de jalar el siguiente.';
+      }
+
+      if (alertTimer) window.clearTimeout(alertTimer);
+      alertTimer = window.setTimeout(() => {
+        hideWipAlert();
+      }, 7000);
+    }
+
+    function hideWipAlert() {
+      if (!alertToast) return;
+      alertToast.hidden = true;
+      alertToast.setAttribute('aria-hidden', 'true');
+      if (alertTimer) {
+        window.clearTimeout(alertTimer);
+        alertTimer = null;
+      }
+    }
+
+    function startNextLot() {
+      // 1. Comprobar si se excede el límite WIP
+      if (processLots.length >= WIP_LIMIT) {
+        showWipAlert();
         return;
       }
-      cards.forEach((c) => {
-        const card = document.createElement('div');
-        card.className = `wip-work-card ${c.status === 'blocked' ? 'is-blocked' : ''} ${c.status === 'done' ? 'is-done' : ''}`;
-        card.setAttribute('data-card-id', c.id);
-        const idSpan = document.createElement('span');
-        idSpan.className = 'wip-card-id';
-        idSpan.textContent = `${c.id} ↗`;
-        const titleStrong = document.createElement('strong');
-        titleStrong.className = 'wip-card-title';
-        titleStrong.textContent = c.title;
-        const noteSpan = document.createElement('span');
-        noteSpan.className = 'wip-card-note';
-        noteSpan.textContent = c.note;
-        card.append(idSpan, titleStrong, noteSpan);
-        container.appendChild(card);
-      });
+
+      hideWipAlert();
+
+      if (nextLotNumber > TOTAL_LOTS) {
+        if (feedbackBanner) {
+          feedbackBanner.textContent = 'Todo el pedido de 1.000 barras ya ha sido procesado o iniciado.';
+        }
+        return;
+      }
+
+      // Guardar posición origen para FLIP si existe el botón
+      const sourceNoteEl = slotPending?.querySelector(`#note-LOT-${nextLotNumber < 10 ? '0' + nextLotNumber : nextLotNumber}`) as HTMLElement | null;
+      const firstRect = sourceNoteEl ? sourceNoteEl.getBoundingClientRect() : null;
+
+      // Crear nuevo lote en proceso manteniendo estrictamente su identificador y color
+      const newLot = createLot(nextLotNumber, 'process');
+      processLots.push(newLot);
+      nextLotNumber++;
+
+      if (feedbackBanner) {
+        feedbackBanner.textContent = `Capacidad aprovechada: ${newLot.id} ingresa a En Proceso. Quedan ${TOTAL_LOTS - completedLots.length - processLots.length} lotes pendientes.`;
+      }
+
+      renderBoardState();
+
+      // Aplicar animación FLIP nativa hacia su nueva posición
+      if (firstRect) {
+        const destEl = slotProcess?.querySelector(`#note-${newLot.id}`) as HTMLElement | null;
+        if (destEl) {
+          animateNoteFlip(destEl, firstRect, 1.0);
+        }
+      }
     }
 
-    function updateBoardAndCardData(key: string) {
-      const i = keys.indexOf(key);
-      if (i === -1) return;
-      currentIdx = i;
-      const sc = SCENARIOS[key];
+    function finishFirstLot() {
+      if (processLots.length === 0) {
+        if (feedbackBanner) {
+          feedbackBanner.textContent = 'No hay lotes en proceso para terminar. Pulsa «Iniciar lote (Jalar)» primero.';
+        }
+        return;
+      }
+
+      hideWipAlert();
+
+      const finishedLot = processLots.shift()!;
+      finishedLot.status = 'done';
+      finishedLot.completedTimestamp = `Entrega Lote ${completedLots.length + 1} · Calidad Conforme`;
+
+      // Guardar posición origen para FLIP
+      const sourceNoteEl = slotProcess?.querySelector(`#note-${finishedLot.id}`) as HTMLElement | null;
+      const firstRect = sourceNoteEl ? sourceNoteEl.getBoundingClientRect() : null;
+
+      completedLots.push(finishedLot);
+
+      if (feedbackBanner) {
+        feedbackBanner.textContent = `${finishedLot.id} completado con éxito (50 barras). Se liberó 1 cupo WIP (Efecto Jalón / Pull).`;
+      }
+
+      renderBoardState();
+
+      // Aplicar animación FLIP nativa hacia Terminado
+      if (firstRect) {
+        const destEl = slotDone?.querySelector(`#note-${finishedLot.id}`) as HTMLElement | null;
+        if (destEl) {
+          animateNoteFlip(destEl, firstRect, 0.8);
+        }
+      }
+    }
+
+    function resetSimulation() {
+      completedLots = [ createLot(1, 'done') ];
+      processLots = [];
+      nextLotNumber = 2;
+      hideWipAlert();
+      closeTray();
+      closeNoteInspector();
+
+      if (feedbackBanner) {
+        feedbackBanner.textContent = 'Demostración reiniciada al estado original: 1 lote terminado (50 barras), 19 lotes pendientes (950 barras), 0 en proceso.';
+      }
+
+      renderBoardState();
+    }
+
+    // =========================================================================
+    // BANDEJA DE TRAZABILIDAD (DRAWER FLOTANTE DE HISTORIAL)
+    // =========================================================================
+
+    function openTray() {
+      if (!trayDrawer || !trayList) return;
+      trayList.innerHTML = '';
+
+      completedLots.forEach((lot) => {
+        const item = document.createElement('div');
+        item.className = 'kb-tray-item';
+        item.setAttribute('role', 'listitem');
+        item.innerHTML = `
+          <div class="kb-tray-item-left">
+            <span class="kb-tray-item-id">✓ ${lot.id} · ${lot.workTypeName}</span>
+            <span class="kb-tray-item-meta">${lot.completedTimestamp || 'Inspección conforme'}</span>
+          </div>
+          <strong class="kb-tray-item-qty">${lot.bars} barras</strong>
+        `;
+        trayList.appendChild(item);
+      });
+
+      trayDrawer.hidden = false;
+      trayDrawer.setAttribute('aria-hidden', 'false');
+      if (floatingScrim) {
+        floatingScrim.hidden = false;
+        floatingScrim.setAttribute('aria-hidden', 'false');
+      }
+
+      trayCloseBtn?.focus();
+    }
+
+    function closeTray() {
+      if (!trayDrawer) return;
+      trayDrawer.hidden = true;
+      trayDrawer.setAttribute('aria-hidden', 'true');
+
+      // Solo ocultar el scrim si el inspector de notas tampoco está abierto
+      if (noteInspector?.hidden) {
+        if (floatingScrim) {
+          floatingScrim.hidden = true;
+          floatingScrim.setAttribute('aria-hidden', 'true');
+        }
+      }
+
+      if (lastActiveTrigger) {
+        lastActiveTrigger.focus();
+      } else {
+        openTrayBtn?.focus();
+      }
+    }
+
+    // =========================================================================
+    // INSPECTOR DE DETALLE Y TRAYECTORIA DE NOTA ADHESIVA
+    // =========================================================================
+
+    function openNoteInspector(lot: KanbanLot) {
+      if (!noteInspector) return;
+
+      if (noteInspTag) noteInspTag.textContent = `NOTA KANBAN · ${lot.id}`;
+      if (noteInspectorTitle) noteInspectorTitle.textContent = lot.taskTitle;
+      if (noteInspQty) noteInspQty.textContent = `${lot.bars} barras de acero mecanizadas`;
+      if (noteInspType) noteInspType.textContent = lot.workTypeName;
+      if (noteInspStatus) {
+        noteInspStatus.textContent = lot.status === 'done'
+          ? 'Terminado / Entregado al cliente'
+          : lot.status === 'process'
+          ? 'En proceso activo (Límite WIP 2)'
+          : 'En cola de espera (Pendiente)';
+      }
+
+      // Preview de la nota
+      if (noteInspPreview) {
+        noteInspPreview.innerHTML = '';
+        const previewNote = createNoteElement(lot, 0);
+        previewNote.style.cursor = 'default';
+        previewNote.tabIndex = -1;
+        noteInspPreview.appendChild(previewNote);
+      }
+
+      // Trayectoria dinámica
+      if (noteInspTrajectory) {
+        const isDone = lot.status === 'done';
+        const isProc = lot.status === 'process';
+
+        noteInspTrajectory.innerHTML = `
+          <div class="kb-traj-step ${isProc || isDone ? 'is-done' : 'is-current'}">
+            <span class="kb-traj-icon">${isProc || isDone ? '✓' : '1'}</span>
+            <span>Etapa 01: Recepción de barras y preparación en cola ${isProc || isDone ? '(Completado)' : '(Activo)'}</span>
+          </div>
+          <div class="kb-traj-step ${isDone ? 'is-done' : isProc ? 'is-current' : ''}">
+            <span class="kb-traj-icon">${isDone ? '✓' : isProc ? '▶' : '2'}</span>
+            <span>Etapa 02: Centro de mecanizado CNC (En Proceso, WIP = 2) ${isDone ? '(Completado)' : isProc ? '(En proceso)' : '(Pendiente)'}</span>
+          </div>
+          <div class="kb-traj-step ${isDone ? 'is-done' : ''}">
+            <span class="kb-traj-icon">${isDone ? '✓' : '3'}</span>
+            <span>Etapa 03: Inspección final de calidad y archivo de salida ${isDone ? '(Aprobado)' : '(Pendiente)'}</span>
+          </div>
+        `;
+      }
+
+      noteInspector.hidden = false;
+      noteInspector.setAttribute('aria-hidden', 'false');
+      if (floatingScrim) {
+        floatingScrim.hidden = false;
+        floatingScrim.setAttribute('aria-hidden', 'false');
+      }
+
+      noteCloseBtn?.focus();
+    }
+
+    function closeNoteInspector() {
+      if (!noteInspector) return;
+      noteInspector.hidden = true;
+      noteInspector.setAttribute('aria-hidden', 'true');
+
+      if (trayDrawer?.hidden) {
+        if (floatingScrim) {
+          floatingScrim.hidden = true;
+          floatingScrim.setAttribute('aria-hidden', 'true');
+        }
+      }
+
+      lastActiveTrigger?.focus();
+    }
+
+    // =========================================================================
+    // DIAGNÓSTICO TÉCNICO PROFUNDO M1–M4 (MODAL FLIP EXISTENTE)
+    // =========================================================================
+
+    function updateTechMoment(key: string) {
+      const idx = techKeys.indexOf(key);
+      if (idx === -1) return;
+      techCurrentIdx = idx;
+      const m = TECHNICAL_MOMENTS[key];
 
       pills.forEach((p) => {
         const active = p.getAttribute('data-wip-state') === key;
@@ -654,128 +2081,114 @@
         p.setAttribute('aria-selected', active ? 'true' : 'false');
       });
 
-      laneEjec?.classList.toggle('is-bottleneck', sc.bottleneck);
-
-      if (countCola) countCola.textContent = sc.counts.cola;
-      if (countPrep) countPrep.textContent = sc.counts.prep;
-      if (countEjec) countEjec.textContent = sc.counts.ejec;
-      if (countDone) countDone.textContent = sc.counts.done;
-
-      renderCards(slotCola, sc.lanes.cola);
-      renderCards(slotPrep, sc.lanes.prep);
-      renderCards(slotEjec, sc.lanes.ejec);
-      renderCards(slotDone, sc.lanes.done);
-
-      if (totalEl) totalEl.textContent = sc.wipTotal;
-      if (statusPill) {
-        statusPill.textContent = sc.badgeText;
-        statusPill.className = `status-badge ${sc.badgeClass}`;
-      }
+      if (tagEl) tagEl.textContent = m.tag;
+      if (stepEl) stepEl.textContent = m.step;
+      if (titleEl) titleEl.textContent = m.title;
+      if (summaryEl) summaryEl.textContent = m.summary;
+      if (flowEl) flowEl.textContent = m.flowNote;
+      if (leaderEl) leaderEl.textContent = m.leaderNote;
       if (magBadge) {
-        magBadge.textContent = sc.badgeText;
-        magBadge.className = `status-badge ${sc.badgeClass}`;
+        magBadge.textContent = m.badgeText;
+        magBadge.className = `status-badge ${m.badgeClass}`;
       }
-      if (magCopy) magCopy.innerHTML = sc.magnifiedHtml;
-      if (tagEl) tagEl.textContent = sc.tag;
-      if (stepEl) stepEl.textContent = sc.step;
-      if (titleEl) titleEl.textContent = sc.title;
-      if (summaryEl) summaryEl.textContent = sc.summary;
-      if (flowEl) flowEl.textContent = sc.flowNote;
-      if (leaderEl) leaderEl.textContent = sc.leaderNote;
+      if (magCopy) magCopy.innerHTML = m.magnifiedHtml;
     }
 
-    function openExpandedDiagnosis(originEl: HTMLElement | null, focusClose = true) {
+    function openTechDiagnosis() {
       if (!inspector) return;
-      lastOriginEl = originEl || laneEjec || openDetailBtn;
-      isExpanded = true;
       root.setAttribute('data-expanded', 'true');
       inspector.hidden = false;
       inspector.setAttribute('aria-hidden', 'false');
+      scrim?.setAttribute('aria-hidden', 'false');
 
-      if (stateHint) {
-        stateHint.textContent = 'Explorando diagnóstico ampliado · Pulsa [X] o [Escape] para volver al tablero Kanban';
-      }
-
-      animateFlipOpen(lastOriginEl, inspector);
-
-      if (focusClose) {
-        setTimeout(() => closeBtn?.focus({ preventScroll: true }), 60);
-      }
+      updateTechMoment(techKeys[techCurrentIdx]);
+      setTimeout(() => closeBtn?.focus({ preventScroll: true }), 60);
     }
 
-    function closeExpandedDiagnosis() {
-      if (!isExpanded || !inspector) return;
-      const originToFocus = lastOriginEl;
-
-      animateFlipClose(originToFocus, inspector, () => {
-        isExpanded = false;
-        root.setAttribute('data-expanded', 'false');
-        inspector.hidden = true;
-        inspector.setAttribute('aria-hidden', 'true');
-        if (stateHint) {
-          stateHint.textContent =
-            'Selecciona un momento (M1–M4) o toca cualquier tarjeta/columna del tablero para ampliar su diagnóstico';
-        }
-        originToFocus?.focus({ preventScroll: true });
-      });
+    function closeTechDiagnosis() {
+      if (!inspector) return;
+      root.setAttribute('data-expanded', 'false');
+      inspector.hidden = true;
+      inspector.setAttribute('aria-hidden', 'true');
+      scrim?.setAttribute('aria-hidden', 'true');
+      openDetailBtn?.focus({ preventScroll: true });
     }
 
-    // Estado inicial en el tablero (Cerrado para ver las 4 columnas completas)
-    updateBoardAndCardData('estable');
+    // =========================================================================
+    // EVENT LISTENERS DEL TABLERO
+    // =========================================================================
+
+    btnStartLot?.addEventListener('click', startNextLot);
+    btnFinishLot?.addEventListener('click', finishFirstLot);
+    resetBtn?.addEventListener('click', resetSimulation);
+    alertDismissBtn?.addEventListener('click', hideWipAlert);
+
+    // Apertura y cierre de Bandeja de Trazabilidad
+    openTrayBtn?.addEventListener('click', () => {
+      lastActiveTrigger = openTrayBtn;
+      openTray();
+    });
+    openTrayInlineBtn?.addEventListener('click', () => {
+      lastActiveTrigger = openTrayInlineBtn;
+      openTray();
+    });
+    trayCloseBtn?.addEventListener('click', closeTray);
+
+    // Cierre del inspector de notas
+    noteCloseBtn?.addEventListener('click', closeNoteInspector);
+
+    // Clic fuera en el velo flotante
+    floatingScrim?.addEventListener('click', () => {
+      if (trayDrawer && !trayDrawer.hidden) closeTray();
+      if (noteInspector && !noteInspector.hidden) closeNoteInspector();
+    });
+
+    // Diagnóstico técnico M1-M4
+    openDetailBtn?.addEventListener('click', openTechDiagnosis);
+    closeBtn?.addEventListener('click', closeTechDiagnosis);
+    returnBtn?.addEventListener('click', closeTechDiagnosis);
+    scrim?.addEventListener('click', closeTechDiagnosis);
 
     pills.forEach((p) => {
       p.addEventListener('click', () => {
         const k = p.getAttribute('data-wip-state');
-        if (k) {
-          updateBoardAndCardData(k);
-          openExpandedDiagnosis(p, false);
-        }
+        if (k) updateTechMoment(k);
       });
     });
-
-    lanes.forEach((lane) => {
-      lane.addEventListener('click', (e) => {
-        const targetCard = (e.target as HTMLElement)?.closest<HTMLElement>('.wip-work-card');
-        openExpandedDiagnosis(targetCard || lane, true);
-      });
-      lane.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openExpandedDiagnosis(lane, true);
-        }
-      });
-    });
-
-    openDetailBtn?.addEventListener('click', () => {
-      openExpandedDiagnosis(openDetailBtn, true);
-    });
-
-    closeBtn?.addEventListener('click', closeExpandedDiagnosis);
-    returnBtn?.addEventListener('click', closeExpandedDiagnosis);
-    scrim?.addEventListener('click', closeExpandedDiagnosis);
 
     prevBtn?.addEventListener('click', () => {
-      const nextKey = keys[(currentIdx - 1 + keys.length) % keys.length];
-      updateBoardAndCardData(nextKey);
-      openExpandedDiagnosis(laneEjec, false);
+      const nextKey = techKeys[(techCurrentIdx - 1 + techKeys.length) % techKeys.length];
+      updateTechMoment(nextKey);
     });
 
     nextBtn?.addEventListener('click', () => {
-      const nextKey = keys[(currentIdx + 1) % keys.length];
-      updateBoardAndCardData(nextKey);
-      openExpandedDiagnosis(laneEjec, false);
+      const nextKey = techKeys[(techCurrentIdx + 1) % techKeys.length];
+      updateTechMoment(nextKey);
     });
 
+    // Tecla Escape para modales y drawer
     window.addEventListener('keydown', (e) => {
-      if (!isExpanded) return;
       if (e.key === 'Escape') {
-        e.preventDefault();
-        e.stopPropagation();
-        closeExpandedDiagnosis();
+        if (noteInspector && !noteInspector.hidden) {
+          e.preventDefault();
+          closeNoteInspector();
+        } else if (trayDrawer && !trayDrawer.hidden) {
+          e.preventDefault();
+          closeTray();
+        } else if (alertToast && !alertToast.hidden) {
+          e.preventDefault();
+          hideWipAlert();
+        } else if (root.getAttribute('data-expanded') === 'true') {
+          e.preventDefault();
+          closeTechDiagnosis();
+        }
       }
     });
+
+    // Render inicial
+    renderBoardState();
   }
 
-  initKanbanWipSimulator();
-  document.addEventListener('astro:page-load', initKanbanWipSimulator);
+  initKanbanPhysicalBoard();
+  document.addEventListener('astro:page-load', initKanbanPhysicalBoard);
 </script>

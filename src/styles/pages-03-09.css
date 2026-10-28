@@ -1419,3 +1419,74 @@ html[data-theme="light"] .system-expanded-dialog {
     cursor: default;
   }
 }
+
+/* ==========================================================================
+   CORRECCIÓN DE CONTRASTE ACCESIBLE — MODO CLARO (WCAG 2.2 AA >= 4.5:1)
+   ========================================================================== */
+
+html[data-theme="light"] .expanded-editorial-card {
+  background: var(--surface-card, #ffffff);
+  color: var(--text-primary, #0b1324);
+  border-color: var(--accent-border);
+  box-shadow: 0 24px 60px rgba(15, 28, 52, 0.18), 0 0 0 1px var(--line);
+}
+
+html[data-theme="light"] .inspector-tag {
+  background: var(--accent-subtle);
+  border-color: var(--accent-border);
+  color: var(--accent-text);
+}
+
+html[data-theme="light"] .inspector-step-indicator {
+  color: var(--text-secondary, #334155);
+}
+
+html[data-theme="light"] .inspector-title,
+html[data-theme="light"] .expanded-title {
+  color: var(--text-primary, #0b1324);
+}
+
+html[data-theme="light"] .inspector-summary,
+html[data-theme="light"] .expanded-summary {
+  color: var(--text-secondary, #334155);
+}
+
+html[data-theme="light"] .inspector-detail-box {
+  background: rgba(241, 245, 249, 0.85);
+  border-color: var(--line);
+}
+
+html[data-theme="light"] .inspector-detail-box span,
+html[data-theme="light"] .expanded-magnified-head,
+html[data-theme="light"] .expanded-magnified-header,
+html[data-theme="light"] .expanded-magnified-label {
+  color: var(--accent-text);
+}
+
+html[data-theme="light"] .inspector-detail-box p,
+html[data-theme="light"] .expanded-magnified-copy {
+  color: var(--text-primary, #0b1324);
+}
+
+html[data-theme="light"] .expanded-return-btn {
+  background: var(--surface-card, #ffffff);
+  border-color: var(--line);
+  color: var(--text-secondary, #334155);
+}
+
+html[data-theme="light"] .expanded-return-btn:hover {
+  border-color: var(--accent-strong);
+  color: var(--text-primary, #0b1324);
+}
+
+html[data-theme="light"] .step-nav-btn {
+  background: var(--surface-card, #ffffff);
+  border-color: var(--line);
+  color: var(--text-primary, #0b1324);
+}
+
+html[data-theme="light"] .step-nav-btn:hover:not(:disabled) {
+  background: var(--accent-subtle);
+  border-color: var(--accent-strong);
+  color: var(--accent-text);
+}
