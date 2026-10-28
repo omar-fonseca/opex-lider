@@ -49,10 +49,10 @@
             <stop offset="100%" stop-color="rgba(10, 22, 44, 0.14)" />
           </linearGradient>
           <filter id="lpGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#2563eb" flood-opacity="0.34" />
+            <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="var(--accent)" flood-opacity="0.34" />
           </filter>
           <marker id="lpArrowBlue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
-            <path d="M 0 1 L 8 5 L 0 9 z" fill="#60a5fa" />
+            <path d="M 0 1 L 8 5 L 0 9 z" fill="var(--accent-strong)" />
           </marker>
           <marker id="lpArrowGreen" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
             <path d="M 0 1 L 8 5 L 0 9 z" fill="#34d399" />
@@ -61,11 +61,11 @@
 
         <g id="lp-camera-group" style="transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); transform-origin: 410px 195px;">
           <!-- Plano 2.5D de soporte del proceso (Gemba) -->
-          <polygon points="410,16 776,188 410,362 44,188" fill="url(#lpFloorGrad)" stroke="rgba(96, 165, 250, 0.24)" stroke-width="1.2" />
-          <polygon points="410,50 704,188 410,326 116,188" fill="none" stroke="rgba(96, 165, 250, 0.14)" stroke-dasharray="4 6" />
+          <polygon points="410,16 776,188 410,362 44,188" fill="url(#lpFloorGrad)" stroke="var(--accent-border)" stroke-width="1.2" />
+          <polygon points="410,50 704,188 410,326 116,188" fill="none" stroke="var(--accent-subtle)" stroke-dasharray="4 6" />
 
           <!-- Conexiones vectoriales dinámicas con dirección de flujo -->
-          <g id="lp-links" stroke="rgba(96, 165, 250, 0.36)" stroke-width="2.2" fill="none">
+          <g id="lp-links" stroke="var(--accent-border)" stroke-width="2.2" fill="none">
             <path id="lp-edge-lider-personas" class="svg-flow-line lp-edge" data-edges="lider,personas" d="M 332 170 L 245 118" marker-end="url(#lpArrowBlue)" pathLength="1" />
             <path id="lp-edge-lider-actividades" class="svg-flow-line lp-edge" data-edges="lider,actividades" d="M 332 204 L 245 258" marker-end="url(#lpArrowBlue)" pathLength="1" />
             <path id="lp-edge-lider-decisiones" class="svg-flow-line lp-edge" data-edges="lider,decisiones" d="M 488 170 L 575 118" marker-end="url(#lpArrowBlue)" pathLength="1" />
@@ -441,7 +441,7 @@
           edgeParts.forEach((p) => connectedNodesSet.add(p));
           connectedEdges.push(edge);
         }
-        edge.style.stroke = connected ? '#60a5fa' : 'rgba(96, 165, 250, 0.14)';
+        edge.style.stroke = connected ? 'var(--accent-strong)' : 'var(--accent-subtle)';
         edge.style.strokeWidth = connected ? '3.2' : '1.2';
         edge.style.opacity = connected ? '1' : '0.28';
       });

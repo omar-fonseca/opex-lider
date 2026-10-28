@@ -41,7 +41,7 @@ const {
 ---
 
 <!doctype html>
-<html lang="es" data-theme="dark">
+<html lang="es" data-theme="dark" data-accent="blue">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -59,7 +59,7 @@ const {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- Script crítico inmediato para prevenir parpadeo (FOUC) del tema y estado del índice -->
+    <!-- Script crítico inmediato para prevenir parpadeo (FOUC) del tema, paleta de acento y estado del índice -->
     <script is:inline>
       (function() {
         try {
@@ -69,12 +69,22 @@ const {
           } else {
             document.documentElement.setAttribute('data-theme', 'dark');
           }
+
+          const storedAccent = localStorage.getItem('opex-accent');
+          const validAccents = ['blue', 'orange', 'red', 'green'];
+          if (validAccents.includes(storedAccent)) {
+            document.documentElement.setAttribute('data-accent', storedAccent);
+          } else {
+            document.documentElement.setAttribute('data-accent', 'blue');
+          }
+
           const storedNavCollapsed = localStorage.getItem('opex-nav-collapsed');
           if (storedNavCollapsed === 'true') {
             document.documentElement.setAttribute('data-nav-collapsed', 'true');
           }
         } catch (e) {
           document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.setAttribute('data-accent', 'blue');
         }
       })();
     </script>
@@ -154,6 +164,100 @@ const {
             localStorage.setItem('opex-theme', nowTheme);
           } catch {}
           updateThemeVisuals(nowTheme);
+        });
+
+        // 1b. Manejo de la Paleta de Acento Visual (UI-01 & UI-01.1) con selector desplegable
+        const paletteMenuContainer = document.getElementById('palette-menu-container');
+        const paletteToggleBtn = document.getElementById('palette-toggle-btn');
+        const paletteDropdown = document.getElementById('palette-dropdown');
+        const palettePicker = document.getElementById('palette-picker');
+        const swatches = palettePicker ? Array.from(palettePicker.querySelectorAll<HTMLButtonElement>('.palette-swatch')) : [];
+
+        function updateAccentVisuals(accent: string) {
+          const valid = ['blue', 'orange', 'red', 'green'];
+          const chosen = valid.includes(accent) ? accent : 'blue';
+          document.documentElement.setAttribute('data-accent', chosen);
+          swatches.forEach((swatch) => {
+            const val = swatch.getAttribute('data-accent-value');
+            const isSelected = val === chosen;
+            swatch.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+            swatch.setAttribute('tabindex', isSelected ? '0' : '-1');
+          });
+        }
+
+        const currentAccent = document.documentElement.getAttribute('data-accent') || 'blue';
+        updateAccentVisuals(currentAccent);
+
+        function openPaletteDropdown() {
+          if (!paletteDropdown) return;
+          paletteDropdown.classList.add('is-open');
+          paletteToggleBtn?.setAttribute('aria-expanded', 'true');
+          paletteDropdown.setAttribute('aria-hidden', 'false');
+          // Enfocar la muestra seleccionada actualmente para soporte de teclado inmediato
+          const activeSwatch = swatches.find((s) => s.getAttribute('aria-checked') === 'true') || swatches[0];
+          activeSwatch?.focus();
+        }
+
+        function closePaletteDropdown(restoreFocus = true) {
+          if (!paletteDropdown || !paletteDropdown.classList.contains('is-open')) return;
+          paletteDropdown.classList.remove('is-open');
+          paletteToggleBtn?.setAttribute('aria-expanded', 'false');
+          paletteDropdown.setAttribute('aria-hidden', 'true');
+          if (restoreFocus) {
+            paletteToggleBtn?.focus();
+          }
+        }
+
+        paletteToggleBtn?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isOpen = paletteDropdown?.classList.contains('is-open');
+          if (isOpen) {
+            closePaletteDropdown(true);
+          } else {
+            openPaletteDropdown();
+          }
+        });
+
+        // Cerrar al hacer clic fuera del contenedor
+        document.addEventListener('click', (e) => {
+          if (paletteDropdown?.classList.contains('is-open')) {
+            if (!paletteMenuContainer?.contains(e.target as Node)) {
+              closePaletteDropdown(false);
+            }
+          }
+        });
+
+        swatches.forEach((swatch, idx) => {
+          swatch.addEventListener('click', () => {
+            const val = swatch.getAttribute('data-accent-value') || 'blue';
+            try {
+              localStorage.setItem('opex-accent', val);
+            } catch {}
+            updateAccentVisuals(val);
+            closePaletteDropdown(true); // Cierra inmediatamente y restaura el foco al botón toggle
+          });
+
+          // Navegación accesible por teclado dentro del radiogroup (ArrowLeft, ArrowRight)
+          swatch.addEventListener('keydown', (e: KeyboardEvent) => {
+            let targetIdx = -1;
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+              e.preventDefault();
+              targetIdx = (idx + 1) % swatches.length;
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+              e.preventDefault();
+              targetIdx = (idx - 1 + swatches.length) % swatches.length;
+            }
+
+            if (targetIdx >= 0) {
+              const targetSwatch = swatches[targetIdx];
+              const val = targetSwatch.getAttribute('data-accent-value') || 'blue';
+              try {
+                localStorage.setItem('opex-accent', val);
+              } catch {}
+              updateAccentVisuals(val);
+              targetSwatch.focus();
+            }
+          });
         });
 
         // 2. Manejo de Marcadores locales (Bookmarks) y reflejo en el índice
@@ -434,7 +538,9 @@ const {
           const isInputActive = document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
 
           if (e.key === 'Escape') {
-            if (searchModal?.style.display === 'grid') {
+            if (paletteDropdown?.classList.contains('is-open')) {
+              closePaletteDropdown(true);
+            } else if (searchModal?.style.display === 'grid') {
               closeSearch();
             } else if (mobileQuery.matches && isMobileOpen) {
               isMobileOpen = false;
@@ -454,8 +560,9 @@ const {
           const isInteractiveControl =
             activeEl?.getAttribute('role') === 'tab' ||
             activeEl?.getAttribute('role') === 'button' ||
+            activeEl?.getAttribute('role') === 'radio' ||
             activeEl?.hasAttribute('data-interactive-node') ||
-            Boolean(activeEl?.closest('.constellation, .system-immersive-shell, .expandable-workbench, .vm-expandable-workbench'));
+            Boolean(activeEl?.closest('.constellation, .system-immersive-shell, .expandable-workbench, .vm-expandable-workbench, #palette-menu-container, #palette-dropdown, #palette-picker'));
           if (!isInputActive && !isCardExpanded && !isInteractiveControl && searchModal?.style.display !== 'grid') {
             if (e.key === 'ArrowRight') {
               const nextLink = document.querySelector<HTMLAnchorElement>('.reader-footer a.footer-nav-link:last-child');

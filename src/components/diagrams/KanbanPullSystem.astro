@@ -30,7 +30,7 @@
       <svg class="interactive-svg" viewBox="0 0 820 380" role="img" aria-label="Diagrama de circuito Kanban: el consumo en el proceso cliente dispara una señal visual hacia el proceso proveedor, el cual repone exactamente lo consumido">
         <defs>
           <marker id="kbBlueArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 1 L 8 5 L 0 9 z" fill="#60a5fa" />
+            <path d="M 0 1 L 8 5 L 0 9 z" fill="var(--accent-strong)" />
           </marker>
           <marker id="kbAmberArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
             <path d="M 0 1 L 8 5 L 0 9 z" fill="#fbbf24" />
@@ -41,7 +41,7 @@
         </defs>
 
         <!-- Leyenda superior de los dos flujos -->
-        <rect x="30" y="18" width="760" height="36" rx="8" fill="rgba(14, 27, 50, 0.72)" stroke="rgba(96, 165, 250, 0.2)" />
+        <rect x="30" y="18" width="760" height="36" rx="8" fill="rgba(14, 27, 50, 0.72)" stroke="var(--accent-border)" />
         <line x1="54" y1="36" x2="90" y2="36" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5 4" />
         <text x="100" y="40" fill="#fde68a" font-family="DM Sans, sans-serif" font-size="10.5" font-weight="700">FLUJO DE INFORMACIÓN / SEÑAL KANBAN (Hacia aguas arriba)</text>
         <line x1="480" y1="36" x2="516" y2="36" stroke="#34d399" stroke-width="2.5" />
@@ -79,8 +79,8 @@
 
         <!-- PUNTO CENTRAL: BUFFER / SUPERMERCADO CONTROLADO O CAPACIDAD LIMITADA -->
         <g class="svg-node-group" data-kb-node="aplicacion" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Paso 4: Punto de desacople o límite de capacidad">
-          <rect class="node-card-bg" x="315" y="170" width="190" height="118" rx="14" fill="rgba(16, 34, 64, 0.92)" stroke="rgba(96, 165, 250, 0.45)" stroke-width="1.6" />
-          <text x="410" y="196" text-anchor="middle" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">04 · STOCK / CAPACIDAD ⤢</text>
+          <rect class="node-card-bg" x="315" y="170" width="190" height="118" rx="14" fill="rgba(16, 34, 64, 0.92)" stroke="var(--accent-border)" stroke-width="1.6" />
+          <text x="410" y="196" text-anchor="middle" fill="var(--accent-text)" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">04 · STOCK / CAPACIDAD ⤢</text>
           <rect x="342" y="212" width="36" height="32" rx="6" fill="rgba(16, 185, 129, 0.25)" stroke="#34d399" stroke-width="1.5" />
           <rect x="392" y="212" width="36" height="32" rx="6" fill="rgba(16, 185, 129, 0.25)" stroke="#34d399" stroke-width="1.5" />
           <rect x="442" y="212" width="36" height="32" rx="6" fill="rgba(245, 158, 11, 0.16)" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 3" />
@@ -90,18 +90,18 @@
 
         <!-- NODO DERECHO: PROCESO CLIENTE (CONSUMO REAL) -->
         <g class="svg-node-group is-active" data-kb-node="consumo" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Paso 1: Proceso cliente y consumo real">
-          <rect class="node-card-bg" x="552" y="170" width="224" height="118" rx="14" fill="rgba(14, 28, 54, 0.92)" stroke="#60a5fa" stroke-width="2" />
-          <text x="572" y="196" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.1">01 · PROCESO CLIENTE ⤢</text>
+          <rect class="node-card-bg" x="552" y="170" width="224" height="118" rx="14" fill="rgba(14, 28, 54, 0.92)" stroke="var(--accent-strong)" stroke-width="2" />
+          <text x="572" y="196" fill="var(--accent-text)" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.1">01 · PROCESO CLIENTE ⤢</text>
           <text x="572" y="218" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="16.5" font-weight="700">Necesidad Real</text>
           <text x="572" y="240" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Retira o inicia solo lo</text>
           <text x="572" y="256" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">que realmente necesita.</text>
-          <rect x="572" y="266" width="136" height="15" rx="4" fill="rgba(59, 130, 246, 0.25)" />
-          <text x="580" y="277" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">Origen del jalón (Pull)</text>
+          <rect x="572" y="266" width="136" height="15" rx="4" fill="var(--accent-subtle)" />
+          <text x="580" y="277" fill="var(--accent-text)" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">Origen del jalón (Pull)</text>
         </g>
 
         <!-- Flechas inferiores de reposición física (Izquierda a Derecha) -->
         <line x1="268" y1="228" x2="309" y2="228" stroke="#34d399" stroke-width="2.5" marker-end="url(#kbGreenArrow)" />
-        <line x1="505" y1="228" x2="546" y2="228" stroke="#60a5fa" stroke-width="2.5" marker-end="url(#kbBlueArrow)" />
+        <line x1="505" y1="228" x2="546" y2="228" stroke="var(--accent-strong)" stroke-width="2.5" marker-end="url(#kbBlueArrow)" />
 
         <!-- Pie explicativo dentro del lienzo -->
         <rect x="44" y="312" width="732" height="48" rx="10" fill="rgba(11, 22, 42, 0.78)" stroke="rgba(148, 163, 184, 0.22)" />
