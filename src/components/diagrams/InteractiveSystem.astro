@@ -1,0 +1,537 @@
+---
+const concepts = [
+  {
+    id: "personas",
+    number: "01",
+    badge: "FUERZA 01 · FUNDAMENTO",
+    title: "PERSONAS",
+    subtitle: "“La excelencia operacional no la producen los manuales: la hacen posible personas conscientes que comprenden el propósito de cada tarea.”",
+    explanation: "En un sistema maduro, las personas no esperan órdenes pasivas; desarrollan criterio para observar su entorno, detectar anomalías y tomar decisiones fundamentadas donde ocurre el trabajo.",
+    systemRelation: "Activa los Procesos al ejecutar el estándar con rigor y alimenta la Mejora al visibilizar desviaciones en tiempo real.",
+    connectionLabel: "Procesos · Mejora · Nexo central",
+    connectedIds: ["procesos", "mejora"],
+    leaderAction: "Desarrollar capacidades de resolución de problemas, brindar seguridad psicológica y transferir gradualmente la toma de decisiones.",
+    nodeClass: "node-personas",
+    svgLines: ["line-personas-procesos", "line-personas-mejora", "line-personas-nexus"]
+  },
+  {
+    id: "procesos",
+    number: "02",
+    badge: "FUERZA 02 · ESTRUCTURA",
+    title: "PROCESOS",
+    subtitle: "“El proceso es la forma compartida de hacer visible el trabajo. El estándar no es una camisa de fuerza: es la base indispensable de la mejora.”",
+    explanation: "Hacer visible el flujo de valor permite identificar cuellos de botella, eliminar desperdicios y asegurar que la calidad se construya en la fuente, no en una inspección posterior.",
+    systemRelation: "Traduce el criterio de las Personas en flujo predecible y ofrece al Liderazgo una referencia objetiva para observar el desempeño.",
+    connectionLabel: "Personas · Liderazgo · Nexo central",
+    connectedIds: ["personas", "liderazgo"],
+    leaderAction: "Construir estándares junto con los operadores reales del proceso y asegurar una gestión visual que hable por sí misma.",
+    nodeClass: "node-procesos",
+    svgLines: ["line-personas-procesos", "line-procesos-liderazgo", "line-procesos-nexus"]
+  },
+  {
+    id: "liderazgo",
+    number: "03",
+    badge: "FUERZA 03 · CONEXIÓN",
+    title: "LIDERAZGO",
+    subtitle: "“Liderar no es situarse en el centro para controlarlo todo, sino crear las condiciones para que el sistema opere con autonomía y propósito.”",
+    explanation: "El líder excelente conecta la visión de largo plazo con la disciplina de la gestión diaria. Cuando surge una desviación, no busca culpables: pregunta qué condición del proceso permitió el error.",
+    systemRelation: "Estabiliza los Procesos mediante disciplina operativa e impulsa la Mejora eliminando obstáculos para que el equipo aprenda.",
+    connectionLabel: "Procesos · Mejora · Nexo central",
+    connectedIds: ["procesos", "mejora"],
+    leaderAction: "Practicar preguntas reflexivas en el Gemba, modelar humildad de aprendizaje y eliminar las barreras que frenan al equipo.",
+    nodeClass: "node-liderazgo",
+    svgLines: ["line-procesos-liderazgo", "line-liderazgo-mejora", "line-liderazgo-nexus"]
+  },
+  {
+    id: "mejora",
+    number: "04",
+    badge: "FUERZA 04 · EVOLUCIÓN",
+    title: "MEJORA CONTINUA",
+    shortTitle: "MEJORA",
+    subtitle: "“La mejora continua no surge de eventos heroicos aislados, sino de la práctica rigurosa del método científico ante cada brecha operacional.”",
+    explanation: "A través del ciclo PDCA (Planificar, Hacer, Verificar, Actuar), cada problema se convierte en información privilegiada para comprender el proceso y evolucionar el estándar hacia un nivel superior.",
+    systemRelation: "Articula el soporte del Liderazgo con el talento de las Personas para elevar continuamente la capacidad del sistema.",
+    connectionLabel: "Liderazgo · Personas · Nexo central",
+    connectedIds: ["liderazgo", "personas"],
+    leaderAction: "Fomentar pequeños experimentos controlados a diario y celebrar que los problemas se hagan visibles a tiempo.",
+    nodeClass: "node-mejora",
+    svgLines: ["line-liderazgo-mejora", "line-personas-mejora", "line-mejora-nexus"]
+  }
+];
+
+const initialConcept = concepts[0];
+---
+
+<div class="system-immersive-shell" id="interactive-system" data-expanded="false" data-focus-mode="false">
+  <!-- Barra superior de exploración y modo enfoque para presentaciones -->
+  <div class="system-stage-topbar">
+    <div class="system-stage-meta">
+      <span class="canvas-kicker">SISTEMA DE 4 FUERZAS · PROFUNDIDAD 2.5D</span>
+      <span class="canvas-hint" id="system-stage-hint">
+        Selecciona una fuerza en el diagrama para aproximarte en 2.5D, encender sus conexiones y ampliar su explicación
+      </span>
+    </div>
+    <button
+      type="button"
+      class="focus-mode-toggle-btn"
+      id="system-focus-mode-btn"
+      aria-pressed="false"
+      title="Ampliar escala visual para reuniones o proyección"
+    >
+      <span aria-hidden="true">⤢</span> Modo Enfoque
+    </button>
+  </div>
+
+  <!-- Barra rápida de acceso por teclado/clic a las 4 fuerzas -->
+  <div class="stage-selector-bar system-selector-bar" role="tablist" aria-label="Acceso rápido a las 4 fuerzas">
+    {concepts.map((c) => (
+      <button
+        type="button"
+        class="stage-pill-btn"
+        data-force-pill={c.id}
+        role="tab"
+        aria-selected="false"
+      >
+        <span class="stage-pill-num">{c.number}</span> {c.shortTitle ?? c.title}
+      </button>
+    ))}
+  </div>
+
+  <div class="system-stage-viewport">
+    <!-- Diagram Canvas with 4 Nodes and SVG pathways -->
+    <div
+      class="diagram-canvas"
+      id="system-diagram-canvas"
+      role="group"
+      aria-label="Seleccionar una de las 4 fuerzas de la excelencia operacional"
+    >
+      <div class="diagram-ring diagram-ring-outer" aria-hidden="true"></div>
+      <div class="diagram-ring diagram-ring-inner" aria-hidden="true"></div>
+
+      <svg class="diagram-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <!-- Outer diamond pathways connecting the 4 nodes -->
+        <line id="line-personas-procesos" x1="50" y1="14" x2="86" y2="50" pathLength="1" />
+        <line id="line-procesos-liderazgo" x1="86" y1="50" x2="50" y2="86" pathLength="1" />
+        <line id="line-liderazgo-mejora" x1="50" y1="86" x2="14" y2="50" pathLength="1" />
+        <line id="line-personas-mejora" x1="14" y1="50" x2="50" y2="14" pathLength="1" />
+
+        <!-- Center nexus radiating links -->
+        <line id="line-personas-nexus" x1="50" y1="14" x2="50" y2="50" stroke-dasharray="2 3" pathLength="1" />
+        <line id="line-procesos-nexus" x1="86" y1="50" x2="50" y2="50" stroke-dasharray="2 3" pathLength="1" />
+        <line id="line-liderazgo-nexus" x1="50" y1="86" x2="50" y2="50" stroke-dasharray="2 3" pathLength="1" />
+        <line id="line-mejora-nexus" x1="14" y1="50" x2="50" y2="50" stroke-dasharray="2 3" pathLength="1" />
+      </svg>
+
+      <!-- Center Nexus -->
+      <div class="diagram-center-nexus" id="diagram-center-nexus" aria-hidden="true">
+        <div>
+          <span id="nexus-kicker">NEXO VIVO · 00</span>
+          <strong>SISTEMA</strong>
+          <i></i>
+        </div>
+      </div>
+
+      <!-- The 4 Interactive Concept Buttons -->
+      {concepts.map((concept, index) => (
+        <button
+          type="button"
+          id={`btn-concept-${concept.id}`}
+          class={`system-node-button ${concept.nodeClass}`}
+          data-id={concept.id}
+          data-index={index}
+          aria-pressed="false"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          aria-controls="system-card-panel"
+        >
+          <span class="node-number">{concept.number}</span>
+          <strong class="node-title">{concept.shortTitle ?? concept.title}</strong>
+          <i aria-hidden="true"></i>
+        </button>
+      ))}
+    </div>
+
+    <!-- Velo de enfoque cuando una fuerza está expandida -->
+    <div class="system-stage-scrim" id="system-stage-scrim" aria-hidden="true"></div>
+
+    <!-- Tarjeta contextual expandible (FLIP) — oculta en reposo para dejar el diagrama completo protagonista -->
+    <article 
+      class="system-card-panel system-expanded-dialog" 
+      id="system-card-panel" 
+      role="dialog" 
+      aria-modal="false"
+      aria-labelledby="card-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div>
+        <div class="system-card-header" id="system-drag-handle" data-drag-handle>
+          <div class="system-card-meta">
+            <span class="system-card-badge" id="card-badge">{initialConcept.badge}</span>
+            <span class="system-card-step" id="card-step">01 / 04</span>
+          </div>
+          <button
+            type="button"
+            class="expanded-close-btn"
+            id="system-close-btn"
+            aria-label="Cerrar tarjeta de fuerza y volver al sistema completo"
+          >
+            <span aria-hidden="true">✕</span> Cerrar
+          </button>
+        </div>
+
+        <div class="system-connection-strip">
+          <span class="system-card-links" id="card-links">Conecta: {initialConcept.connectionLabel}</span>
+          <div class="system-connected-chips" id="card-connected-chips" aria-label="Explorar fuerzas conectadas"></div>
+        </div>
+
+        <h3 class="system-card-title" id="card-title">{initialConcept.title}</h3>
+        <p class="system-card-summary" id="card-subtitle">
+          {initialConcept.subtitle}
+        </p>
+
+        <div class="system-card-details">
+          <p id="card-explanation">
+            {initialConcept.explanation}
+          </p>
+        </div>
+
+        <div class="system-card-grid-2col">
+          <div class="system-card-relation">
+            <span>RELACIÓN CON EL SISTEMA</span>
+            <p id="card-relation">
+              {initialConcept.systemRelation}
+            </p>
+          </div>
+
+          <div class="system-card-leader-action">
+            <span>APLICACIÓN · ACCIÓN DEL LÍDER</span>
+            <p id="card-action">
+              {initialConcept.leaderAction}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="system-card-footer-nav">
+        <div class="expanded-nav-group">
+          <button type="button" class="step-nav-btn" id="system-prev-btn">← Fuerza anterior</button>
+          <button type="button" class="step-nav-btn" id="system-next-btn">Siguiente fuerza →</button>
+        </div>
+        <button type="button" class="expanded-return-btn" id="system-return-btn">
+          Volver al sistema completo [ESC]
+        </button>
+      </div>
+    </article>
+  </div>
+</div>
+
+<!-- Embedded JSON data for client logic -->
+<script type="application/json" id="concepts-data" is:inline set:html={JSON.stringify(concepts)}></script>
+
+<script>
+  import {
+    animateFlipOpen,
+    animateFlipClose,
+    animateProgressiveConnections,
+    makeCardDraggable,
+  } from '../../lib/expandableCardEngine';
+
+  function setupInteractiveSystem() {
+    const shell = document.getElementById('interactive-system');
+    const rawData = document.getElementById('concepts-data')?.textContent;
+    if (!shell || !rawData || shell.hasAttribute('data-initialized')) return;
+    shell.setAttribute('data-initialized', 'true');
+    
+    interface ConceptItem {
+      id: string;
+      number: string;
+      badge: string;
+      title: string;
+      shortTitle?: string;
+      subtitle: string;
+      explanation: string;
+      systemRelation: string;
+      connectionLabel: string;
+      connectedIds: string[];
+      leaderAction: string;
+      svgLines: string[];
+    }
+
+    let concepts: ConceptItem[] = [];
+    try {
+      concepts = JSON.parse(rawData);
+    } catch {
+      return;
+    }
+
+    const buttons = Array.from(shell.querySelectorAll<HTMLButtonElement>('.system-node-button'));
+    const forcePills = Array.from(shell.querySelectorAll<HTMLButtonElement>('[data-force-pill]'));
+    const svgLines = Array.from(shell.querySelectorAll<SVGLineElement>('.diagram-svg line'));
+    const centerNexus = document.getElementById('diagram-center-nexus');
+    const nexusKicker = document.getElementById('nexus-kicker');
+    const panel = document.getElementById('system-card-panel') as HTMLElement | null;
+    const dragHandle = document.getElementById('system-drag-handle');
+    const scrim = document.getElementById('system-stage-scrim');
+    const stageHint = document.getElementById('system-stage-hint');
+    const focusModeBtn = document.getElementById('system-focus-mode-btn');
+
+    const dragCtrl = panel
+      ? makeCardDraggable({
+          cardEl: panel,
+          handleEl: dragHandle,
+          boundaryEl: shell,
+        })
+      : null;
+
+    const cardBadge = document.getElementById('card-badge');
+    const cardLinks = document.getElementById('card-links');
+    const cardStep = document.getElementById('card-step');
+    const cardTitle = document.getElementById('card-title');
+    const cardSubtitle = document.getElementById('card-subtitle');
+    const cardExplanation = document.getElementById('card-explanation');
+    const cardRelation = document.getElementById('card-relation');
+    const cardAction = document.getElementById('card-action');
+    const connectedChips = document.getElementById('card-connected-chips');
+
+    const closeBtn = document.getElementById('system-close-btn');
+    const returnBtn = document.getElementById('system-return-btn');
+    const prevBtn = document.getElementById('system-prev-btn');
+    const nextBtn = document.getElementById('system-next-btn');
+    const synthesisCols = document.querySelectorAll<HTMLElement>('.synthesis-col[data-concept-id]');
+
+    let isExpanded = false;
+    let currentIdx = 0;
+    let lastOriginBtn: HTMLButtonElement | null = null;
+
+    function renderConnectedForceChips(connectedIds: string[]) {
+      if (!connectedChips) return;
+      connectedChips.innerHTML = '';
+      connectedIds.forEach((cid) => {
+        const targetConcept = concepts.find((c) => c.id === cid);
+        if (!targetConcept) return;
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'insight-chip-btn';
+        chip.textContent = `→ ${targetConcept.shortTitle ?? targetConcept.title}`;
+        chip.addEventListener('click', () => {
+          selectConcept(cid, false);
+        });
+        connectedChips.appendChild(chip);
+      });
+    }
+
+    function selectConcept(conceptId: string, focusClose = true) {
+      const idx = concepts.findIndex((c) => c.id === conceptId);
+      if (idx === -1 || !panel || !shell) return;
+      currentIdx = idx;
+      const concept = concepts[idx];
+      const originBtn = buttons[idx] || null;
+      lastOriginBtn = originBtn;
+
+      // Actualizar nodos en 2.5D: protagonista aproximado, conectados y segundo plano
+      buttons.forEach((btn) => {
+        const id = btn.getAttribute('data-id') || '';
+        const isMatch = id === conceptId;
+        const isConnected = concept.connectedIds.includes(id);
+        btn.classList.toggle('active', isMatch);
+        btn.classList.toggle('is-connected', isConnected);
+        btn.classList.toggle('is-dimmed', !isMatch && !isConnected);
+        btn.setAttribute('aria-pressed', isMatch ? 'true' : 'false');
+        btn.setAttribute('aria-expanded', isMatch ? 'true' : 'false');
+      });
+
+      forcePills.forEach((p) => {
+        const active = p.getAttribute('data-force-pill') === conceptId;
+        p.classList.toggle('is-active', active);
+        p.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      synthesisCols.forEach((col) => {
+        const colId = col.getAttribute('data-concept-id');
+        col.classList.toggle('is-active', colId === conceptId);
+      });
+
+      // Iluminación progresiva de conexiones SVG pertinentes
+      const activeSvgLines: SVGElement[] = [];
+      svgLines.forEach((line) => {
+        const lineId = line.getAttribute('id');
+        const isHighlighted = Boolean(lineId && concept.svgLines.includes(lineId));
+        line.classList.toggle('active', isHighlighted);
+        if (isHighlighted) activeSvgLines.push(line);
+      });
+      animateProgressiveConnections(activeSvgLines, 55);
+
+      if (nexusKicker) {
+        nexusKicker.textContent = `NEXO VIVO · ${concept.number}`;
+      }
+      if (centerNexus) {
+        centerNexus.classList.remove('is-pulsing');
+        void centerNexus.offsetWidth;
+        centerNexus.classList.add('is-pulsing');
+      }
+
+      if (cardBadge) cardBadge.textContent = concept.badge;
+      if (cardLinks) cardLinks.textContent = `Conecta: ${concept.connectionLabel}`;
+      if (cardStep) cardStep.textContent = `${concept.number} / 04`;
+      if (cardTitle) cardTitle.textContent = concept.title;
+      if (cardSubtitle) cardSubtitle.textContent = concept.subtitle;
+      if (cardExplanation) cardExplanation.textContent = concept.explanation;
+      if (cardRelation) cardRelation.textContent = concept.systemRelation;
+      if (cardAction) cardAction.textContent = concept.leaderAction;
+      renderConnectedForceChips(concept.connectedIds);
+
+      if (stageHint) {
+        stageHint.textContent = `Explorando Fuerza ${concept.number} (${concept.title}) · Arrastra la barra superior de la ficha para despejar el diagrama o pulsa [✕ Cerrar]`;
+      }
+
+      const wasExpanded = isExpanded;
+      isExpanded = true;
+      shell.setAttribute('data-expanded', 'true');
+      shell.setAttribute('data-active-force', concept.id);
+      panel.hidden = false;
+      panel.setAttribute('aria-hidden', 'false');
+
+      if (!wasExpanded) {
+        animateFlipOpen(originBtn, panel, { durationOpen: 390 });
+      } else {
+        panel.classList.remove('is-updated');
+        void panel.offsetWidth;
+        panel.classList.add('is-updated');
+      }
+
+      if (focusClose) {
+        setTimeout(() => closeBtn?.focus({ preventScroll: true }), 60);
+      }
+    }
+
+    function closeConcept() {
+      if (!isExpanded || !panel || !shell) return;
+      const originToFocus = lastOriginBtn || buttons[currentIdx] || null;
+
+      animateFlipClose(originToFocus, panel, () => {
+        isExpanded = false;
+        dragCtrl?.resetPosition(false);
+        shell.setAttribute('data-expanded', 'false');
+        shell.removeAttribute('data-active-force');
+        panel.hidden = true;
+        panel.setAttribute('aria-hidden', 'true');
+
+        buttons.forEach((btn) => {
+          btn.classList.remove('active', 'is-connected', 'is-dimmed');
+          btn.setAttribute('aria-pressed', 'false');
+          btn.setAttribute('aria-expanded', 'false');
+        });
+
+        forcePills.forEach((p) => {
+          p.classList.remove('is-active');
+          p.setAttribute('aria-selected', 'false');
+        });
+
+        svgLines.forEach((line) => line.classList.remove('active'));
+        if (nexusKicker) nexusKicker.textContent = 'NEXO VIVO · 00';
+        if (stageHint) {
+          stageHint.textContent =
+            'Selecciona una fuerza en el diagrama para aproximarte en 2.5D, encender sus conexiones y ampliar su explicación';
+        }
+
+        originToFocus?.focus({ preventScroll: true });
+      });
+    }
+
+    buttons.forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        if (!id) return;
+        if (isExpanded && currentIdx === idx) {
+          closeConcept();
+        } else {
+          selectConcept(id, true);
+        }
+      });
+
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          e.stopPropagation();
+          const nextBtn = buttons[(idx + 1) % buttons.length];
+          nextBtn?.focus();
+          const nextId = nextBtn?.getAttribute('data-id');
+          if (nextId && isExpanded) selectConcept(nextId, false);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          e.stopPropagation();
+          const prevBtn = buttons[(idx - 1 + buttons.length) % buttons.length];
+          prevBtn?.focus();
+          const prevId = prevBtn?.getAttribute('data-id');
+          if (prevId && isExpanded) selectConcept(prevId, false);
+        }
+      });
+    });
+
+    forcePills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const id = pill.getAttribute('data-force-pill');
+        if (id) selectConcept(id, true);
+      });
+    });
+
+    synthesisCols.forEach((col) => {
+      col.addEventListener('click', () => {
+        const colId = col.getAttribute('data-concept-id');
+        if (colId) {
+          shell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          selectConcept(colId, true);
+        }
+      });
+    });
+
+    closeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeConcept();
+    });
+
+    returnBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeConcept();
+    });
+
+    scrim?.addEventListener('click', closeConcept);
+
+    prevBtn?.addEventListener('click', () => {
+      const nextIdx = (currentIdx - 1 + concepts.length) % concepts.length;
+      selectConcept(concepts[nextIdx].id, false);
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      const nextIdx = (currentIdx + 1) % concepts.length;
+      selectConcept(concepts[nextIdx].id, false);
+    });
+
+    focusModeBtn?.addEventListener('click', () => {
+      const active = shell.getAttribute('data-focus-mode') === 'true';
+      shell.setAttribute('data-focus-mode', active ? 'false' : 'true');
+      focusModeBtn.setAttribute('aria-pressed', active ? 'false' : 'true');
+      focusModeBtn.classList.toggle('is-active', !active);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (!isExpanded) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        closeConcept();
+      }
+    });
+
+    // Deep-link opcional (?concept=mejora)
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedConcept = urlParams.get('concept');
+    if (requestedConcept && concepts.some((c) => c.id === requestedConcept)) {
+      selectConcept(requestedConcept, false);
+    }
+  }
+
+  setupInteractiveSystem();
+  document.addEventListener('astro:page-load', setupInteractiveSystem);
+</script>

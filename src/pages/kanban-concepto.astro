@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import KanbanPullSystem from '../components/diagrams/KanbanPullSystem.astro';
+---
+
+<BaseLayout
+  title="06 · Kanban: concepto y propósito"
+  description="Explicación rigurosa de Kanban: señales visuales para reposición y producción por jalón (Pull) y su diferencia con tableros de flujo de trabajo."
+  currentPath="/kanban-concepto"
+>
+  <article class="page chapter-page" aria-labelledby="p06-heading">
+    <header class="chapter-lead-grid">
+      <div class="editorial-heading">
+        <p class="eyebrow">06 · SISTEMAS DE JALÓN (PULL)</p>
+        <h1 id="p06-heading">
+          Kanban no son tres columnas:<br />
+          <em>es un sistema de señales para fluir.</em>
+        </h1>
+        <p class="lead">
+          En muchos entornos se reduce Kanban a dividir una pizarra en «Pendiente, En proceso y Terminado». Sin embargo, su sentido operacional es mucho más profundo: nació en la industria manufacturera como un método de control visual mediante señales (tarjetas o contenedores) para producir o reponer únicamente lo que el proceso siguiente ha consumido.
+        </p>
+      </div>
+
+      <aside class="chapter-purpose-pill" aria-label="Propósito de esta página">
+        <span>PROPÓSITO DE APRENDIZAJE</span>
+        <p>
+          Comprender el mecanismo de señal, necesidad y reposición de un sistema Pull, y distinguir con precisión entre el Kanban de producción/reposición física y el Kanban de gestión de flujo de trabajo.
+        </p>
+      </aside>
+    </header>
+
+    <!-- Experiencia interactiva 06: Circuito de señal Kanban -->
+    <KanbanPullSystem />
+
+    <!-- Lectura editorial sustancial -->
+    <div class="editorial-copy-grid">
+      <div class="reading-block">
+        <span>01 · EMPUJAR (PUSH) VS. JALAR (PULL)</span>
+        <h3>El problema de producir sin señal</h3>
+        <p>
+          Cuando cada etapa trabaja a su máxima velocidad sin mirar si la etapa siguiente tiene capacidad, el resultado no es mayor productividad, sino acumulación de inventario intermedio, esperas, defectos ocultos y confusión de prioridades.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>02 · LA SEÑAL KANBAN</span>
+        <h3>Autorización visual vinculada al consumo</h3>
+        <p>
+          Una señal Kanban —ya sea una tarjeta física, un contenedor vacío, una marca en el piso o un cupo liberado— actúa como una autorización estricta: indica qué producir o abastecer, en qué cantidad y hacia qué punto de uso.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>03 · KANBAN DE REPOSICIÓN Y PRODUCCIÓN</span>
+        <h3>Sincronización física en planta y logística</h3>
+        <p>
+          En manufactura, almacenes y mantenimiento de repuestos, el Kanban regula supermercados de materiales: cuando el operador retira una caja de componentes, la tarjeta regresa al proveedor para reponer exactamente esa caja.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>04 · KANBAN EN FLUJO DE TRABAJO</span>
+        <h3>Capacidad disponible como señal de jalón</h3>
+        <p>
+          En mantenimiento programado, laboratorios, ingeniería o servicios, las órdenes no son piezas idénticas, pero el principio Pull se mantiene: una etapa solo «jala» una nueva actividad cuando libera un cupo dentro de su límite de trabajo en curso.
+        </p>
+      </div>
+    </div>
+
+    <!-- Aplicación operacional ilustrativa -->
+    <aside class="practical-example" aria-label="Aplicación operacional ilustrativa">
+      <div>
+        <span>APLICACIÓN ILUSTRATIVA · TALLER DE MANTENIMIENTO Y ALMACÉN</span>
+        <strong style="display: block; color: var(--text-primary); font-size: 13px; margin-top: 6px; font-family: 'Manrope', sans-serif;">Combinar señales de reposición de insumos con señales de flujo</strong>
+      </div>
+      <p>
+        En un taller de mantenimiento industrial convivían dos problemas: faltaban consumibles críticos (sellos, pernos y filtros) a mitad de una reparación y, al mismo tiempo, había quince órdenes abiertas sin terminar. El equipo implementó un sistema de doble caja con tarjeta Kanban para los repuestos de alta rotación (<em>Kanban de reposición</em>: al vaciarse la primera caja, su tarjeta dispara el reabastecimiento mientras se usa la segunda) y, en paralelo, estableció un cupo máximo de órdenes activas por bahía de trabajo (<em>Kanban de flujo</em>).
+      </p>
+    </aside>
+
+    <!-- Puente hacia la página 07 -->
+    <div class="chapter-next-bridge">
+      <div>
+        <span class="bridge-eyebrow">CONTINUACIÓN EDITORIAL · PÁGINA 07</span>
+        <h4>¿Cómo se comporta un tablero Kanban cuando el trabajo avanza o se bloquea?</h4>
+        <p>
+          Ahora que conocemos la lógica de la señal y del jalón, llevaremos ese mecanismo a un tablero de proceso para observar en vivo cómo se controla el trabajo en curso (WIP) y qué hacer ante un cuello de botella.
+        </p>
+      </div>
+      <a href="/kanban-flujo" class="primary-action">
+        <span>Ir a 07 · Tablero Kanban y flujo</span>
+        <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M14 7l5 5-5 5"></path>
+        </svg>
+      </a>
+    </div>
+  </article>
+</BaseLayout>

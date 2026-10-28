@@ -1,0 +1,621 @@
+---
+// Página 03 — El líder dentro del proceso
+// Fase 5C (Bloque B): Recorrido visual secuencial + Enfoque contextual 2.5D con aproximación de cámara y FLIP
+---
+
+<div class="interactive-workbench expandable-workbench" id="leader-process-workbench" data-expanded="false" data-focus-mode="false">
+  <div class="expandable-stage" id="lp-stage">
+    <div class="workbench-canvas expandable-canvas-wrap" id="lp-canvas-wrap">
+      <div class="canvas-Topline">
+        <div class="system-stage-meta">
+          <span class="canvas-kicker">ARQUITECTURA DE CAMPO · RECORRIDO VISUAL EN EL GEMBA</span>
+          <span class="canvas-hint" id="lp-state-hint">
+            Recorre la secuencia del líder paso a paso o selecciona un nodo para aproximarte y ampliar cómo funciona
+          </span>
+        </div>
+        <div class="lp-toolbar-actions">
+          <button type="button" class="lp-sequence-btn" id="lp-sequence-step-btn" title="Avanzar en el recorrido visual del líder en el proceso">
+            <span aria-hidden="true">▶</span> Recorrer secuencia (1/5)
+          </button>
+          <button type="button" class="focus-mode-toggle-btn" id="lp-focus-mode-btn" aria-pressed="false">
+            <span aria-hidden="true">⤢</span> Modo Enfoque
+          </button>
+        </div>
+      </div>
+
+      <div class="stage-selector-bar" role="tablist" aria-label="Elementos del líder dentro del proceso">
+        <button type="button" class="stage-pill-btn is-active" role="tab" aria-selected="true" data-leader-node="lider" data-interactive-node>
+          <span class="stage-pill-num">01</span> Líder articulador
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-leader-node="personas" data-interactive-node>
+          <span class="stage-pill-num">02</span> Personas y equipo
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-leader-node="actividades" data-interactive-node>
+          <span class="stage-pill-num">03</span> Actividades y estándar
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-leader-node="decisiones" data-interactive-node>
+          <span class="stage-pill-num">04</span> Decisiones en terreno
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-leader-node="resultados" data-interactive-node>
+          <span class="stage-pill-num">05</span> Resultados sostenibles
+        </button>
+      </div>
+
+      <!-- Ilustración vectorial original 2.5D de la célula operacional con grupo de cámara y pulsos de recorrido -->
+      <svg class="interactive-svg" id="lp-main-svg" viewBox="0 0 820 400" role="img" aria-label="Diagrama interactivo del líder dentro del proceso conectando equipo, actividades, decisiones y resultados">
+        <defs>
+          <linearGradient id="lpFloorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="rgba(30, 58, 110, 0.32)" />
+            <stop offset="100%" stop-color="rgba(10, 22, 44, 0.14)" />
+          </linearGradient>
+          <filter id="lpGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#2563eb" flood-opacity="0.34" />
+          </filter>
+          <marker id="lpArrowBlue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+            <path d="M 0 1 L 8 5 L 0 9 z" fill="#60a5fa" />
+          </marker>
+          <marker id="lpArrowGreen" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+            <path d="M 0 1 L 8 5 L 0 9 z" fill="#34d399" />
+          </marker>
+        </defs>
+
+        <g id="lp-camera-group" style="transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); transform-origin: 410px 195px;">
+          <!-- Plano 2.5D de soporte del proceso (Gemba) -->
+          <polygon points="410,16 776,188 410,362 44,188" fill="url(#lpFloorGrad)" stroke="rgba(96, 165, 250, 0.24)" stroke-width="1.2" />
+          <polygon points="410,50 704,188 410,326 116,188" fill="none" stroke="rgba(96, 165, 250, 0.14)" stroke-dasharray="4 6" />
+
+          <!-- Conexiones vectoriales dinámicas con dirección de flujo -->
+          <g id="lp-links" stroke="rgba(96, 165, 250, 0.36)" stroke-width="2.2" fill="none">
+            <path id="lp-edge-lider-personas" class="svg-flow-line lp-edge" data-edges="lider,personas" d="M 332 170 L 245 118" marker-end="url(#lpArrowBlue)" pathLength="1" />
+            <path id="lp-edge-lider-actividades" class="svg-flow-line lp-edge" data-edges="lider,actividades" d="M 332 204 L 245 258" marker-end="url(#lpArrowBlue)" pathLength="1" />
+            <path id="lp-edge-lider-decisiones" class="svg-flow-line lp-edge" data-edges="lider,decisiones" d="M 488 170 L 575 118" marker-end="url(#lpArrowBlue)" pathLength="1" />
+            <path id="lp-edge-lider-resultados" class="svg-flow-line lp-edge" data-edges="lider,resultados" d="M 488 204 L 575 258" marker-end="url(#lpArrowGreen)" pathLength="1" />
+            <!-- Circuito perimetral del proceso: Personas -> Actividades -> Decisiones -> Resultados -->
+            <path id="lp-edge-personas-actividades" class="lp-edge" data-edges="personas,actividades" d="M 155 138 L 155 236" stroke-dasharray="4 5" marker-end="url(#lpArrowBlue)" pathLength="1" />
+            <path id="lp-edge-actividades-decisiones" class="lp-edge" data-edges="actividades,decisiones" d="M 245 250 L 575 124" stroke-dasharray="4 5" pathLength="1" />
+            <path id="lp-edge-personas-decisiones" class="lp-edge" data-edges="personas,decisiones" d="M 245 100 L 575 100" stroke-dasharray="4 5" marker-end="url(#lpArrowBlue)" pathLength="1" />
+            <path id="lp-edge-decisiones-resultados" class="lp-edge" data-edges="decisiones,resultados" d="M 665 138 L 665 236" stroke-dasharray="4 5" marker-end="url(#lpArrowGreen)" pathLength="1" />
+            <path id="lp-edge-actividades-resultados" class="lp-edge" data-edges="actividades,resultados" d="M 245 276 L 575 276" stroke-dasharray="4 5" marker-end="url(#lpArrowGreen)" pathLength="1" />
+          </g>
+
+          <!-- NODO 02: PERSONAS Y EQUIPO (Arriba Izquierda) -->
+          <g class="svg-node-group" data-node-target="personas" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Personas y equipo">
+            <rect class="node-card-bg" x="65" y="62" width="180" height="76" rx="12" fill="rgba(13, 25, 48, 0.92)" stroke="rgba(148, 163, 184, 0.38)" stroke-width="1.6" />
+            <circle cx="97" cy="94" r="14" fill="rgba(59, 130, 246, 0.2)" stroke="#60a5fa" stroke-width="1.5" />
+            <circle cx="97" cy="90" r="4.5" fill="#93c5fd" />
+            <path d="M88 103 C88 97, 106 97, 106 103" stroke="#93c5fd" stroke-width="1.6" fill="none" />
+            <text x="122" y="86" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">02 · EQUIPO</text>
+            <text x="230" y="86" text-anchor="end" fill="#60a5fa" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢</text>
+            <text x="122" y="106" fill="#f8fafc" font-family="Manrope, sans-serif" font-size="13.5" font-weight="700">Personas y</text>
+            <text x="122" y="122" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">capacidades</text>
+          </g>
+
+          <!-- NODO 03: ACTIVIDADES Y ESTÁNDAR (Abajo Izquierda) -->
+          <g class="svg-node-group" data-node-target="actividades" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Actividades y estándar">
+            <rect class="node-card-bg" x="65" y="238" width="180" height="76" rx="12" fill="rgba(13, 25, 48, 0.92)" stroke="rgba(148, 163, 184, 0.38)" stroke-width="1.6" />
+            <rect x="83" y="260" width="28" height="28" rx="6" fill="rgba(59, 130, 246, 0.2)" stroke="#60a5fa" stroke-width="1.5" />
+            <path d="M89 270 H105 M89 276 H101 M89 282 H105" stroke="#93c5fd" stroke-width="1.6" stroke-linecap="round" />
+            <text x="122" y="262" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">03 · EJECUCIÓN</text>
+            <text x="230" y="262" text-anchor="end" fill="#60a5fa" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢</text>
+            <text x="122" y="282" fill="#f8fafc" font-family="Manrope, sans-serif" font-size="13.5" font-weight="700">Actividades</text>
+            <text x="122" y="298" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">y secuencia</text>
+          </g>
+
+          <!-- NODO 04: DECISIONES EN TERRENO (Arriba Derecha) -->
+          <g class="svg-node-group" data-node-target="decisiones" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Decisiones en terreno">
+            <rect class="node-card-bg" x="575" y="62" width="180" height="76" rx="12" fill="rgba(13, 25, 48, 0.92)" stroke="rgba(148, 163, 184, 0.38)" stroke-width="1.6" />
+            <polygon points="607,78 621,94 607,110 593,94" fill="rgba(59, 130, 246, 0.22)" stroke="#60a5fa" stroke-width="1.5" />
+            <text x="632" y="86" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">04 · CRITERIO</text>
+            <text x="740" y="86" text-anchor="end" fill="#60a5fa" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢</text>
+            <text x="632" y="106" fill="#f8fafc" font-family="Manrope, sans-serif" font-size="13.5" font-weight="700">Decisiones</text>
+            <text x="632" y="122" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">y priorización</text>
+          </g>
+
+          <!-- NODO 05: RESULTADOS SOSTENIBLES (Abajo Derecha) -->
+          <g class="svg-node-group" data-node-target="resultados" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Resultados del proceso">
+            <rect class="node-card-bg" x="575" y="238" width="180" height="76" rx="12" fill="rgba(13, 25, 48, 0.92)" stroke="rgba(148, 163, 184, 0.38)" stroke-width="1.6" />
+            <circle cx="607" cy="275" r="14" fill="rgba(16, 185, 129, 0.18)" stroke="#34d399" stroke-width="1.5" />
+            <path d="M601 275 L605 280 L614 269" stroke="#34d399" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            <text x="632" y="262" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">05 · IMPACTO</text>
+            <text x="740" y="262" text-anchor="end" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢</text>
+            <text x="632" y="282" fill="#f8fafc" font-family="Manrope, sans-serif" font-size="13.5" font-weight="700">Resultados</text>
+            <text x="632" y="298" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">del proceso</text>
+          </g>
+
+          <!-- NODO CENTRAL 01: EL LÍDER DENTRO DEL PROCESO -->
+          <g class="svg-node-group is-active" data-node-target="lider" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar rol del Líder articulador" filter="url(#lpGlow)">
+            <rect class="node-card-bg" x="306" y="132" width="208" height="108" rx="16" fill="rgba(23, 49, 97, 0.95)" stroke="#60a5fa" stroke-width="2.2" />
+            <circle cx="410" cy="162" r="15" fill="rgba(59, 130, 246, 0.28)" stroke="#93c5fd" stroke-width="1.6" />
+            <path d="M404 162 L410 156 L416 162 M410 156 V169" stroke="#eff6ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+            <text x="410" y="192" text-anchor="middle" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="10" font-weight="700" letter-spacing="1.5">01 · NODO ARTICULADOR ⤢</text>
+            <text x="410" y="212" text-anchor="middle" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="17" font-weight="700">El Líder en Terreno</text>
+            <text x="410" y="229" text-anchor="middle" fill="#dbeafe" font-family="DM Sans, sans-serif" font-size="11">Orienta · Coordina · Desarrolla</text>
+          </g>
+
+          <!-- Pulso viajero animado para el recorrido visual secuencial -->
+          <circle id="lp-traveler-dot" cx="410" cy="186" r="7" fill="#60a5fa" stroke="#ffffff" stroke-width="2" opacity="0" pointer-events="none" />
+        </g>
+
+        <!-- Barra inferior integrada en el lienzo: estado vivo del recorrido secuencial -->
+        <rect x="44" y="346" width="732" height="42" rx="10" fill="rgba(11, 22, 42, 0.88)" stroke="rgba(96, 165, 250, 0.3)" />
+        <text id="lp-journey-banner-step" x="64" y="365" fill="#60a5fa" font-family="Manrope, sans-serif" font-size="10" font-weight="700" letter-spacing="1.1">
+          RECORRIDO DEL LÍDER · PASO 01 DE 05
+        </text>
+        <text id="lp-journey-banner-copy" x="64" y="381" fill="#f1f5f9" font-family="DM Sans, sans-serif" font-size="11.5">
+          El líder habita el proceso (Gemba): traduce objetivos en condiciones claras antes de exigir velocidad.
+        </text>
+        <text x="756" y="374" text-anchor="end" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="10.5" font-weight="700">
+          Haz clic en el nodo para ampliar ↗
+        </text>
+      </svg>
+    </div>
+
+    <div class="expandable-scrim" id="lp-scrim" aria-hidden="true"></div>
+
+    <!-- Tarjeta editorial expandible (FLIP) con esquema vectorial específico de cada elemento -->
+    <aside
+      class="expanded-editorial-card"
+      id="lp-inspector"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="lp-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="expanded-topbar" id="lp-drag-handle" data-drag-handle>
+        <div class="inspector-badge-row" style="margin-bottom: 0;">
+          <span class="inspector-tag" id="lp-tag">01 · ROL CENTRAL</span>
+          <span class="inspector-step-indicator" id="lp-step">Nodo 1 de 5</span>
+        </div>
+        <button type="button" class="expanded-close-btn" id="lp-close-btn" aria-label="Cerrar vista ampliada">
+          <span aria-hidden="true">✕</span> Cerrar
+        </button>
+      </div>
+
+      <div>
+        <h3 class="inspector-title" id="lp-title">El líder como articulador del sistema</h3>
+        <p class="inspector-summary" id="lp-summary">
+          El líder operacional no dirige por control remoto ni se limita a auditar indicadores al final del turno. Su función principal es habitar el proceso para traducir los objetivos de la organización en condiciones claras de trabajo.
+        </p>
+      </div>
+
+      <!-- Esquema vectorial específico del nodo ampliado + tira de recorrido -->
+      <div class="expanded-magnified-box">
+        <div class="expanded-magnified-header">
+          <span>MECANISMO DE ARTICULACIÓN EN EL GEMBA</span>
+          <span id="lp-micro-caption">Conexión directa: Líder ↔ Personas · Actividades · Decisiones · Resultados</span>
+        </div>
+        <div class="lp-micro-diagram-row">
+          <svg class="lp-micro-svg" id="lp-micro-svg" viewBox="0 0 560 66" aria-hidden="true">
+            <rect x="8" y="11" width="118" height="44" rx="8" fill="rgba(30, 58, 110, 0.55)" stroke="#60a5fa" stroke-width="1.6" />
+            <text id="lp-svg-box1" x="67" y="37" text-anchor="middle" fill="#ffffff" font-family="Manrope, sans-serif" font-size="11" font-weight="700">01 · Líder en Gemba</text>
+            <line x1="126" y1="33" x2="178" y2="33" stroke="#60a5fa" stroke-width="2" stroke-dasharray="4 3" />
+            <rect x="178" y="11" width="184" height="44" rx="8" fill="rgba(16, 33, 64, 0.85)" stroke="#93c5fd" stroke-width="1.8" />
+            <text id="lp-svg-box2" x="270" y="37" text-anchor="middle" fill="#93c5fd" font-family="Manrope, sans-serif" font-size="11" font-weight="700">Observa · Coordina · Elimina barreras</text>
+            <line x1="362" y1="33" x2="414" y2="33" stroke="#34d399" stroke-width="2" />
+            <rect x="414" y="11" width="138" height="44" rx="8" fill="rgba(16, 48, 56, 0.72)" stroke="#34d399" stroke-width="1.6" />
+            <text id="lp-svg-box3" x="483" y="37" text-anchor="middle" fill="#6ee7b7" font-family="Manrope, sans-serif" font-size="11" font-weight="700">Flujo estable</text>
+          </svg>
+        </div>
+        <div class="expanded-flow-strip">
+          <span class="expanded-flow-pill is-current" data-lp-strip="lider">01 · Líder</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-lp-strip="personas">02 · Personas</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-lp-strip="actividades">03 · Actividades</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-lp-strip="decisiones">04 · Decisiones</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-lp-strip="resultados">05 · Resultados</span>
+        </div>
+      </div>
+
+      <div class="expanded-detail-cols">
+        <div class="inspector-detail-box">
+          <span>RELACIÓN CON EL PROCESO</span>
+          <p id="lp-relation">
+            Conecta el propósito con la ejecución diaria: observa el flujo real, elimina fricciones entre etapas y asegura que cada persona comprenda qué se espera de su trabajo.
+          </p>
+        </div>
+        <div class="inspector-detail-box">
+          <span>COMPORTAMIENTO OBSERVABLE EN TERRENO</span>
+          <p id="lp-application">
+            Antes de pedir velocidad, verifica si el equipo cuenta con información clara, herramientas en buen estado y criterios para detener o escalar una anomalía.
+          </p>
+        </div>
+      </div>
+
+      <div class="expanded-footer-bar">
+        <div class="expanded-nav-group">
+          <button type="button" class="step-nav-btn" id="lp-prev-btn">← Elemento anterior</button>
+          <button type="button" class="step-nav-btn" id="lp-next-btn">Siguiente elemento →</button>
+        </div>
+        <button type="button" class="expanded-return-btn" id="lp-return-btn">Volver al mapa del proceso [ESC]</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  import {
+    animateFlipOpen,
+    animateFlipClose,
+    animateProgressiveConnections,
+    makeCardDraggable,
+    prefersReducedMotion,
+  } from '../../lib/expandableCardEngine';
+
+  function initLeaderProcessMap() {
+    const root = document.getElementById('leader-process-workbench');
+    const stageEl = document.getElementById('lp-stage');
+    if (!root || root.hasAttribute('data-initialized')) return;
+    root.setAttribute('data-initialized', 'true');
+
+    const DATA: Record<string, {
+      tag: string;
+      step: string;
+      title: string;
+      summary: string;
+      relation: string;
+      application: string;
+      bannerStep: string;
+      bannerCopy: string;
+      cameraTransform: string;
+      nodeCoords: { x: number; y: number };
+      microBoxes: [string, string, string];
+      microCaption: string;
+    }> = {
+      lider: {
+        tag: '01 · ROL CENTRAL',
+        step: 'Nodo 1 de 5',
+        title: 'El líder como articulador del sistema',
+        summary:
+          'El líder operacional no dirige por control remoto ni se limita a auditar indicadores al final del turno. Su función principal es habitar el proceso para traducir los objetivos de la organización en condiciones claras de trabajo.',
+        relation:
+          'Conecta el propósito con la ejecución diaria: observa el flujo real, elimina fricciones entre etapas y asegura que cada persona comprenda qué se espera de su trabajo.',
+        application:
+          'Antes de pedir velocidad, verifica si el equipo cuenta con información clara, herramientas en buen estado y criterios para detener o escalar una anomalía.',
+        bannerStep: 'RECORRIDO DEL LÍDER · PASO 01 DE 05 (LÍDER ARTICULADOR)',
+        bannerCopy: 'El líder habita el proceso (Gemba): traduce objetivos en condiciones claras antes de exigir velocidad.',
+        cameraTransform: 'translate(0px, 0px) scale(1.08)',
+        nodeCoords: { x: 410, y: 186 },
+        microBoxes: ['01 · Líder en Gemba', 'Observa · Coordina · Elimina barreras', 'Sistema alineado'],
+        microCaption: 'Articulación central entre Personas, Actividades, Decisiones y Resultados',
+      },
+      personas: {
+        tag: '02 · CAPACIDAD HUMANA',
+        step: 'Nodo 2 de 5',
+        title: 'Personas y desarrollo de capacidades',
+        summary:
+          'Las personas no son un recurso intercambiable dentro de la secuencia: son quienes interpretan la realidad operacional, sostienen el estándar y detectan desviaciones tempranas.',
+        relation:
+          'El líder desarrolla habilidades técnicas y criterio autónomo mediante el acompañamiento en el puesto de trabajo, no solo mediante charlas teóricas.',
+        application:
+          'Identificar qué operaciones críticas dependen de una sola persona y estructurar entrenamiento cruzado para proteger la estabilidad del equipo.',
+        bannerStep: 'RECORRIDO DEL LÍDER · PASO 02 DE 05 (PERSONAS Y EQUIPO)',
+        bannerCopy: 'El líder acompaña al equipo en el puesto de trabajo y desarrolla capacidades para sostener el estándar.',
+        cameraTransform: 'translate(110px, 45px) scale(1.12)',
+        nodeCoords: { x: 155, y: 100 },
+        microBoxes: ['01 · Acompañamiento', '02 · Personas y Capacidades', '03 · Ejecución sólida'],
+        microCaption: 'Del liderazgo en terreno al desarrollo de criterio técnico en las personas',
+      },
+      actividades: {
+        tag: '03 · SECUENCIA Y ESTÁNDAR',
+        step: 'Nodo 3 de 5',
+        title: 'Actividades y trabajo estandarizado',
+        summary:
+          'Las actividades representan la secuencia concreta que transforma insumos en valor. Sin un método acordado y visible, cada turno improvisa su propia manera de operar.',
+        relation:
+          'El líder coordina la sincronización entre etapas para evitar esperas, reprocesos o sobrecargas, asegurando que el estándar sea claro y ejecutable.',
+        application:
+          'Observar una tarea crítica junto al operador para distinguir pasos que agregan valor de aquellos que solo compensan fallas de abastecimiento o información.',
+        bannerStep: 'RECORRIDO DEL LÍDER · PASO 03 DE 05 (ACTIVIDADES Y ESTÁNDAR)',
+        bannerCopy: 'Con capacidades claras, el equipo ejecuta las actividades bajo un estándar compartido sin improvisación.',
+        cameraTransform: 'translate(110px, -45px) scale(1.12)',
+        nodeCoords: { x: 155, y: 276 },
+        microBoxes: ['02 · Equipo entrenado', '03 · Actividades y Estándar', 'Flujo sin reprocesos'],
+        microCaption: 'Las personas aplican un método visible y sincronizado entre etapas',
+      },
+      decisiones: {
+        tag: '04 · CRITERIO OPERACIONAL',
+        step: 'Nodo 4 de 5',
+        title: 'Decisiones oportunas en el terreno',
+        summary:
+          'Cada jornada presenta variaciones: cambios de prioridad, faltantes o desviaciones de calidad. La rapidez y calidad de las decisiones definen si el flujo se recupera o se detiene.',
+        relation:
+          'Cuando el líder establece reglas claras de respuesta, el equipo puede resolver anomalías menores al instante y escalar únicamente lo que requiere soporte transversal.',
+        application:
+          'Definir umbrales explícitos: qué puede ajustar directamente el operador y en qué momento debe convocar al supervisor para contener un desvío.',
+        bannerStep: 'RECORRIDO DEL LÍDER · PASO 04 DE 05 (DECISIONES EN TERRENO)',
+        bannerCopy: 'Ante variaciones del turno, reglas claras permiten contener anomalías a tiempo en el terreno.',
+        cameraTransform: 'translate(-110px, 45px) scale(1.12)',
+        nodeCoords: { x: 665, y: 100 },
+        microBoxes: ['Variación detectada', '04 · Decisión en Terreno', 'Contención inmediata'],
+        microCaption: 'Umbrales claros para ajustar al instante o escalar con soporte del líder',
+      },
+      resultados: {
+        tag: '05 · CONSECUENCIA DEL FLUJO',
+        step: 'Nodo 5 de 5',
+        title: 'Resultados como reflejo del proceso',
+        summary:
+          'La seguridad, la calidad, el cumplimiento de entrega y el costo no se corrigen exigiendo números al final del mes; son el resultado directo de cómo interactúan personas, actividades y decisiones.',
+        relation:
+          'El líder utiliza el resultado como retroalimentación sobre la salud del sistema: un buen resultado valida el método; una brecha señala dónde reforzar el proceso.',
+        application:
+          'En la reunión de cierre de turno, analizar no solo si se cumplió la meta, sino qué condición del proceso facilitó o dificultó alcanzarla.',
+        bannerStep: 'RECORRIDO DEL LÍDER · PASO 05 DE 05 (RESULTADOS SOSTENIBLES)',
+        bannerCopy: 'Seguridad, calidad y entrega emergen como consecuencia natural de personas, actividades y decisiones alineadas.',
+        cameraTransform: 'translate(-110px, -45px) scale(1.12)',
+        nodeCoords: { x: 665, y: 276 },
+        microBoxes: ['Proceso sincronizado', '05 · Resultados SQDC', 'Retroalimentación al sistema'],
+        microCaption: 'El resultado valida el método o señala qué condición del proceso reforzar',
+      },
+    };
+
+    const keys = ['lider', 'personas', 'actividades', 'decisiones', 'resultados'];
+    let currentIndex = 0;
+    let isExpanded = false;
+    let isClosing = false;
+    let activeOriginEl: Element | null = null;
+
+    const pills = root.querySelectorAll<HTMLButtonElement>('[data-leader-node]');
+    const svgNodes = root.querySelectorAll<SVGGElement>('[data-node-target]');
+    const stripPills = root.querySelectorAll<HTMLElement>('[data-lp-strip]');
+    const edges = root.querySelectorAll<SVGPathElement>('.lp-edge');
+    const cameraGroup = document.getElementById('lp-camera-group');
+    const travelerDot = document.getElementById('lp-traveler-dot');
+    const bannerStep = document.getElementById('lp-journey-banner-step');
+    const bannerCopy = document.getElementById('lp-journey-banner-copy');
+    const sequenceBtn = document.getElementById('lp-sequence-step-btn');
+    const focusModeBtn = document.getElementById('lp-focus-mode-btn');
+
+    const scrim = document.getElementById('lp-scrim');
+    const inspector = document.getElementById('lp-inspector') as HTMLElement | null;
+    const dragHandle = document.getElementById('lp-drag-handle');
+    const closeBtn = document.getElementById('lp-close-btn');
+
+    const dragCtrl = inspector
+      ? makeCardDraggable({
+          cardEl: inspector,
+          handleEl: dragHandle,
+          boundaryEl: stageEl || root,
+        })
+      : null;
+    const returnBtn = document.getElementById('lp-return-btn');
+    const tagEl = document.getElementById('lp-tag');
+    const stepEl = document.getElementById('lp-step');
+    const titleEl = document.getElementById('lp-title');
+    const summaryEl = document.getElementById('lp-summary');
+    const relationEl = document.getElementById('lp-relation');
+    const appEl = document.getElementById('lp-application');
+    const microCaption = document.getElementById('lp-micro-caption');
+    const svgBox1 = document.getElementById('lp-svg-box1');
+    const svgBox2 = document.getElementById('lp-svg-box2');
+    const svgBox3 = document.getElementById('lp-svg-box3');
+    const prevBtn = document.getElementById('lp-prev-btn');
+    const nextBtn = document.getElementById('lp-next-btn');
+
+    function getSvgNode(key: string): SVGGElement | null {
+      return root?.querySelector<SVGGElement>(`[data-node-target="${key}"]`) ?? null;
+    }
+
+    function animateTravelerPulse(fromKey: string, toKey: string) {
+      if (!travelerDot || prefersReducedMotion()) return;
+      const from = DATA[fromKey]?.nodeCoords || { x: 410, y: 186 };
+      const to = DATA[toKey]?.nodeCoords || { x: 410, y: 186 };
+      travelerDot.setAttribute('opacity', '1');
+      travelerDot.animate(
+        [
+          { cx: `${from.x}`, cy: `${from.y}`, opacity: 1, r: '5' },
+          { cx: `${to.x}`, cy: `${to.y}`, opacity: 1, r: '8' },
+          { cx: `${to.x}`, cy: `${to.y}`, opacity: 0, r: '12' },
+        ],
+        { duration: 520, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+      );
+      setTimeout(() => travelerDot.setAttribute('opacity', '0'), 530);
+    }
+
+    function highlightStageNode(key: string) {
+      const prevKey = keys[currentIndex];
+      const idx = keys.indexOf(key);
+      if (idx === -1) return;
+      currentIndex = idx;
+      const item = DATA[key];
+
+      if (prevKey !== key) {
+        animateTravelerPulse(prevKey, key);
+      }
+
+      pills.forEach((p) => {
+        const active = p.getAttribute('data-leader-node') === key;
+        p.classList.toggle('is-active', active);
+        p.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      const connectedNodesSet = new Set<string>([key]);
+      const connectedEdges: SVGElement[] = [];
+      edges.forEach((edge) => {
+        const edgeParts = (edge.getAttribute('data-edges') || '').split(',');
+        const connected = edgeParts.includes(key);
+        if (connected) {
+          edgeParts.forEach((p) => connectedNodesSet.add(p));
+          connectedEdges.push(edge);
+        }
+        edge.style.stroke = connected ? '#60a5fa' : 'rgba(96, 165, 250, 0.14)';
+        edge.style.strokeWidth = connected ? '3.2' : '1.2';
+        edge.style.opacity = connected ? '1' : '0.28';
+      });
+      animateProgressiveConnections(connectedEdges, 45);
+
+      svgNodes.forEach((n) => {
+        const nodeKey = n.getAttribute('data-node-target') || '';
+        const active = nodeKey === key;
+        const related = connectedNodesSet.has(nodeKey);
+        n.classList.toggle('is-active', active);
+        n.classList.toggle('is-related-node', !active && related);
+        n.classList.toggle('is-dimmed-node', isExpanded && !active && !related);
+        n.setAttribute('aria-expanded', active && isExpanded ? 'true' : 'false');
+      });
+
+      if (bannerStep) bannerStep.textContent = item.bannerStep;
+      if (bannerCopy) bannerCopy.textContent = item.bannerCopy;
+      if (sequenceBtn) {
+        sequenceBtn.innerHTML = `<span aria-hidden="true">▶</span> Recorrer secuencia (${idx + 1}/5)`;
+      }
+
+      if (tagEl) tagEl.textContent = item.tag;
+      if (stepEl) stepEl.textContent = item.step;
+      if (titleEl) titleEl.textContent = item.title;
+      if (summaryEl) summaryEl.textContent = item.summary;
+      if (relationEl) relationEl.textContent = item.relation;
+      if (appEl) appEl.textContent = item.application;
+      if (microCaption) microCaption.textContent = item.microCaption;
+      if (svgBox1) svgBox1.textContent = item.microBoxes[0];
+      if (svgBox2) svgBox2.textContent = item.microBoxes[1];
+      if (svgBox3) svgBox3.textContent = item.microBoxes[2];
+    }
+
+    function openNode(key: string, originEl?: Element | null, focusClose = true) {
+      if (!inspector || !root) return;
+      isClosing = false;
+      const resolvedOrigin = (originEl || getSvgNode(key)) as HTMLElement | SVGElement | null;
+      activeOriginEl = resolvedOrigin;
+
+      const wasExpanded = isExpanded;
+      isExpanded = true;
+
+      highlightStageNode(key);
+      if (cameraGroup && !prefersReducedMotion()) {
+        cameraGroup.style.transform = DATA[key].cameraTransform;
+      }
+
+      root.setAttribute('data-expanded', 'true');
+      inspector.hidden = false;
+      inspector.setAttribute('aria-hidden', 'false');
+      scrim?.setAttribute('aria-hidden', 'false');
+
+      if (!wasExpanded) {
+        animateFlipOpen(resolvedOrigin, inspector, { durationOpen: 380 });
+        if (focusClose) {
+          setTimeout(() => {
+            closeBtn?.focus({ preventScroll: true });
+          }, 60);
+        }
+      } else {
+        inspector.classList.remove('is-updated');
+        void inspector.offsetWidth;
+        inspector.classList.add('is-updated');
+      }
+    }
+
+    function closeNode() {
+      if (!isExpanded || isClosing || !inspector || !root) return;
+      isClosing = true;
+
+      const originToReturn = (activeOriginEl || getSvgNode(keys[currentIndex])) as HTMLElement | SVGElement | null;
+      if (cameraGroup) {
+        cameraGroup.style.transform = 'translate(0px, 0px) scale(1)';
+      }
+
+      animateFlipClose(originToReturn, inspector, () => {
+        isExpanded = false;
+        isClosing = false;
+        dragCtrl?.resetPosition(false);
+        root.setAttribute('data-expanded', 'false');
+        inspector.hidden = true;
+        inspector.setAttribute('aria-hidden', 'true');
+        scrim?.setAttribute('aria-hidden', 'true');
+
+        svgNodes.forEach((n) => {
+          n.classList.remove('is-related-node', 'is-dimmed-node');
+          n.setAttribute('aria-expanded', 'false');
+        });
+
+        if (originToReturn && 'focus' in originToReturn && typeof (originToReturn as HTMLElement).focus === 'function') {
+          (originToReturn as HTMLElement).focus({ preventScroll: true });
+        }
+      });
+    }
+
+    // Botón de recorrido visual secuencial sobre el diagrama (avanza y anima el flujo en el lienzo)
+    sequenceBtn?.addEventListener('click', () => {
+      const nextIdx = (currentIndex + 1) % keys.length;
+      const nextKey = keys[nextIdx];
+      if (isExpanded) {
+        openNode(nextKey, getSvgNode(nextKey), false);
+      } else {
+        highlightStageNode(nextKey);
+      }
+    });
+
+    focusModeBtn?.addEventListener('click', () => {
+      const active = root.getAttribute('data-focus-mode') === 'true';
+      root.setAttribute('data-focus-mode', active ? 'false' : 'true');
+      focusModeBtn.setAttribute('aria-pressed', active ? 'false' : 'true');
+      focusModeBtn.classList.toggle('is-active', !active);
+    });
+
+    pills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const key = pill.getAttribute('data-leader-node');
+        if (key) openNode(key, getSvgNode(key) || pill, false);
+      });
+    });
+
+    svgNodes.forEach((node) => {
+      node.addEventListener('click', () => {
+        const key = node.getAttribute('data-node-target');
+        if (key) openNode(key, node, true);
+      });
+      node.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const key = node.getAttribute('data-node-target');
+          if (key) openNode(key, node, true);
+        }
+      });
+    });
+
+    stripPills.forEach((sp) => {
+      sp.addEventListener('click', () => {
+        const key = sp.getAttribute('data-lp-strip');
+        if (key) openNode(key, getSvgNode(key), false);
+      });
+    });
+
+    closeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeNode();
+    });
+
+    returnBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeNode();
+    });
+
+    scrim?.addEventListener('click', () => {
+      closeNode();
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      const nextKey = keys[(currentIndex - 1 + keys.length) % keys.length];
+      openNode(nextKey, getSvgNode(nextKey), false);
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      const nextKey = keys[(currentIndex + 1) % keys.length];
+      openNode(nextKey, getSvgNode(nextKey), false);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isExpanded) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeNode();
+      }
+    });
+  }
+
+  initLeaderProcessMap();
+  document.addEventListener('astro:page-load', initLeaderProcessMap);
+</script>

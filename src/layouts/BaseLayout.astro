@@ -1,0 +1,479 @@
+---
+import '../styles/global.css';
+import '../styles/pages-03-09.css';
+import BookNav from '../components/book/BookNav.astro';
+import ReaderTopbar from '../components/book/ReaderTopbar.astro';
+import ReaderFooter from '../components/book/ReaderFooter.astro';
+import SearchModal from '../components/book/SearchModal.astro';
+import { getPageNavigation } from '../lib/bookManifest';
+
+interface Props {
+  title: string;
+  description?: string;
+  currentPath: string;
+  kicker?: string;
+  topbarTitle?: string;
+  currentPage?: number;
+  totalPages?: number;
+  prevHref?: string | null;
+  prevTitle?: string | null;
+  nextHref?: string | null;
+  nextTitle?: string | null;
+  progressPercent?: number;
+}
+
+const nav = getPageNavigation(Astro.props.currentPath);
+
+const {
+  title,
+  description = "OPEX LÍDER — Libro web interactivo de liderazgo y excelencia operacional para líderes, supervisores y coordinadores de procesos.",
+  currentPath,
+  kicker = nav.current.kicker,
+  topbarTitle = nav.current.topbarTitle,
+  currentPage = nav.currentPage,
+  totalPages = nav.totalPages,
+  prevHref = nav.prevHref,
+  prevTitle = nav.prevTitle,
+  nextHref = nav.nextHref,
+  nextTitle = nav.nextTitle,
+  progressPercent = nav.progressPercent,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} | OPEX LÍDER</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Omar Yesid Fonseca" />
+    <meta property="og:title" content={`${title} | OPEX LÍDER`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="book" />
+
+    <!-- Preconnect Google Fonts for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Script crítico inmediato para prevenir parpadeo (FOUC) del tema y estado del índice -->
+    <script is:inline>
+      (function() {
+        try {
+          const storedTheme = localStorage.getItem('opex-theme');
+          if (storedTheme === 'light' || storedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', storedTheme);
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          }
+          const storedNavCollapsed = localStorage.getItem('opex-nav-collapsed');
+          if (storedNavCollapsed === 'true') {
+            document.documentElement.setAttribute('data-nav-collapsed', 'true');
+          }
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="app-shell" id="app-shell">
+      <!-- Navegación lateral del libro -->
+      <BookNav currentPath={currentPath} />
+
+      <!-- Área de lectura principal -->
+      <main class="reader" id="main-content">
+        <ReaderTopbar 
+          kicker={kicker}
+          title={topbarTitle}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
+
+        <div class="page-stage">
+          <slot />
+        </div>
+
+        <ReaderFooter 
+          prevHref={prevHref}
+          prevTitle={prevTitle}
+          nextHref={nextHref}
+          nextTitle={nextTitle}
+          progressPercent={progressPercent}
+          currentPage={currentPage}
+          totalPages={totalPages}
+        />
+      </main>
+
+      <!-- Modal de búsqueda accesible -->
+      <SearchModal />
+    </div>
+
+    <!-- Script para interacciones globales del lector (Tema, Buscador, Marcadores, Progreso, Índice plegable, Atajos de teclado) -->
+    <script>
+      function initReaderGlobalLogic() {
+        const appShellEl = document.getElementById('app-shell');
+        if (!appShellEl || appShellEl.hasAttribute('data-reader-initialized')) return;
+        appShellEl.setAttribute('data-reader-initialized', 'true');
+
+        const normalizePath = (p: string) => (p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p || '/');
+        const currentPath = normalizePath(window.location.pathname);
+
+        // 1. Manejo del Tema Claro / Oscuro con persistencia en localStorage
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        const sunIcon = themeBtn?.querySelector('.sun-icon') as HTMLElement | null;
+        const moonIcon = themeBtn?.querySelector('.moon-icon') as HTMLElement | null;
+        const themeName = themeBtn?.querySelector('.theme-name') as HTMLElement | null;
+
+        function updateThemeVisuals(theme: string) {
+          document.documentElement.setAttribute('data-theme', theme);
+          themeBtn?.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+          if (sunIcon && moonIcon) {
+            if (theme === 'light') {
+              sunIcon.style.display = 'none';
+              moonIcon.style.display = 'inline-block';
+            } else {
+              sunIcon.style.display = 'inline-block';
+              moonIcon.style.display = 'none';
+            }
+          }
+          if (themeName) {
+            themeName.textContent = theme === 'light' ? 'Claro' : 'Oscuro';
+          }
+        }
+
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        updateThemeVisuals(currentTheme);
+
+        themeBtn?.addEventListener('click', () => {
+          const nowTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+          try {
+            localStorage.setItem('opex-theme', nowTheme);
+          } catch {}
+          updateThemeVisuals(nowTheme);
+        });
+
+        // 2. Manejo de Marcadores locales (Bookmarks) y reflejo en el índice
+        const bookmarkBtn = document.getElementById('bookmark-toggle-btn');
+
+        function getStoredBookmarks(): string[] {
+          try {
+            const parsed = JSON.parse(localStorage.getItem('opex-bookmarks') || '[]');
+            return Array.isArray(parsed) ? parsed.map(normalizePath) : [];
+          } catch {
+            return [];
+          }
+        }
+
+        function updateBookmarkVisuals() {
+          const bookmarks = getStoredBookmarks();
+          const isSaved = bookmarks.includes(currentPath);
+          bookmarkBtn?.classList.toggle('active', isSaved);
+          bookmarkBtn?.setAttribute('aria-pressed', isSaved ? 'true' : 'false');
+          bookmarkBtn?.setAttribute(
+            'aria-label',
+            isSaved ? 'Quitar marcador de esta página' : 'Guardar marcador en esta página'
+          );
+          const toolText = bookmarkBtn?.querySelector('.tool-text');
+          if (toolText) {
+            toolText.textContent = isSaved ? 'Guardado' : 'Guardar';
+          }
+
+          // Reflejar marcadores en los enlaces del índice lateral
+          const chapterLinks = document.querySelectorAll<HTMLAnchorElement>('.chapter-link[data-chapter-href]');
+          chapterLinks.forEach((link) => {
+            const href = normalizePath(link.getAttribute('data-chapter-href') || '');
+            link.classList.toggle('is-bookmarked', bookmarks.includes(href));
+          });
+        }
+
+        updateBookmarkVisuals();
+
+        bookmarkBtn?.addEventListener('click', () => {
+          const bookmarks = getStoredBookmarks();
+          const index = bookmarks.indexOf(currentPath);
+          if (index > -1) {
+            bookmarks.splice(index, 1);
+          } else {
+            bookmarks.push(currentPath);
+          }
+          try {
+            localStorage.setItem('opex-bookmarks', JSON.stringify(bookmarks));
+          } catch {}
+          updateBookmarkVisuals();
+        });
+
+        // 3. Progreso de lectura sobre las 10 páginas de la primera edición (00 a 09)
+        const availableRoutes = [
+          '/',
+          '/introduccion',
+          '/sistema',
+          '/lider-proceso',
+          '/anatomia-proceso',
+          '/gestion-visual',
+          '/kanban-concepto',
+          '/kanban-flujo',
+          '/kpi-concepto',
+          '/kpi-gestion-diaria',
+        ];
+        const totalEditorialSections = availableRoutes.length; // 10 páginas (00 a 09)
+
+        function updateReadingProgress() {
+          let visited: string[] = [];
+          try {
+            const raw = JSON.parse(localStorage.getItem('opex-visited-pages') || '[]');
+            if (Array.isArray(raw)) {
+              visited = raw.map(normalizePath).filter((r) => availableRoutes.includes(r));
+            }
+          } catch {
+            visited = [];
+          }
+
+          if (availableRoutes.includes(currentPath) && !visited.includes(currentPath)) {
+            visited.push(currentPath);
+            try {
+              localStorage.setItem('opex-visited-pages', JSON.stringify(visited));
+            } catch {}
+          }
+
+          const currentIdx = Math.max(0, availableRoutes.indexOf(currentPath));
+          const visitedCount = Math.max(currentIdx + 1, visited.length);
+          const editorialPercent = Math.round((visitedCount / totalEditorialSections) * 100);
+
+          const navProgressLabel = document.getElementById('nav-progress-label');
+          const navProgressValue = document.getElementById('nav-progress-value');
+          const navProgressBar = document.getElementById('nav-progress-bar');
+          const navProgressFill = document.getElementById('nav-progress-fill');
+
+          if (navProgressLabel) {
+            navProgressLabel.textContent = `Recorrido (${visitedCount}/${totalEditorialSections} págs.)`;
+          }
+          if (navProgressValue) {
+            navProgressValue.textContent = `${editorialPercent}% leído`;
+          }
+          if (navProgressBar) {
+            navProgressBar.setAttribute('aria-valuenow', String(editorialPercent));
+          }
+          if (navProgressFill) {
+            navProgressFill.style.width = `${editorialPercent}%`;
+          }
+
+          const footerTourStatus = document.getElementById('footer-tour-status');
+          const footerEditorialStatus = document.getElementById('footer-editorial-status');
+          const footerProgressBar = document.getElementById('footer-progress-bar');
+          const footerProgressFill = document.getElementById('footer-progress-fill');
+
+          if (footerTourStatus) {
+            footerTourStatus.textContent = `Página ${String(currentIdx).padStart(2, '0')} de 09 (${currentIdx + 1}/${totalEditorialSections})`;
+          }
+          if (footerEditorialStatus) {
+            footerEditorialStatus.textContent = `${editorialPercent}% de la edición`;
+          }
+          if (footerProgressBar) {
+            footerProgressBar.setAttribute('aria-valuenow', String(editorialPercent));
+          }
+          if (footerProgressFill) {
+            footerProgressFill.style.width = `${editorialPercent}%`;
+          }
+        }
+
+        updateReadingProgress();
+
+        // 4. Índice lateral plegable (Escritorio y Móvil) con control de foco accesible
+        const appShell = document.getElementById('app-shell');
+        const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+        const sidebarToggleText = document.getElementById('sidebar-toggle-text');
+        const navCloseBtn = document.getElementById('nav-close-btn');
+        const bookNav = document.getElementById('book-nav');
+        const navScrim = document.getElementById('nav-scrim');
+        const mobileQuery = window.matchMedia('(max-width: 940px)');
+
+        let isDesktopCollapsed = document.documentElement.getAttribute('data-nav-collapsed') === 'true';
+        let isMobileOpen = false;
+
+        function syncSidebarState() {
+          const isMobile = mobileQuery.matches;
+          const isNavVisible = isMobile ? isMobileOpen : !isDesktopCollapsed;
+
+          // Clases de contenedor
+          appShell?.classList.toggle('is-nav-collapsed', !isMobile && isDesktopCollapsed);
+          bookNav?.classList.toggle('is-open', isMobile && isMobileOpen);
+
+          if (isMobile) {
+            document.documentElement.removeAttribute('data-nav-collapsed');
+          } else if (isDesktopCollapsed) {
+            document.documentElement.setAttribute('data-nav-collapsed', 'true');
+          } else {
+            document.documentElement.removeAttribute('data-nav-collapsed');
+          }
+
+          // Scrim superpuesto solo en móvil cuando el índice está abierto
+          if (navScrim) {
+            navScrim.classList.toggle('is-visible', isMobile && isMobileOpen);
+          }
+
+          // Evitar que el panel oculto reciba foco accidentalmente por teclado
+          if (bookNav) {
+            if (isNavVisible) {
+              bookNav.removeAttribute('inert');
+              bookNav.setAttribute('aria-hidden', 'false');
+            } else {
+              bookNav.setAttribute('inert', '');
+              bookNav.setAttribute('aria-hidden', 'true');
+            }
+          }
+
+          // Actualizar atributos ARIA y texto de los controles
+          const actionLabel = isNavVisible ? 'Ocultar índice' : 'Mostrar índice';
+          sidebarToggleBtn?.setAttribute('aria-expanded', isNavVisible ? 'true' : 'false');
+          sidebarToggleBtn?.setAttribute('aria-label', `${actionLabel} del libro`);
+          if (sidebarToggleText) {
+            sidebarToggleText.textContent = actionLabel;
+          }
+          navCloseBtn?.setAttribute('aria-expanded', isNavVisible ? 'true' : 'false');
+        }
+
+        function toggleSidebar() {
+          if (mobileQuery.matches) {
+            isMobileOpen = !isMobileOpen;
+            syncSidebarState();
+            if (isMobileOpen) {
+              setTimeout(() => navCloseBtn?.focus(), 50);
+            }
+          } else {
+            isDesktopCollapsed = !isDesktopCollapsed;
+            try {
+              localStorage.setItem('opex-nav-collapsed', String(isDesktopCollapsed));
+            } catch {}
+            syncSidebarState();
+          }
+        }
+
+        function closeSidebarFromInside() {
+          if (mobileQuery.matches) {
+            isMobileOpen = false;
+          } else {
+            isDesktopCollapsed = true;
+            try {
+              localStorage.setItem('opex-nav-collapsed', 'true');
+            } catch {}
+          }
+          syncSidebarState();
+          sidebarToggleBtn?.focus();
+        }
+
+        syncSidebarState();
+
+        sidebarToggleBtn?.addEventListener('click', toggleSidebar);
+        navCloseBtn?.addEventListener('click', closeSidebarFromInside);
+        navScrim?.addEventListener('click', () => {
+          isMobileOpen = false;
+          syncSidebarState();
+          sidebarToggleBtn?.focus();
+        });
+
+        mobileQuery.addEventListener('change', () => {
+          if (!mobileQuery.matches) {
+            isMobileOpen = false;
+          }
+          syncSidebarState();
+        });
+
+        // 5. Modal de Búsqueda
+        const searchOpenBtn = document.getElementById('search-open-btn');
+        const searchModal = document.getElementById('search-modal');
+        const searchCloseBtn = document.getElementById('search-close-btn');
+        const searchBackdrop = document.getElementById('search-backdrop');
+        const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
+        const searchResults = document.getElementById('search-results');
+        const searchCaption = document.getElementById('search-caption');
+
+        function openSearch() {
+          if (searchModal) {
+            searchModal.style.display = 'grid';
+            setTimeout(() => searchInput?.focus(), 50);
+          }
+        }
+
+        function closeSearch() {
+          if (searchModal && searchModal.style.display === 'grid') {
+            searchModal.style.display = 'none';
+            searchOpenBtn?.focus();
+          }
+        }
+
+        searchOpenBtn?.addEventListener('click', openSearch);
+        searchCloseBtn?.addEventListener('click', closeSearch);
+        searchBackdrop?.addEventListener('click', closeSearch);
+
+        // Filtrado en vivo de resultados de búsqueda
+        searchInput?.addEventListener('input', () => {
+          const query = (searchInput.value || '').trim().toLowerCase();
+          const items = searchResults?.querySelectorAll<HTMLAnchorElement>('.search-result-item');
+          let count = 0;
+
+          items?.forEach(item => {
+            const label = item.getAttribute('data-label') || '';
+            const matches = !query || label.includes(query);
+            item.style.display = matches ? 'grid' : 'none';
+            if (matches) count++;
+          });
+
+          if (searchCaption) {
+            searchCaption.textContent = query 
+              ? `${count} resultado${count === 1 ? '' : 's'} encontrado${count === 1 ? '' : 's'}`
+              : 'Explora las 10 páginas y conceptos de esta edición';
+          }
+        });
+
+        // 6. Atajos de teclado (Escape para cerrar modales/panel móvil, Flechas para pasar páginas, Ctrl+K para buscar)
+        window.addEventListener('keydown', (e) => {
+          const isInputActive = document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
+
+          if (e.key === 'Escape') {
+            if (searchModal?.style.display === 'grid') {
+              closeSearch();
+            } else if (mobileQuery.matches && isMobileOpen) {
+              isMobileOpen = false;
+              syncSidebarState();
+              sidebarToggleBtn?.focus();
+            }
+          }
+
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            openSearch();
+          }
+
+          // Navegación con flechas cuando no se está escribiendo ni en un control o tarjeta interactiva del diagrama
+          const activeEl = document.activeElement as Element | null;
+          const isCardExpanded = document.querySelector('[data-expanded="true"]') !== null;
+          const isInteractiveControl =
+            activeEl?.getAttribute('role') === 'tab' ||
+            activeEl?.getAttribute('role') === 'button' ||
+            activeEl?.hasAttribute('data-interactive-node') ||
+            Boolean(activeEl?.closest('.constellation, .system-immersive-shell, .expandable-workbench, .vm-expandable-workbench'));
+          if (!isInputActive && !isCardExpanded && !isInteractiveControl && searchModal?.style.display !== 'grid') {
+            if (e.key === 'ArrowRight') {
+              const nextLink = document.querySelector<HTMLAnchorElement>('.reader-footer a.footer-nav-link:last-child');
+              if (nextLink) {
+                nextLink.click();
+              }
+            } else if (e.key === 'ArrowLeft') {
+              const prevLink = document.querySelector<HTMLAnchorElement>('.reader-footer a.footer-nav-link:first-child');
+              if (prevLink) {
+                prevLink.click();
+              }
+            }
+          }
+        });
+      }
+
+      initReaderGlobalLogic();
+      document.addEventListener('astro:page-load', initReaderGlobalLogic);
+    </script>
+  </body>
+</html>

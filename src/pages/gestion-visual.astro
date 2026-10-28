@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import VisualManagementBoard from '../components/diagrams/VisualManagementBoard.astro';
+---
+
+<BaseLayout
+  title="05 · Gestión visual"
+  description="Cómo estructurar y leer un tablero operacional de gestión visual para comprender el estado del trabajo y coordinar acciones en terreno."
+  currentPath="/gestion-visual"
+>
+  <article class="page chapter-page" aria-labelledby="p05-heading">
+    <header class="chapter-lead-grid">
+      <div class="editorial-heading">
+        <p class="eyebrow">05 · TRANSPARENCIA EN EL TERRENO</p>
+        <h1 id="p05-heading">
+          Gestión visual: comprender el estado<br />
+          <em>del trabajo de un vistazo.</em>
+        </h1>
+        <p class="lead">
+          Cuando el estado de un proceso solo existe en la cabeza del supervisor o escondido dentro de una hoja de cálculo, el equipo trabaja a ciegas. La gestión visual convierte el entorno y el tablero operacional en un lenguaje compartido que distingue de inmediato la condición normal de la condición anormal.
+        </p>
+      </div>
+
+      <aside class="chapter-purpose-pill" aria-label="Propósito de esta página">
+        <span>PROPÓSITO DE APRENDIZAJE</span>
+        <p>
+          Explorar la arquitectura de un tablero operacional de terreno y entender cómo cada zona conecta objetivos, estado actual, indicadores, responsables y seguimiento sin depender de un sistema informático complejo.
+        </p>
+      </aside>
+    </header>
+
+    <!-- Experiencia interactiva 05: Tablero de Gestión Visual -->
+    <VisualManagementBoard />
+
+    <!-- Lectura editorial -->
+    <div class="editorial-copy-grid">
+      <div class="reading-block">
+        <span>01 · REGLA DE CLARIDAD</span>
+        <h3>Normal vs. anormal sin ambigüedad</h3>
+        <p>
+          Una buena señal visual no requiere interpretación experta: cualquier integrante del equipo debe poder identificar en menos de cinco segundos si el ritmo, la calidad y la seguridad están dentro del estándar o si requieren intervención.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>02 · PROPÓSITO DEL TABLERO</span>
+        <h3>Herramienta de coordinación, no mural decorativo</h3>
+        <p>
+          Un tablero que se actualiza una vez al mes para las visitas pierde su función operacional. Su valor reside en servir de soporte para la conversación breve de inicio o mitad de turno, donde se toman decisiones sobre el trabajo real.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>03 · PROPIEDAD DEL EQUIPO</span>
+        <h3>Construido para quienes operan el proceso</h3>
+        <p>
+          A diferencia de un panel gerencial de inteligencia de negocios, el tablero operacional pertenece a la célula o área de trabajo. Sus indicadores y anotaciones deben ser útiles primero para quienes ejecutan las tareas.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>04 · FOCO EN LA ACCIÓN</span>
+        <h3>Del semáforo al compromiso concreto</h3>
+        <p>
+          Mostrar un indicador en ámbar o rojo sin registrar qué obstáculo lo causó y quién dará seguimiento solo genera frustración. Toda brecha visualizada debe conectarse con una acción de contención o mejora.
+        </p>
+      </div>
+    </div>
+
+    <!-- Aplicación operacional ilustrativa -->
+    <aside class="practical-example" aria-label="Aplicación operacional ilustrativa">
+      <div>
+        <span>APLICACIÓN ILUSTRATIVA · REUNIÓN DE 10 MINUTOS EN TERRENO</span>
+        <strong style="display: block; color: var(--text-primary); font-size: 13px; margin-top: 6px; font-family: 'Manrope', sans-serif;">Cómo lee un líder el tablero junto a su equipo</strong>
+      </div>
+      <p>
+        A mitad del turno, el líder se reúne cinco minutos frente al tablero con los referentes del proceso. No lee todos los números en voz alta: confirma primero el objetivo del día (<em>Zona 1</em>), observa que en la cuarta hora hubo una caída de ritmo (<em>Zona 2</em>) que puso en precaución el indicador de entrega (<em>Zona 3</em>), verifica que la causa fue una demora en el suministro de etiquetas ya asignada a logística interna (<em>Zona 4</em>) y acuerda adelantar la preparación del siguiente lote verificando su cierre a las 14:00 h (<em>Zona 5</em>).
+      </p>
+    </aside>
+
+    <!-- Puente hacia la página 06 -->
+    <div class="chapter-next-bridge">
+      <div>
+        <span class="bridge-eyebrow">CONTINUACIÓN EDITORIAL · PÁGINA 06</span>
+        <h4>De hacer visible el estado a sincronizar el flujo mediante señales</h4>
+        <p>
+          Una de las aplicaciones más potentes de la gestión visual consiste en utilizar señales para autorizar la producción o reposición únicamente cuando existe una necesidad real. En la siguiente página exploraremos el verdadero concepto y propósito de Kanban.
+        </p>
+      </div>
+      <a href="/kanban-concepto" class="primary-action">
+        <span>Ir a 06 · Kanban: concepto y señal</span>
+        <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M14 7l5 5-5 5"></path>
+        </svg>
+      </a>
+    </div>
+  </article>
+</BaseLayout>

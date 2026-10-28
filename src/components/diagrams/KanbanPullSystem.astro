@@ -1,0 +1,415 @@
+---
+// Página 06 — Kanban: concepto y propósito
+// Fase 5B: Representación gráfica de señal de jalón (Pull) con ampliación FLIP de nodos del circuito
+---
+
+<div class="interactive-workbench expandable-workbench" id="kanban-pull-workbench" data-expanded="false">
+  <div class="expandable-stage" id="kb-stage">
+    <div class="workbench-canvas expandable-canvas-wrap" id="kb-canvas-wrap">
+      <div class="canvas-Topline">
+        <span class="canvas-kicker">MECANISMO DE SEÑAL Y JALÓN (PULL)</span>
+        <span class="canvas-hint">Haz clic en cualquier elemento del circuito Kanban para ampliar su explicación</span>
+      </div>
+
+      <div class="stage-selector-bar" role="tablist" aria-label="Secuencia del sistema de señales Kanban">
+        <button type="button" class="stage-pill-btn is-active" role="tab" aria-selected="true" data-kb-stage="consumo" data-interactive-node>
+          <span class="stage-pill-num">01</span> Necesidad real (Consumo)
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kb-stage="senal" data-interactive-node>
+          <span class="stage-pill-num">02</span> Señal Kanban (Autorización)
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kb-stage="produccion" data-interactive-node>
+          <span class="stage-pill-num">03</span> Reposición / Proceso anterior
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kb-stage="aplicacion" data-interactive-node>
+          <span class="stage-pill-num">04</span> Dos aplicaciones: Físico vs. Flujo
+        </button>
+      </div>
+
+      <!-- Diagrama SVG del bucle cerrado Kanban (Flujo físico hacia adelante vs. Flujo de señal hacia atrás) -->
+      <svg class="interactive-svg" viewBox="0 0 820 380" role="img" aria-label="Diagrama de circuito Kanban: el consumo en el proceso cliente dispara una señal visual hacia el proceso proveedor, el cual repone exactamente lo consumido">
+        <defs>
+          <marker id="kbBlueArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 8 5 L 0 9 z" fill="#60a5fa" />
+          </marker>
+          <marker id="kbAmberArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 8 5 L 0 9 z" fill="#fbbf24" />
+          </marker>
+          <marker id="kbGreenArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 8 5 L 0 9 z" fill="#34d399" />
+          </marker>
+        </defs>
+
+        <!-- Leyenda superior de los dos flujos -->
+        <rect x="30" y="18" width="760" height="36" rx="8" fill="rgba(14, 27, 50, 0.72)" stroke="rgba(96, 165, 250, 0.2)" />
+        <line x1="54" y1="36" x2="90" y2="36" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5 4" />
+        <text x="100" y="40" fill="#fde68a" font-family="DM Sans, sans-serif" font-size="10.5" font-weight="700">FLUJO DE INFORMACIÓN / SEÑAL KANBAN (Hacia aguas arriba)</text>
+        <line x1="480" y1="36" x2="516" y2="36" stroke="#34d399" stroke-width="2.5" />
+        <text x="526" y="40" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="10.5" font-weight="700">FLUJO FÍSICO O DE VALOR (Hacia el cliente)</text>
+
+        <!-- Arco Superior: SEÑAL KANBAN -->
+        <path
+          id="kb-signal-arc"
+          class="svg-flow-line"
+          d="M 660 164 L 660 92 Q 660 76 640 76 L 180 76 Q 160 76 160 92 L 160 164"
+          fill="none"
+          stroke="#fbbf24"
+          stroke-width="2.5"
+          marker-end="url(#kbAmberArrow)"
+        />
+
+        <!-- Tarjeta / Señal Kanban en el arco superior -->
+        <g class="svg-node-group" data-kb-node="senal" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Paso 2: Señal Kanban">
+          <rect class="node-card-bg" x="290" y="58" width="240" height="58" rx="10" fill="rgba(45, 34, 15, 0.94)" stroke="#fbbf24" stroke-width="1.8" />
+          <text x="410" y="79" text-anchor="middle" fill="#fde68a" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">02 · SEÑAL KANBAN ⤢</text>
+          <text x="410" y="97" text-anchor="middle" fill="#ffffff" font-family="Manrope, sans-serif" font-size="13" font-weight="700">Orden de reposición exacta</text>
+          <text x="410" y="110" text-anchor="middle" fill="#fef3c7" font-family="DM Sans, sans-serif" font-size="10">«Producir / mover solo 1 lote»</text>
+        </g>
+
+        <!-- NODO IZQUIERDO: PROCESO PROVEEDOR (ETAPA ANTERIOR) -->
+        <g class="svg-node-group" data-kb-node="produccion" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Paso 3: Proceso proveedor">
+          <rect class="node-card-bg" x="44" y="170" width="224" height="118" rx="14" fill="rgba(14, 28, 54, 0.92)" stroke="rgba(148, 163, 184, 0.38)" stroke-width="1.6" />
+          <text x="64" y="196" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.1">03 · PROCESO PROVEEDOR ⤢</text>
+          <text x="64" y="218" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="16.5" font-weight="700">Etapa Anterior</text>
+          <text x="64" y="240" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Solo produce o libera</text>
+          <text x="64" y="256" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">cuando recibe la señal.</text>
+          <rect x="64" y="266" width="128" height="15" rx="4" fill="rgba(16, 185, 129, 0.2)" />
+          <text x="72" y="277" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">Sin sobreproducción</text>
+        </g>
+
+        <!-- PUNTO CENTRAL: BUFFER / SUPERMERCADO CONTROLADO O CAPACIDAD LIMITADA -->
+        <g class="svg-node-group" data-kb-node="aplicacion" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Paso 4: Punto de desacople o límite de capacidad">
+          <rect class="node-card-bg" x="315" y="170" width="190" height="118" rx="14" fill="rgba(16, 34, 64, 0.92)" stroke="rgba(96, 165, 250, 0.45)" stroke-width="1.6" />
+          <text x="410" y="196" text-anchor="middle" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">04 · STOCK / CAPACIDAD ⤢</text>
+          <rect x="342" y="212" width="36" height="32" rx="6" fill="rgba(16, 185, 129, 0.25)" stroke="#34d399" stroke-width="1.5" />
+          <rect x="392" y="212" width="36" height="32" rx="6" fill="rgba(16, 185, 129, 0.25)" stroke="#34d399" stroke-width="1.5" />
+          <rect x="442" y="212" width="36" height="32" rx="6" fill="rgba(245, 158, 11, 0.16)" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 3" />
+          <text x="460" y="232" text-anchor="middle" fill="#fbbf24" font-family="DM Sans, sans-serif" font-size="10" font-weight="700">Vacío</text>
+          <text x="410" y="266" text-anchor="middle" fill="#e2e8f0" font-family="Manrope, sans-serif" font-size="11.5">Cupo máximo definido</text>
+        </g>
+
+        <!-- NODO DERECHO: PROCESO CLIENTE (CONSUMO REAL) -->
+        <g class="svg-node-group is-active" data-kb-node="consumo" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Paso 1: Proceso cliente y consumo real">
+          <rect class="node-card-bg" x="552" y="170" width="224" height="118" rx="14" fill="rgba(14, 28, 54, 0.92)" stroke="#60a5fa" stroke-width="2" />
+          <text x="572" y="196" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.1">01 · PROCESO CLIENTE ⤢</text>
+          <text x="572" y="218" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="16.5" font-weight="700">Necesidad Real</text>
+          <text x="572" y="240" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Retira o inicia solo lo</text>
+          <text x="572" y="256" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">que realmente necesita.</text>
+          <rect x="572" y="266" width="136" height="15" rx="4" fill="rgba(59, 130, 246, 0.25)" />
+          <text x="580" y="277" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">Origen del jalón (Pull)</text>
+        </g>
+
+        <!-- Flechas inferiores de reposición física (Izquierda a Derecha) -->
+        <line x1="268" y1="228" x2="309" y2="228" stroke="#34d399" stroke-width="2.5" marker-end="url(#kbGreenArrow)" />
+        <line x1="505" y1="228" x2="546" y2="228" stroke="#60a5fa" stroke-width="2.5" marker-end="url(#kbBlueArrow)" />
+
+        <!-- Pie explicativo dentro del lienzo -->
+        <rect x="44" y="312" width="732" height="48" rx="10" fill="rgba(11, 22, 42, 0.78)" stroke="rgba(148, 163, 184, 0.22)" />
+        <text x="410" y="333" text-anchor="middle" fill="#f8fafc" font-family="Manrope, sans-serif" font-size="12" font-weight="700">
+          Regla de oro de Kanban: «Sin señal visual de capacidad o consumo, no se autoriza nuevo trabajo ni inventario.»
+        </text>
+        <text x="410" y="350" text-anchor="middle" fill="#94a3b8" font-family="DM Sans, sans-serif" font-size="11">
+          Aplica tanto a contenedores físicos en planta/almacén como a tarjetas de órdenes en servicios e ingeniería.
+        </text>
+      </svg>
+    </div>
+
+    <div class="expandable-scrim" id="kb-scrim" aria-hidden="true"></div>
+
+    <!-- Tarjeta editorial expandible (FLIP) -->
+    <aside
+      class="expanded-editorial-card"
+      id="kb-inspector"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="kb-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="expanded-topbar">
+        <div class="inspector-badge-row" style="margin-bottom: 0;">
+          <span class="inspector-tag" id="kb-tag">01 · ORIGEN DEL SISTEMA</span>
+          <span class="inspector-step-indicator" id="kb-step">Momento 1 de 4</span>
+        </div>
+        <button type="button" class="expanded-close-btn" id="kb-close-btn" aria-label="Cerrar vista ampliada">
+          <span aria-hidden="true">✕</span> Cerrar
+        </button>
+      </div>
+
+      <div>
+        <h3 class="inspector-title" id="kb-title">Todo comienza con una necesidad real</h3>
+        <p class="inspector-summary" id="kb-summary">
+          En un sistema tradicional de empuje (Push), cada área produce según un pronóstico y acumula material o tareas hacia adelante. En un sistema Kanban (Pull / Jalón), el movimiento solo se activa cuando el proceso cliente consume una unidad o libera capacidad real.
+        </p>
+      </div>
+
+      <div class="expanded-magnified-box">
+        <div class="expanded-magnified-header">
+          <span>CIRCUITO CERRADO DE SEÑAL Y REPOSICIÓN</span>
+          <span>Señal hacia aguas arriba ← · → Flujo físico hacia el cliente</span>
+        </div>
+        <div class="expanded-flow-strip">
+          <span class="expanded-flow-pill is-current" data-kb-strip="consumo">01 · Necesidad real</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-kb-strip="senal">02 · Señal Kanban</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-kb-strip="produccion">03 · Reposición exacta</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-kb-strip="aplicacion">04 · Físico vs. Flujo</span>
+        </div>
+      </div>
+
+      <div class="expanded-detail-cols">
+        <div class="inspector-detail-box">
+          <span>¿QUÉ OBSERVA EL LÍDER EN ESTE PUNTO?</span>
+          <p id="kb-observe">
+            El consumo efectivo del cliente interno o externo: qué ítem o actividad salió realmente y dejó un espacio disponible.
+          </p>
+        </div>
+        <div class="inspector-detail-box">
+          <span>PROPÓSITO OPERACIONAL</span>
+          <p id="kb-purpose">
+            Conectar el ritmo de trabajo con la demanda real, evitando saturar los pasillos, almacenes o bandejas de trabajo con elementos que nadie ha solicitado aún.
+          </p>
+        </div>
+      </div>
+
+      <div class="expanded-footer-bar">
+        <button type="button" class="step-nav-btn" id="kb-prev-btn">← Momento anterior</button>
+        <button type="button" class="step-nav-btn" id="kb-return-btn">Volver al circuito Kanban</button>
+        <button type="button" class="step-nav-btn" id="kb-next-btn">Siguiente momento →</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  import { animateFlipOpen, animateFlipClose, makeCardDraggable } from '../../lib/expandableCardEngine';
+
+  function initKanbanPullSystem() {
+    const root = document.getElementById('kanban-pull-workbench');
+    if (!root || root.hasAttribute('data-initialized')) return;
+    root.setAttribute('data-initialized', 'true');
+
+    const DATA: Record<string, {
+      tag: string;
+      step: string;
+      title: string;
+      summary: string;
+      observe: string;
+      purpose: string;
+    }> = {
+      consumo: {
+        tag: '01 · ORIGEN DEL SISTEMA',
+        step: 'Momento 1 de 4',
+        title: 'Todo comienza con una necesidad real',
+        summary:
+          'En un sistema tradicional de empuje (Push), cada área produce según un pronóstico y acumula material o tareas hacia adelante. En un sistema Kanban (Pull / Jalón), el movimiento solo se activa cuando el proceso cliente consume una unidad o libera capacidad real.',
+        observe:
+          'El consumo efectivo del cliente interno o externo: qué ítem o actividad salió realmente y dejó un espacio disponible.',
+        purpose:
+          'Conectar el ritmo de trabajo con la demanda real, evitando saturar los pasillos, almacenes o bandejas de trabajo con elementos que nadie ha solicitado aún.',
+      },
+      senal: {
+        tag: '02 · LA SEÑAL VISUAL (KANBAN)',
+        step: 'Momento 2 de 4',
+        title: 'La señal viaja hacia atrás como autorización',
+        summary:
+          'La palabra japonesa «Kanban» significa tarjeta o señal visual. Cuando se consume un contenedor o se libera un cupo de capacidad, esa tarjeta, contenedor vacío o marca visual viaja hacia el proceso anterior con datos precisos: qué ítem, qué cantidad y dónde entregarlo.',
+        observe:
+          'Que ninguna señal se pierda ni se ignore, y que la cantidad de tarjetas en circulación corresponda al límite definido.',
+        purpose:
+          'Sustituir órdenes verbales urgentes y correos dispersos por un mecanismo visual automático y auditable a simple vista.',
+      },
+      produccion: {
+        tag: '03 · RESPUESTA SINCRONIZADA',
+        step: 'Momento 3 de 4',
+        title: 'El proceso anterior repone exactamente lo solicitado',
+        summary:
+          'Al recibir la señal Kanban, la etapa proveedora produce o abastece únicamente la cantidad autorizada en la tarjeta y en el orden recibido. Si no hay señal Kanban esperando, el proceso no sobreproduce: dedica su tiempo a mantenimiento autónomo, orden o mejora.',
+        observe:
+          'El respeto estricto de la regla: no adelantar lotes «por si acaso» cuando no existe tarjeta que los autorice.',
+        purpose:
+          'Eliminar el desperdicio de sobreproducción, reducir tiempos de espera ocultos y exponer de inmediato cualquier problema de disponibilidad.',
+      },
+      aplicacion: {
+        tag: '04 · DOS MODALIDADES COMPLEMENTARIAS',
+        step: 'Momento 4 de 4',
+        title: 'Kanban de reposición física vs. Kanban de flujo de trabajo',
+        summary:
+          'Kanban no es sinónimo de «tres columnas en una pared». En manufactura, logística y mantenimiento de repuestos opera como señal de reposición e inventario controlado (supermercados). En ingeniería, mantenimiento programado y servicios opera como límite de capacidad (WIP) para que una etapa solo jale una nueva tarea cuando termina la anterior.',
+        observe:
+          'En ambos casos el principio es idéntico: limitar el trabajo o inventario en circulación y autorizar el avance mediante una señal explícita.',
+        purpose:
+          'Elegir el diseño adecuado según la naturaleza del proceso sin perder la esencia del sistema Pull.',
+      },
+    };
+
+    const order = ['consumo', 'senal', 'produccion', 'aplicacion'];
+    let idx = 0;
+    let isExpanded = false;
+    let isClosing = false;
+    let activeOriginEl: Element | null = null;
+
+    const pills = root.querySelectorAll<HTMLButtonElement>('[data-kb-stage]');
+    const nodes = root.querySelectorAll<SVGGElement>('[data-kb-node]');
+    const stripPills = root.querySelectorAll<HTMLElement>('[data-kb-strip]');
+    const scrim = document.getElementById('kb-scrim');
+    const inspector = document.getElementById('kb-inspector');
+    const closeBtn = document.getElementById('kb-close-btn');
+    const returnBtn = document.getElementById('kb-return-btn');
+    const tagEl = document.getElementById('kb-tag');
+    const stepEl = document.getElementById('kb-step');
+    const titleEl = document.getElementById('kb-title');
+    const summaryEl = document.getElementById('kb-summary');
+    const obsEl = document.getElementById('kb-observe');
+    const purpEl = document.getElementById('kb-purpose');
+    const prevBtn = document.getElementById('kb-prev-btn');
+    const nextBtn = document.getElementById('kb-next-btn');
+
+    if (inspector) {
+      const stageEl = root.querySelector<HTMLElement>('.expandable-stage') || root;
+      const handleEl = inspector.querySelector<HTMLElement>('.expanded-topbar') || inspector;
+      makeCardDraggable({
+        cardEl: inspector,
+        handleEl,
+        boundsEl: stageEl,
+        storageKey: 'opex-drag-page-06',
+      });
+    }
+
+    function getSvgNode(key: string): SVGGElement | null {
+      return root?.querySelector<SVGGElement>(`[data-kb-node="${key}"]`) ?? null;
+    }
+
+    function populateStage(key: string) {
+      const found = order.indexOf(key);
+      if (found === -1) return;
+      idx = found;
+      const item = DATA[key];
+
+      pills.forEach((p) => {
+        const active = p.getAttribute('data-kb-stage') === key;
+        p.classList.toggle('is-active', active);
+        p.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      nodes.forEach((n) => {
+        const active = n.getAttribute('data-kb-node') === key;
+        n.classList.toggle('is-active', active);
+        n.setAttribute('aria-expanded', active && isExpanded ? 'true' : 'false');
+      });
+
+      stripPills.forEach((sp) => {
+        sp.classList.toggle('is-current', sp.getAttribute('data-kb-strip') === key);
+      });
+
+      if (tagEl) tagEl.textContent = item.tag;
+      if (stepEl) stepEl.textContent = item.step;
+      if (titleEl) titleEl.textContent = item.title;
+      if (summaryEl) summaryEl.textContent = item.summary;
+      if (obsEl) obsEl.textContent = item.observe;
+      if (purpEl) purpEl.textContent = item.purpose;
+    }
+
+    function openStage(key: string, originEl?: Element | null) {
+      if (!inspector) return;
+      isClosing = false;
+      const resolvedOrigin = (originEl || getSvgNode(key)) as HTMLElement | SVGElement | null;
+      activeOriginEl = resolvedOrigin;
+
+      const wasExpanded = isExpanded;
+      isExpanded = true;
+
+      populateStage(key);
+      root.setAttribute('data-expanded', 'true');
+      inspector.hidden = false;
+      inspector.setAttribute('aria-hidden', 'false');
+      scrim?.setAttribute('aria-hidden', 'false');
+
+      animateFlipOpen(resolvedOrigin, inspector, { durationOpen: wasExpanded ? 260 : 360 });
+      if (!wasExpanded) {
+        setTimeout(() => {
+          closeBtn?.focus({ preventScroll: true });
+        }, 60);
+      }
+    }
+
+    function closeStage() {
+      if (!isExpanded || isClosing || !inspector) return;
+      isClosing = true;
+
+      const originToReturn = (activeOriginEl || getSvgNode(order[idx])) as HTMLElement | SVGElement | null;
+
+      animateFlipClose(originToReturn, inspector, { durationClose: 280 }, () => {
+        isExpanded = false;
+        isClosing = false;
+        root.setAttribute('data-expanded', 'false');
+        inspector.hidden = true;
+        inspector.setAttribute('aria-hidden', 'true');
+        scrim?.setAttribute('aria-hidden', 'true');
+
+        nodes.forEach((n) => n.setAttribute('aria-expanded', 'false'));
+
+        if (originToReturn && 'focus' in originToReturn && typeof (originToReturn as HTMLElement).focus === 'function') {
+          (originToReturn as HTMLElement).focus({ preventScroll: true });
+        }
+      });
+    }
+
+    pills.forEach((p) => {
+      p.addEventListener('click', () => {
+        const k = p.getAttribute('data-kb-stage');
+        if (k) openStage(k, getSvgNode(k) || p);
+      });
+    });
+
+    nodes.forEach((n) => {
+      n.addEventListener('click', () => {
+        const k = n.getAttribute('data-kb-node');
+        if (k) openStage(k, n);
+      });
+      n.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const k = n.getAttribute('data-kb-node');
+          if (k) openStage(k, n);
+        }
+      });
+    });
+
+    closeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeStage();
+    });
+
+    returnBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeStage();
+    });
+
+    scrim?.addEventListener('click', () => {
+      closeStage();
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      const nextKey = order[(idx - 1 + order.length) % order.length];
+      openStage(nextKey, getSvgNode(nextKey));
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      const nextKey = order[(idx + 1) % order.length];
+      openStage(nextKey, getSvgNode(nextKey));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isExpanded) {
+        e.preventDefault();
+        closeStage();
+      }
+    });
+  }
+
+  initKanbanPullSystem();
+  document.addEventListener('astro:page-load', initKanbanPullSystem);
+</script>

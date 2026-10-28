@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import KpiAlignmentTree from '../components/diagrams/KpiAlignmentTree.astro';
+---
+
+<BaseLayout
+  title="08 · KPI: medir lo importante"
+  description="Árbol gráfico navegable de indicadores de desempeño (KPI): Propósito, Objetivo, Indicador, Meta y Resultado con ejemplo ilustrativo."
+  currentPath="/kpi-concepto"
+>
+  <article class="page chapter-page" aria-labelledby="p08-heading">
+    <header class="chapter-lead-grid">
+      <div class="editorial-heading">
+        <p class="eyebrow">08 · ALINEACIÓN Y MEDICIÓN</p>
+        <h1 id="p08-heading">
+          Medir lo importante:<br />
+          <em>del propósito al resultado verificable.</em>
+        </h1>
+        <p class="lead">
+          En muchas organizaciones se confunde medir con llenar reportes. Cuando los indicadores nacen desconectados del propósito del proceso, las personas terminan trabajando «para mejorar el número» en lugar de mejorar la operación. Un verdadero KPI traduce el propósito en una señal objetiva que guía las decisiones del equipo.
+        </p>
+      </div>
+
+      <aside class="chapter-purpose-pill" aria-label="Propósito de esta página">
+        <span>PROPÓSITO DE APRENDIZAJE</span>
+        <p>
+          Comprender la jerarquía lógica entre Propósito, Objetivo, Indicador, Meta y Resultado mediante un árbol interactivo y un ejemplo numérico ilustrativo coherente de principio a fin.
+        </p>
+      </aside>
+    </header>
+
+    <!-- Experiencia interactiva 08: Árbol navegable KPI -->
+    <KpiAlignmentTree />
+
+    <!-- Lectura editorial -->
+    <div class="editorial-copy-grid">
+      <div class="reading-block">
+        <span>01 · ALINEACIÓN VERTICAL</span>
+        <h3>Por qué el indicador depende del propósito</h3>
+        <p>
+          Si un área de mantenimiento mide únicamente «cantidad de órdenes cerradas por día», puede incentivar cierres apresurados que provoquen fallas repetitivas. Cuando el indicador nace del propósito (confiabilidad del equipo), la medición protege la calidad técnica.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>02 · REGLA DE PRECISIÓN</span>
+        <h3>Un buen KPI no admite ambigüedades</h3>
+        <p>
+          Todo indicador operacional requiere cuatro elementos claros: nombre preciso, fórmula de cálculo comprensible para el equipo, unidad de medida y frecuencia de actualización adecuada al ritmo del proceso.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>03 · LA BRECHA COMO BRÚJULA</span>
+        <h3>Meta y resultado trabajan juntos</h3>
+        <p>
+          Ni la meta por sí sola ni el resultado aislado permiten gestionar. Es la comparación entre ambos —la brecha— la que indica si el proceso se encuentra estable o si necesita intervención.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>04 · POCOS Y ACCIONABLES</span>
+        <h3>Evitar la inflación de indicadores</h3>
+        <p>
+          Un equipo operativo que intenta seguir veinte indicadores simultáneos termina sin gestionar ninguno. Seleccionar pocos KPI vitales asegura foco y conversaciones productivas en el terreno.
+        </p>
+      </div>
+    </div>
+
+    <!-- Aplicación operacional ilustrativa -->
+    <aside class="practical-example" aria-label="Aplicación operacional ilustrativa">
+      <div>
+        <span>CASO NUMÉRICO ILUSTRATIVO · CENTRO DE OPERACIONES Y DESPACHO</span>
+        <strong style="display: block; color: var(--text-primary); font-size: 13px; margin-top: 6px; font-family: 'Manrope', sans-serif;">Lectura integrada del árbol sobre 200 pedidos semanales</strong>
+      </div>
+      <p>
+        Observa cómo se conectan los cinco niveles en el ejemplo ilustrativo del diagrama: el <em>Propósito</em> es asegurar entregas confiables al cliente; el <em>Objetivo</em> consiste en despachar cada pedido completo y dentro de su ventana horaria; el <em>Indicador</em> elegido es el porcentaje OTIF calculado sobre 200 pedidos programados; la <em>Meta</em> establecida es alcanzar al menos un 96.0% (192 pedidos conformes); y el <em>Resultado</em> registrado en la semana fue de 91.5% (183 pedidos conformes). Esa diferencia de 4.5 puntos porcentuales representa exactamente 9 pedidos con desvío sobre los cuales el líder y su equipo concentrarán el análisis.
+      </p>
+    </aside>
+
+    <!-- Puente hacia la página 09 -->
+    <div class="chapter-next-bridge">
+      <div>
+        <span class="bridge-eyebrow">CONTINUACIÓN EDITORIAL · PÁGINA 09</span>
+        <h4>¿Qué hace el líder cuando el KPI muestra una desviación?</h4>
+        <p>
+          Tener un árbol de indicadores claro nos permite detectar una brecha en segundos. Pero un número en rojo o ámbar jamás se corrige desde una planilla: en la siguiente página cerraremos esta primera edición aplicando el KPI a la rutina de gestión diaria.
+        </p>
+      </div>
+      <a href="/kpi-gestion-diaria" class="primary-action">
+        <span>Ir a 09 · KPI en la gestión diaria</span>
+        <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M14 7l5 5-5 5"></path>
+        </svg>
+      </a>
+    </div>
+  </article>
+</BaseLayout>

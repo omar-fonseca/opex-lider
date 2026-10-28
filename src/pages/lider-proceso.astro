@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LeaderProcessMap from '../components/diagrams/LeaderProcessMap.astro';
+---
+
+<BaseLayout
+  title="03 · El líder dentro del proceso"
+  description="Cómo el líder operacional orienta, coordina, desarrolla capacidades y conecta los objetivos con la ejecución diaria."
+  currentPath="/lider-proceso"
+>
+  <article class="page chapter-page" aria-labelledby="p03-heading">
+    <header class="chapter-lead-grid">
+      <div class="editorial-heading">
+        <p class="eyebrow">03 · LIDERAZGO EN EL TERRENO</p>
+        <h1 id="p03-heading">
+          El líder no administra desde afuera:<br />
+          <em>habita y articula el proceso.</em>
+        </h1>
+        <p class="lead">
+          Un error frecuente en las operaciones es concebir al líder como un inspector externo que solicita reportes cuando el turno ya terminó. En la excelencia operacional, el líder actúa dentro del sistema: conecta a las personas con el estándar, facilita decisiones oportunas y protege las condiciones para que el flujo entregue resultados consistentes.
+        </p>
+      </div>
+
+      <aside class="chapter-purpose-pill" aria-label="Propósito de esta página">
+        <span>PROPÓSITO DE APRENDIZAJE</span>
+        <p>
+          Comprender las cuatro responsabilidades activas del líder operacional —orientar, coordinar, desarrollar capacidades y conectar objetivos con la ejecución— mediante la exploración de sus relaciones en el proceso.
+        </p>
+      </aside>
+    </header>
+
+    <!-- Experiencia visual interactiva 03 -->
+    <LeaderProcessMap />
+
+    <!-- Bloques editoriales sustanciales -->
+    <div class="editorial-copy-grid">
+      <div class="reading-block">
+        <span>01 · ORIENTAR</span>
+        <h3>Traducir la estrategia al lenguaje del turno</h3>
+        <p>
+          Un objetivo anual no guía por sí solo la mano del operador ni la prioridad del técnico. Orientar significa convertir metas generales en referencias concretas para la jornada: qué lote es prioritario, qué estándar de calidad es innegociable y qué riesgo debemos vigilar hoy.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>02 · COORDINAR</span>
+        <h3>Cuidar las uniones entre etapas</h3>
+        <p>
+          La mayoría de las pérdidas operacionales no ocurren dentro de una tarea aislada, sino en las entregas entre puestos, áreas o turnos. El líder coordina interfaces: asegura que quien recibe un insumo o una orden cuente con lo necesario sin esperas ni reprocesos.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>03 · DESARROLLAR CAPACIDADES</span>
+        <h3>Formar criterio, no dependencia</h3>
+        <p>
+          Si cada pequeña duda requiere la autorización del supervisor, el líder se convierte en el cuello de botella del área. Desarrollar personas consiste en enseñar el porqué de cada estándar para que el equipo detecte anomalías y actúe con autonomía progresiva.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>04 · CONECTAR CON LA EJECUCIÓN</span>
+        <h3>Estar donde ocurre el valor</h3>
+        <p>
+          Observar el trabajo en el terreno con respeto permite distinguir cuándo una desviación proviene de falta de entrenamiento, de un estándar confuso o de un insumo defectuoso. El líder remueve barreras técnicas y organizativas para que el proceso fluya.
+        </p>
+      </div>
+    </div>
+
+    <!-- Aplicación operacional ilustrativa -->
+    <aside class="practical-example" aria-label="Aplicación operacional ilustrativa">
+      <div>
+        <span>APLICACIÓN ILUSTRATIVA · CAMBIO DE TURNO</span>
+        <strong style="display: block; color: var(--text-primary); font-size: 13px; margin-top: 6px; font-family: 'Manrope', sans-serif;">De repartir tareas a asegurar condiciones de proceso</strong>
+      </div>
+      <p>
+        Al iniciar la mañana en un centro de mantenimiento y logística, una coordinadora solía limitarse a entregar la lista de órdenes pendientes. Al final del día descubría que tres pedidos críticos se habían detenido por falta de un repuesto y por dudas sobre una especificación. Al cambiar su práctica, dedica los primeros diez minutos en terreno a revisar junto al equipo las cuatro conexiones del proceso: confirma quién necesita soporte técnico (<em>Personas</em>), verifica que las herramientas e insumos estén completos antes de arrancar (<em>Actividades</em>), acuerda cómo actuar si aparece un bloqueo (<em>Decisiones</em>) y vincula todo con la entrega comprometida del día (<em>Resultados</em>).
+      </p>
+    </aside>
+
+    <!-- Puente hacia la página 04 -->
+    <div class="chapter-next-bridge">
+      <div>
+        <span class="bridge-eyebrow">CONTINUACIÓN EDITORIAL · PÁGINA 04</span>
+        <h4>¿Qué hay dentro del proceso que el líder acompaña?</h4>
+        <p>
+          Para que el líder pueda orientar y coordinar con rigor, necesita observar el trabajo como una secuencia estructurada de transformación. En la siguiente página recorreremos paso a paso la anatomía completa de un proceso.
+        </p>
+      </div>
+      <a href="/anatomia-proceso" class="primary-action">
+        <span>Ir a 04 · Anatomía de un proceso</span>
+        <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M14 7l5 5-5 5"></path>
+        </svg>
+      </a>
+    </div>
+  </article>
+</BaseLayout>

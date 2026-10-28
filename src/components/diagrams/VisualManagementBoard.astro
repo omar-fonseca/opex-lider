@@ -1,0 +1,1680 @@
+---
+// Página 05 — Gestión visual (Fase 5E: Tablero operacional realista con profundidad 2.5D y ficha ampliable desplazable)
+// Flujo: Ver tablero completo -> Seleccionar zona -> Ampliar con transición FLIP -> Mover ficha para despejar el tablero -> Explorar otra zona -> Cerrar (X / Esc)
+---
+
+<div class="vm-expandable-workbench" id="visual-board-workbench" data-expanded="false">
+  <!-- Cabecera de instrucciones y acceso rápido por zonas -->
+  <div class="vm-workbench-header">
+    <div class="canvas-Topline">
+      <div class="vm-topline-left">
+        <span class="canvas-kicker">TABLERO DE GESTIÓN VISUAL EN TERRENO · REGLA DE LOS 5 SEGUNDOS</span>
+        <span class="canvas-hint" id="vm-state-hint">
+          Selecciona cualquier sección del tablero para abrir su ficha técnica y arrástrala para comparar las zonas conectadas
+        </span>
+      </div>
+      <span class="vm-illustrative-stamp" title="Los indicadores y nombres son ejemplos pedagógicos ilustrativos">
+        CASO OPERACIONAL ILUSTRATIVO
+      </span>
+    </div>
+
+    <div class="stage-selector-bar" role="tablist" aria-label="Explorar secciones del tablero de gestión visual">
+      <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-vm-zone="objetivos" data-interactive-node>
+        <span class="stage-pill-num">Z1</span> Objetivos del turno
+      </button>
+      <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-vm-zone="estado" data-interactive-node>
+        <span class="stage-pill-num">Z2</span> Pulso horario
+      </button>
+      <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-vm-zone="indicadores" data-interactive-node>
+        <span class="stage-pill-num">Z3</span> Indicadores SQDC
+      </button>
+      <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-vm-zone="responsables" data-interactive-node>
+        <span class="stage-pill-num">Z4</span> Anomalías y dueño
+      </button>
+      <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-vm-zone="seguimiento" data-interactive-node>
+        <span class="stage-pill-num">Z5</span> Acuerdos y cierre
+      </button>
+    </div>
+  </div>
+
+  <!-- Escenario del Tablero Operacional + Ficha Ampliada Desplazable -->
+  <div class="vm-stage-container" id="vm-stage-container">
+    <!-- Marco exterior diferenciado 2.5D de tablero físico de piso (Gemba) -->
+    <div class="vm-board-chassis" id="vm-board-frame" role="group" aria-label="Tablero físico de gestión visual con 5 secciones operacionales">
+      <!-- Riel superior metálico con remaches y cabezal de contexto operativo ilustrativo -->
+      <header class="vm-board-masthead" aria-label="Contexto operativo ilustrativo del tablero">
+        <div class="vm-masthead-brand">
+          <span class="vm-rivet" aria-hidden="true"></span>
+          <div class="vm-masthead-titles">
+            <span class="vm-masthead-eyebrow">PIZARRA DE GESTIÓN DIARIA EN TERRENO · EJEMPLO ILUSTRATIVO</span>
+            <strong class="vm-masthead-area">CÉLULA DE ACONDICIONADO Y DESPACHO · LÍNEA A-02</strong>
+          </div>
+        </div>
+
+        <div class="vm-masthead-telemetry">
+          <div class="vm-telemetry-chip">
+            <span>TURNO</span>
+            <strong>T1 · Mañana (06:00–14:00)</strong>
+          </div>
+          <div class="vm-telemetry-chip">
+            <span>CORTE DE LECTURA</span>
+            <strong>Hora 04 / 08 (10:00 h)</strong>
+          </div>
+          <div class="vm-telemetry-chip is-warn-chip">
+            <span>CONDICIÓN GENERAL</span>
+            <strong><i class="semaforo-dot is-amber" aria-hidden="true"></i> Atención en H4 (-8 u.)</strong>
+          </div>
+        </div>
+
+        <div class="vm-masthead-legend" aria-label="Leyenda de semáforo operacional">
+          <span class="legend-item"><i class="semaforo-dot is-green"></i> Normal</span>
+          <span class="legend-item"><i class="semaforo-dot is-amber"></i> Desvío en atención</span>
+          <span class="legend-item"><i class="semaforo-dot is-red"></i> Anomalía / Bloqueo</span>
+          <span class="vm-rivet" aria-hidden="true"></span>
+        </div>
+      </header>
+
+      <!-- Cuadrícula interna de carriles del tablero delimitadas por rieles -->
+      <div class="vm-board-grid">
+        <!-- ZONA 1: OBJETIVO Y ESTÁNDAR DEL TURNO (Banda superior de referencia) -->
+        <button
+          type="button"
+          class="vm-zone vm-zone-span-full"
+          data-vm-target="objetivos"
+          data-vm-links="estado,indicadores"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          aria-controls="vm-inspector"
+        >
+          <div class="vm-zone-rail is-green-rail" aria-hidden="true"></div>
+          <div class="vm-zone-head">
+            <div class="vm-zone-id-group">
+              <span class="vm-zone-code">SECCIÓN 01 · OBJETIVO Y CONDICIÓN ESTÁNDAR DEL TURNO</span>
+              <span class="vm-zone-question">¿Qué significa un buen turno hoy?</span>
+            </div>
+            <div class="vm-zone-head-right">
+              <span class="status-badge is-ok"><i class="semaforo-dot is-green"></i> Estándar vigente</span>
+              <span class="vm-expand-cue" aria-hidden="true">Inspeccionar sección ↗</span>
+            </div>
+          </div>
+
+          <div class="vm-objective-strip">
+            <div class="vm-obj-cell">
+              <span class="vm-obj-label">META DEL TURNO (PLAN)</span>
+              <strong class="vm-obj-value">120 órdenes conformes</strong>
+              <small>Cadencia: 30 órdenes / hora</small>
+            </div>
+            <div class="vm-obj-cell">
+              <span class="vm-obj-label">CONDICIÓN DE SEGURIDAD</span>
+              <strong class="vm-obj-value">0 incidentes / 0 actos inseguros</strong>
+              <small>Verificación pre-turno completada</small>
+            </div>
+            <div class="vm-obj-cell">
+              <span class="vm-obj-label">CALIDAD EN LA FUENTE</span>
+              <strong class="vm-obj-value">≥ 99.0% a la primera (FTQ)</strong>
+              <small>Etiquetado y lote verificados</small>
+            </div>
+            <div class="vm-obj-cell">
+              <span class="vm-obj-label">TIEMPO DE CAMBIO (SMED)</span>
+              <strong class="vm-obj-value">&lt; 18 minutos por formato</strong>
+              <small>Carro de preparación previa</small>
+            </div>
+          </div>
+        </button>
+
+        <!-- ZONA 2: PULSO HORARIO (Objetivo vs. Resultado real hora a hora) -->
+        <button
+          type="button"
+          class="vm-zone"
+          data-vm-target="estado"
+          data-vm-links="objetivos,indicadores,responsables"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          aria-controls="vm-inspector"
+        >
+          <div class="vm-zone-rail is-amber-rail" aria-hidden="true"></div>
+          <div class="vm-zone-head">
+            <div class="vm-zone-id-group">
+              <span class="vm-zone-code">SECCIÓN 02 · CONTROL HORARIO (PLAN VS. REAL)</span>
+              <span class="vm-zone-question">¿En qué tramo se perdió el ritmo?</span>
+            </div>
+            <div class="vm-zone-head-right">
+              <span class="status-badge is-warn"><i class="semaforo-dot is-amber"></i> H4: -8 órdenes</span>
+              <span class="vm-expand-cue" aria-hidden="true">Explorar ↗</span>
+            </div>
+          </div>
+
+          <div class="vm-hourly-table" aria-hidden="true">
+            <div class="vm-hourly-row vm-hourly-header">
+              <span>TRAMO</span>
+              <span>META</span>
+              <span>REAL</span>
+              <span>BRECHA</span>
+              <span>ESTADO DEL FLUJO</span>
+            </div>
+            <div class="vm-hourly-row">
+              <span class="hr-slot">H1 (06–07h)</span>
+              <span>30</span>
+              <strong>30</strong>
+              <span class="hr-delta is-ok">0</span>
+              <span class="hr-bar-wrap"><i class="hr-bar is-ok" style="width: 100%"></i></span>
+            </div>
+            <div class="vm-hourly-row">
+              <span class="hr-slot">H2 (07–08h)</span>
+              <span>30</span>
+              <strong>30</strong>
+              <span class="hr-delta is-ok">0</span>
+              <span class="hr-bar-wrap"><i class="hr-bar is-ok" style="width: 100%"></i></span>
+            </div>
+            <div class="vm-hourly-row">
+              <span class="hr-slot">H3 (08–09h)</span>
+              <span>30</span>
+              <strong>29</strong>
+              <span class="hr-delta is-ok">-1</span>
+              <span class="hr-bar-wrap"><i class="hr-bar is-ok" style="width: 96%"></i></span>
+            </div>
+            <div class="vm-hourly-row is-row-anomaly">
+              <span class="hr-slot">H4 (09–10h)</span>
+              <span>30</span>
+              <strong>22</strong>
+              <span class="hr-delta is-warn">-8</span>
+              <span class="hr-bar-wrap"><i class="hr-bar is-warn" style="width: 73%"></i></span>
+            </div>
+          </div>
+          <small class="vm-zone-foot-note">Acumulado al corte (10:00 h): <strong>111 / 120 u.</strong> → Dispara registro en Sección 04</small>
+        </button>
+
+        <!-- ZONA 3: INDICADORES VITALES SQDC CON SEMÁFOROS FUNCIONALES -->
+        <button
+          type="button"
+          class="vm-zone"
+          data-vm-target="indicadores"
+          data-vm-links="objetivos,estado,responsables"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          aria-controls="vm-inspector"
+        >
+          <div class="vm-zone-rail is-green-rail" aria-hidden="true"></div>
+          <div class="vm-zone-head">
+            <div class="vm-zone-id-group">
+              <span class="vm-zone-code">SECCIÓN 03 · TABLERO DE INDICADORES VITALES (SQDC)</span>
+              <span class="vm-zone-question">¿Sostenemos el desempeño en equilibrio?</span>
+            </div>
+            <div class="vm-zone-head-right">
+              <span class="status-badge is-ok"><i class="semaforo-dot is-green"></i> 3 OK · 1 Ámbar</span>
+              <span class="vm-expand-cue" aria-hidden="true">Explorar ↗</span>
+            </div>
+          </div>
+
+          <div class="vm-sqdc-grid" aria-hidden="true">
+            <div class="vm-sqdc-card is-sqdc-ok">
+              <div class="sqdc-top">
+                <span class="sqdc-letter">S</span>
+                <span class="sqdc-name">SEGURIDAD</span>
+                <i class="semaforo-dot is-green"></i>
+              </div>
+              <strong class="sqdc-metric">0 inc.</strong>
+              <span class="sqdc-target">Meta: 0 · 42 días sin eventos</span>
+            </div>
+
+            <div class="vm-sqdc-card is-sqdc-ok">
+              <div class="sqdc-top">
+                <span class="sqdc-letter">Q</span>
+                <span class="sqdc-name">CALIDAD (FTQ)</span>
+                <i class="semaforo-dot is-green"></i>
+              </div>
+              <strong class="sqdc-metric">99.1%</strong>
+              <span class="sqdc-target">Meta: ≥ 99.0% · 1 ajuste menor</span>
+            </div>
+
+            <div class="vm-sqdc-card is-sqdc-warn">
+              <div class="sqdc-top">
+                <span class="sqdc-letter">D</span>
+                <span class="sqdc-name">ENTREGA / FLUJO</span>
+                <i class="semaforo-dot is-amber"></i>
+              </div>
+              <strong class="sqdc-metric">92.5%</strong>
+              <span class="sqdc-target">Meta: ≥ 98% · Atraso en Hora 4</span>
+            </div>
+
+            <div class="vm-sqdc-card is-sqdc-ok">
+              <div class="sqdc-top">
+                <span class="sqdc-letter">C</span>
+                <span class="sqdc-name">CAPACIDAD / SMED</span>
+                <i class="semaforo-dot is-green"></i>
+              </div>
+              <strong class="sqdc-metric">16 min</strong>
+              <span class="sqdc-target">Meta: &lt; 18 min · Cambio OK</span>
+            </div>
+          </div>
+          <small class="vm-zone-foot-note">Ningún atraso de entrega autoriza omitir controles de Seguridad (S) o Calidad (Q)</small>
+        </button>
+
+        <!-- ZONA 4: REGISTRO DE ANOMALÍAS, CAUSA Y RESPONSABLE (TARJETA ROJA/ÁMBAR) -->
+        <button
+          type="button"
+          class="vm-zone"
+          data-vm-target="responsables"
+          data-vm-links="estado,indicadores,seguimiento"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          aria-controls="vm-inspector"
+        >
+          <div class="vm-zone-rail is-red-rail" aria-hidden="true"></div>
+          <div class="vm-zone-head">
+            <div class="vm-zone-id-group">
+              <span class="vm-zone-code">SECCIÓN 04 · ANOMALÍA DETECTADA Y RESPONSABLE</span>
+              <span class="vm-zone-question">¿Qué frenó el flujo y quién lidera el soporte?</span>
+            </div>
+            <div class="vm-zone-head-right">
+              <span class="status-badge is-alert"><i class="semaforo-dot is-red"></i> Desvío activo H4</span>
+              <span class="vm-expand-cue" aria-hidden="true">Explorar ↗</span>
+            </div>
+          </div>
+
+          <div class="vm-anomaly-ticket" aria-hidden="true">
+            <div class="vm-ticket-row">
+              <span class="ticket-tag">PROBLEMA OBSERVADO (H4)</span>
+              <strong>Parada de 14 min por espera de bobina de etiquetas pre-impresa en estación 2</strong>
+            </div>
+            <div class="vm-ticket-meta-grid">
+              <div>
+                <span>CAUSA EN TERRENO</span>
+                <strong>Carro B llegó sin lote verificado en relevo</strong>
+              </div>
+              <div>
+                <span>RESPONSABLE DE DESTRABAR</span>
+                <strong>M. Rojas (Logística interna)</strong>
+              </div>
+              <div>
+                <span>ESCALAMIENTO</span>
+                <strong>Nivel 1 · Supervisor de turno</strong>
+              </div>
+            </div>
+          </div>
+          <small class="vm-zone-foot-note">Visibiliza el obstáculo técnico del proceso; nunca expone ni culpa a las personas</small>
+        </button>
+
+        <!-- ZONA 5: PLAN DE ACCIÓN Y VERIFICACIÓN DE CIERRE (CICLO PDCA CORTO) -->
+        <button
+          type="button"
+          class="vm-zone"
+          data-vm-target="seguimiento"
+          data-vm-links="objetivos,responsables"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          aria-controls="vm-inspector"
+        >
+          <div class="vm-zone-rail is-green-rail" aria-hidden="true"></div>
+          <div class="vm-zone-head">
+            <div class="vm-zone-id-group">
+              <span class="vm-zone-code">SECCIÓN 05 · COMPROMISO OPERATIVO Y SEGUIMIENTO</span>
+              <span class="vm-zone-question">¿Qué acción cerrará la brecha hoy mismo?</span>
+            </div>
+            <div class="vm-zone-head-right">
+              <span class="status-badge is-ok"><i class="semaforo-dot is-green"></i> Verificación 14:00h</span>
+              <span class="vm-expand-cue" aria-hidden="true">Explorar ↗</span>
+            </div>
+          </div>
+
+          <div class="vm-action-tracker" aria-hidden="true">
+            <div class="vm-action-item">
+              <span class="action-step-badge is-done">1 · CONTENCIÓN</span>
+              <div class="action-copy">
+                <strong>Reposición inmediata de rollo verificado en estación 2 (09:38 h)</strong>
+                <small>Flujo restablecido a cadencia de 30 u./h</small>
+              </div>
+            </div>
+            <div class="vm-action-item">
+              <span class="action-step-badge is-progress">2 · ACCIÓN ACORDADA</span>
+              <div class="action-copy">
+                <strong>Adelantar preparación del carro B 15 min antes del cambio de lote</strong>
+                <small>Responsable: M. Rojas + Líder A-02 · <em>Revisión de efectividad: 14:00 h (Turno T2)</em></small>
+              </div>
+            </div>
+          </div>
+          <small class="vm-zone-foot-note">Un tablero solo es creíble cuando las acciones registradas se verifican en la fecha acordada</small>
+        </button>
+      </div>
+
+      <!-- Pie físico del tablero: bandeja de marcadores y trazabilidad de reunión de 5 minutos -->
+      <footer class="vm-board-tray" aria-hidden="true">
+        <span>REUNIÓN DE PIE FRENTE AL TABLERO: 5–10 MINUTOS</span>
+        <span>LECTURA SECUENCIAL: Z1 OBJETIVO → Z2 PULSO → Z3 SQDC → Z4 ANOMALÍA → Z5 ACCIÓN</span>
+        <span>DATOS ILUSTRATIVOS CON FINES PEDAGÓGICOS</span>
+      </footer>
+    </div>
+
+    <!-- Velo contextual suave cuando se abre una ficha (permite seguir viendo el tablero detrás) -->
+    <div
+      class="vm-stage-scrim"
+      id="vm-stage-scrim"
+      aria-hidden="true"
+      title="Haz clic en el fondo para cerrar la ficha y volver al tablero completo"
+    ></div>
+
+    <!-- Tarjeta Editorial Ampliada y Desplazable (FLIP + Pointer Events Drag) -->
+    <aside
+      class="vm-expanded-card"
+      id="vm-inspector"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="vm-title"
+      aria-hidden="true"
+      hidden
+    >
+      <!-- Barra superior que funciona como asa de arrastre en escritorio -->
+      <div class="vm-expanded-topbar" id="vm-drag-handle" data-drag-handle>
+        <div class="inspector-badge-row">
+          <span class="inspector-tag" id="vm-tag">ZONA 01 · NORTE OPERACIONAL</span>
+          <span class="inspector-step-indicator" id="vm-step">Zona 1 de 5</span>
+        </div>
+
+        <button
+          type="button"
+          class="vm-close-button"
+          id="vm-close-btn"
+          aria-label="Cerrar tarjeta ampliada y regresar al tablero"
+          title="Cerrar (Escape)"
+        >
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          <span>Cerrar</span>
+        </button>
+      </div>
+
+      <!-- Cuerpo principal de la tarjeta ampliada -->
+      <div class="vm-expanded-body">
+        <!-- Fragmento visual ampliado de la sección seleccionada del tablero -->
+        <div class="vm-magnified-preview">
+          <div class="vm-magnified-head">
+            <span class="vm-magnified-label">LECTURA DIRECTA EN EL TABLERO (EJEMPLO ILUSTRATIVO)</span>
+            <span class="status-badge is-ok" id="vm-magnified-badge">Meta visible</span>
+          </div>
+          <div class="vm-magnified-content" id="vm-magnified-content">
+            <strong>Estándar esperado hoy:</strong> 120 órdenes conformes · 0 incidentes · Cambio de formato &lt; 18 min
+          </div>
+        </div>
+
+        <!-- Explicación editorial en profundidad -->
+        <div class="vm-expanded-editorial">
+          <h3 class="vm-expanded-title" id="vm-title">Objetivos claros para la jornada</h3>
+          <p class="vm-expanded-summary" id="vm-summary">
+            Un tablero de gestión visual comienza declarando qué significa «un buen día o un buen turno». Sin una referencia explícita, nadie puede distinguir si la operación va adelantada, en ritmo normal o atrasada.
+          </p>
+        </div>
+
+        <!-- Cajas de relación con el funcionamiento del tablero -->
+        <div class="vm-expanded-details-grid">
+          <div class="inspector-detail-box">
+            <span>¿QUÉ PREGUNTA RESPONDE EN 5 SEGUNDOS?</span>
+            <p id="vm-question">
+              «¿Qué debemos lograr hoy en este proceso y bajo qué condiciones de seguridad y calidad?»
+            </p>
+          </div>
+          <div class="inspector-detail-box">
+            <span>FUNCIÓN EN EL TABLERO FRENTE A UN REPORTE PASIVO</span>
+            <p id="vm-difference">
+              No es un cuadro decorativo ni una pantalla corporativa lejana: traduce la meta en unidades concretas comprensibles para quienes ejecutan la tarea.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie de navegación dentro de la vista ampliada -->
+      <div class="vm-expanded-footer">
+        <div class="vm-expanded-nav-group">
+          <button type="button" class="step-nav-btn" id="vm-prev-btn">← Sección anterior</button>
+          <button type="button" class="step-nav-btn" id="vm-next-btn">Siguiente sección →</button>
+        </div>
+        <button type="button" class="vm-return-board-btn" id="vm-return-btn">
+          Volver al tablero completo [ESC]
+        </button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<style>
+  .vm-expandable-workbench {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--surface-panel);
+    border: 1px solid var(--line-soft);
+    border-radius: 18px;
+    padding: 20px 22px 24px;
+    box-shadow: 0 22px 48px rgba(3, 8, 20, 0.34);
+    position: relative;
+  }
+
+  html[data-theme="light"] .vm-expandable-workbench {
+    box-shadow: 0 14px 34px rgba(15, 28, 52, 0.08);
+  }
+
+  .vm-workbench-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .vm-topline-left {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .vm-illustrative-stamp {
+    font-family: "Manrope", sans-serif;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: #93c5fd;
+    background: rgba(37, 99, 235, 0.16);
+    border: 1px dashed rgba(96, 165, 250, 0.48);
+    padding: 5px 11px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  html[data-theme="light"] .vm-illustrative-stamp {
+    color: #1d4ed8;
+    background: rgba(37, 99, 235, 0.08);
+    border-color: rgba(37, 99, 235, 0.35);
+  }
+
+  .vm-stage-container {
+    position: relative;
+    min-height: 560px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* ==========================================================================
+     CHASIS 2.5D DEL TABLERO FÍSICO DE GESTIÓN VISUAL EN TERRENO
+     ========================================================================== */
+  .vm-board-chassis {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, rgba(13, 25, 48, 0.96) 0%, rgba(8, 17, 34, 0.98) 100%);
+    border: 2px solid rgba(100, 130, 180, 0.42);
+    border-top: 4px solid #3b82f6;
+    border-radius: 16px;
+    box-shadow:
+      0 26px 56px rgba(2, 6, 18, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      inset 0 0 0 1px rgba(15, 23, 42, 0.8);
+    overflow: hidden;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s ease;
+  }
+
+  html[data-theme="light"] .vm-board-chassis {
+    background: linear-gradient(180deg, #e8eef7 0%, #dbe5f3 100%);
+    border-color: rgba(71, 85, 105, 0.45);
+    border-top: 4px solid #2563eb;
+    box-shadow:
+      0 20px 44px rgba(15, 23, 42, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  /* Cabezal superior del tablero con contexto operativo */
+  .vm-board-masthead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 12px 18px;
+    background: linear-gradient(90deg, rgba(19, 38, 72, 0.95), rgba(12, 25, 48, 0.95));
+    border-bottom: 2px solid rgba(96, 165, 250, 0.28);
+  }
+
+  html[data-theme="light"] .vm-board-masthead {
+    background: linear-gradient(90deg, #cfdced, #dce6f4);
+    border-bottom-color: rgba(37, 99, 235, 0.24);
+  }
+
+  .vm-masthead-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .vm-rivet {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #94a3b8, #334155);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.5);
+    flex-shrink: 0;
+  }
+
+  .vm-masthead-titles {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .vm-masthead-eyebrow {
+    font-family: "Manrope", sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    color: var(--blue-soft);
+  }
+
+  .vm-masthead-area {
+    font-family: "Manrope", sans-serif;
+    font-size: 13.5px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+  }
+
+  .vm-masthead-telemetry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .vm-telemetry-chip {
+    background: rgba(9, 18, 36, 0.72);
+    border: 1px solid rgba(148, 163, 184, 0.26);
+    border-radius: 7px;
+    padding: 4px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  html[data-theme="light"] .vm-telemetry-chip {
+    background: rgba(255, 255, 255, 0.86);
+    border-color: rgba(71, 85, 105, 0.25);
+  }
+
+  .vm-telemetry-chip.is-warn-chip {
+    border-color: rgba(245, 158, 11, 0.55);
+    background: rgba(245, 158, 11, 0.12);
+  }
+
+  .vm-telemetry-chip span {
+    font-family: "Manrope", sans-serif;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+  }
+
+  .vm-telemetry-chip strong {
+    font-family: "DM Sans", sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .vm-masthead-legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* Semáforos físicos con halo funcional */
+  .semaforo-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .semaforo-dot.is-green {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.75);
+  }
+
+  .semaforo-dot.is-amber {
+    background: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+  }
+
+  .semaforo-dot.is-red {
+    background: #ef4444;
+    box-shadow: 0 0 9px rgba(239, 68, 68, 0.85);
+  }
+
+  /* Cuadrícula de 5 secciones delimitadas como módulos de pizarra */
+  .vm-board-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 12px;
+    padding: 14px 16px;
+    background:
+      linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
+      linear-gradient(0deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px) 0 0 / 24px 24px;
+  }
+
+  .vm-zone-span-full {
+    grid-column: 1 / -1;
+  }
+
+  .vm-zone {
+    appearance: none;
+    width: 100%;
+    text-align: left;
+    background: rgba(16, 31, 58, 0.92);
+    border: 1.5px solid rgba(148, 163, 184, 0.3);
+    border-radius: 11px;
+    padding: 12px 15px 12px 19px;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 9px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 18px rgba(2, 6, 18, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transition:
+      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.22s ease,
+      box-shadow 0.22s ease,
+      opacity 0.25s ease;
+  }
+
+  html[data-theme="light"] .vm-zone {
+    background: rgba(252, 254, 255, 0.96);
+    border-color: rgba(71, 85, 105, 0.28);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  }
+
+  /* Riel lateral cromático de estado de cada sección */
+  .vm-zone-rail {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+  }
+
+  .is-green-rail {
+    background: linear-gradient(180deg, #10b981, #059669);
+  }
+
+  .is-amber-rail {
+    background: linear-gradient(180deg, #f59e0b, #d97706);
+  }
+
+  .is-red-rail {
+    background: linear-gradient(180deg, #ef4444, #dc2626);
+  }
+
+  .vm-zone:hover {
+    border-color: #60a5fa;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(4, 12, 30, 0.42), 0 0 0 1px rgba(96, 165, 250, 0.35);
+  }
+
+  .vm-zone:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: 2px;
+  }
+
+  /* Cuando una sección está abierta: la activa y sus conectadas siguen visibles detrás para descubrir relaciones al arrastrar */
+  .vm-expandable-workbench[data-expanded="true"] .vm-zone:not(.is-active):not(.is-linked-zone) {
+    opacity: 0.45;
+    filter: saturate(0.75);
+  }
+
+  .vm-zone.is-linked-zone {
+    border-color: rgba(96, 165, 250, 0.65);
+    box-shadow: 0 0 0 1.5px rgba(96, 165, 250, 0.35), 0 8px 20px rgba(15, 35, 75, 0.32);
+  }
+
+  .vm-zone.is-active {
+    border-color: #60a5fa;
+    background: rgba(25, 52, 102, 0.88);
+    box-shadow: 0 0 0 2.5px rgba(96, 165, 250, 0.65), 0 14px 32px rgba(15, 35, 75, 0.5);
+    z-index: 4;
+  }
+
+  html[data-theme="light"] .vm-zone.is-active {
+    background: rgba(219, 234, 254, 0.98);
+    border-color: #2563eb;
+  }
+
+  .vm-zone-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+    padding-bottom: 6px;
+  }
+
+  .vm-zone-id-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .vm-zone-code {
+    font-family: "Manrope", sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    color: var(--blue-soft);
+  }
+
+  .vm-zone-question {
+    font-family: "DM Sans", sans-serif;
+    font-size: 11px;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+
+  .vm-zone-head-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .vm-expand-cue {
+    font-family: "DM Sans", sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--blue-soft);
+    background: rgba(59, 130, 246, 0.14);
+    border: 1px solid rgba(96, 165, 250, 0.32);
+    padding: 2px 8px;
+    border-radius: 999px;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .vm-zone:hover .vm-expand-cue {
+    background: rgba(59, 130, 246, 0.28);
+    transform: translateX(1px);
+  }
+
+  /* ZONA 1: Tira de 4 celdas de objetivo estándar */
+  .vm-objective-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .vm-obj-cell {
+    background: rgba(9, 19, 38, 0.66);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  html[data-theme="light"] .vm-obj-cell {
+    background: rgba(241, 245, 249, 0.9);
+    border-color: rgba(71, 85, 105, 0.2);
+  }
+
+  .vm-obj-label {
+    font-family: "Manrope", sans-serif;
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    color: var(--blue-soft);
+  }
+
+  .vm-obj-value {
+    font-family: "DM Sans", sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .vm-obj-cell small {
+    font-size: 10.5px;
+    color: var(--text-muted);
+  }
+
+  /* ZONA 2: Tabla horaria Plan vs Real */
+  .vm-hourly-table {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 11.5px;
+  }
+
+  .vm-hourly-row {
+    display: grid;
+    grid-template-columns: 86px 42px 42px 54px 1fr;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(9, 19, 38, 0.52);
+  }
+
+  html[data-theme="light"] .vm-hourly-row {
+    background: rgba(241, 245, 249, 0.85);
+  }
+
+  .vm-hourly-header {
+    background: transparent !important;
+    font-family: "Manrope", sans-serif;
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    padding-bottom: 2px;
+  }
+
+  .vm-hourly-row.is-row-anomaly {
+    background: rgba(245, 158, 11, 0.16);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+  }
+
+  .hr-slot {
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .hr-delta {
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  .hr-delta.is-ok {
+    color: #34d399;
+  }
+
+  .hr-delta.is-warn {
+    color: #fbbf24;
+  }
+
+  html[data-theme="light"] .hr-delta.is-ok {
+    color: #059669;
+  }
+
+  html[data-theme="light"] .hr-delta.is-warn {
+    color: #b45309;
+  }
+
+  .hr-bar-wrap {
+    height: 7px;
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 999px;
+    overflow: hidden;
+    display: block;
+  }
+
+  .hr-bar {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+  }
+
+  .hr-bar.is-ok {
+    background: linear-gradient(90deg, #10b981, #34d399);
+  }
+
+  .hr-bar.is-warn {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  }
+
+  /* ZONA 3: Cuadrícula SQDC */
+  .vm-sqdc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .vm-sqdc-card {
+    background: rgba(9, 19, 38, 0.62);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 8px;
+    padding: 7px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  html[data-theme="light"] .vm-sqdc-card {
+    background: rgba(241, 245, 249, 0.9);
+    border-color: rgba(71, 85, 105, 0.22);
+  }
+
+  .vm-sqdc-card.is-sqdc-warn {
+    border-color: rgba(245, 158, 11, 0.55);
+    background: rgba(245, 158, 11, 0.13);
+  }
+
+  .sqdc-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sqdc-letter {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background: rgba(59, 130, 246, 0.24);
+    border: 1px solid rgba(96, 165, 250, 0.45);
+    color: var(--text-primary);
+    font-family: "Manrope", sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    display: inline-grid;
+    place-items: center;
+  }
+
+  .sqdc-name {
+    font-family: "Manrope", sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin-right: auto;
+  }
+
+  .sqdc-metric {
+    font-family: "DM Sans", sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+
+  .sqdc-target {
+    font-family: "DM Sans", sans-serif;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* ZONA 4: Ticket de Anomalía y Dueño */
+  .vm-anomaly-ticket {
+    background: rgba(239, 68, 68, 0.09);
+    border: 1px solid rgba(239, 68, 68, 0.36);
+    border-radius: 8px;
+    padding: 9px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .vm-ticket-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ticket-tag {
+    font-family: "Manrope", sans-serif;
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: #fca5a5;
+  }
+
+  html[data-theme="light"] .ticket-tag {
+    color: #b91c1c;
+  }
+
+  .vm-ticket-row strong {
+    font-family: "DM Sans", sans-serif;
+    font-size: 12px;
+    color: var(--text-primary);
+  }
+
+  .vm-ticket-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    border-top: 1px dashed rgba(239, 68, 68, 0.3);
+    padding-top: 6px;
+  }
+
+  .vm-ticket-meta-grid span {
+    display: block;
+    font-family: "Manrope", sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+
+  .vm-ticket-meta-grid strong {
+    font-family: "DM Sans", sans-serif;
+    font-size: 11px;
+    color: var(--text-primary);
+  }
+
+  /* ZONA 5: Seguimiento y Acuerdos */
+  .vm-action-tracker {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .vm-action-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    background: rgba(9, 19, 38, 0.56);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 8px;
+    padding: 7px 10px;
+  }
+
+  html[data-theme="light"] .vm-action-item {
+    background: rgba(241, 245, 249, 0.9);
+  }
+
+  .action-step-badge {
+    font-family: "Manrope", sans-serif;
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 3px 7px;
+    border-radius: 5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .action-step-badge.is-done {
+    background: rgba(16, 185, 129, 0.18);
+    border: 1px solid rgba(16, 185, 129, 0.45);
+    color: #6ee7b7;
+  }
+
+  .action-step-badge.is-progress {
+    background: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(96, 165, 250, 0.5);
+    color: #93c5fd;
+  }
+
+  html[data-theme="light"] .action-step-badge.is-done {
+    color: #047857;
+  }
+
+  html[data-theme="light"] .action-step-badge.is-progress {
+    color: #1d4ed8;
+  }
+
+  .action-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .action-copy strong {
+    font-family: "DM Sans", sans-serif;
+    font-size: 11.5px;
+    color: var(--text-primary);
+  }
+
+  .action-copy small {
+    font-size: 10.5px;
+    color: var(--text-muted);
+  }
+
+  .vm-zone-foot-note {
+    font-family: "DM Sans", sans-serif;
+    font-size: 10.5px;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(148, 163, 184, 0.14);
+    padding-top: 5px;
+  }
+
+  .vm-board-tray {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 8px 18px;
+    background: rgba(6, 13, 26, 0.92);
+    border-top: 1px solid rgba(148, 163, 184, 0.24);
+    font-family: "Manrope", sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+  }
+
+  html[data-theme="light"] .vm-board-tray {
+    background: #cfdced;
+    border-top-color: rgba(71, 85, 105, 0.25);
+  }
+
+  /* Velo de fondo muy ligero y sin desenfoque agresivo para poder leer el tablero detrás al arrastrar la ficha */
+  .vm-stage-scrim {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: rgba(5, 12, 26, 0.22);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+    z-index: 10;
+    cursor: pointer;
+  }
+
+  html[data-theme="light"] .vm-stage-scrim {
+    background: rgba(15, 28, 52, 0.14);
+  }
+
+  .vm-expandable-workbench[data-expanded="true"] .vm-stage-scrim {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Cuando el tablero tiene una ficha abierta, las zonas del tablero siguen siendo clicables por encima del velo */
+  .vm-expandable-workbench[data-expanded="true"] .vm-zone {
+    z-index: 12;
+  }
+
+  /* Ficha editorial ampliada y desplazable (tamaño compacto que permite descubrir el tablero alrededor) */
+  .vm-expanded-card {
+    position: absolute;
+    top: 24px;
+    left: calc(50% - min(340px, 46%));
+    width: min(680px, 92%);
+    max-height: calc(100% - 36px);
+    z-index: 25;
+    background: rgba(11, 22, 43, 0.97);
+    border: 1.5px solid #60a5fa;
+    border-radius: 16px;
+    padding: 16px 22px;
+    box-shadow: 0 28px 68px rgba(2, 6, 18, 0.82), 0 0 0 1px rgba(147, 197, 253, 0.28);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 11px;
+    overflow-y: auto;
+    transform-origin: center center;
+    will-change: transform, opacity;
+  }
+
+  html[data-theme="light"] .vm-expanded-card {
+    background: rgba(248, 251, 255, 0.98);
+    border-color: #2563eb;
+    box-shadow: 0 24px 60px rgba(15, 28, 52, 0.26), 0 0 0 1px rgba(37, 99, 235, 0.2);
+  }
+
+  .vm-expanded-card[hidden] {
+    display: none !important;
+  }
+
+  .vm-expanded-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: nowrap;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--line-soft);
+    position: sticky;
+    top: 0;
+    background: inherit;
+    z-index: 2;
+  }
+
+  .vm-expanded-topbar .inspector-badge-row {
+    margin-bottom: 0;
+    gap: 8px;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .vm-close-button {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(59, 130, 246, 0.16);
+    border: 1.5px solid rgba(96, 165, 250, 0.55);
+    color: var(--text-primary);
+    border-radius: 999px;
+    padding: 6px 13px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .vm-close-button:hover {
+    background: rgba(59, 130, 246, 0.32);
+    border-color: #93c5fd;
+  }
+
+  .vm-expanded-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .vm-magnified-preview {
+    background: rgba(20, 39, 74, 0.65);
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    border-left: 4px solid #60a5fa;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  html[data-theme="light"] .vm-magnified-preview {
+    background: rgba(219, 234, 254, 0.65);
+    border-color: rgba(37, 99, 235, 0.32);
+    border-left: 4px solid #2563eb;
+  }
+
+  .vm-magnified-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .vm-magnified-label {
+    font-family: "DM Sans", sans-serif;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    color: var(--blue-soft);
+  }
+
+  .vm-magnified-content {
+    font-size: 13px;
+    line-height: 1.48;
+    color: var(--text-primary);
+  }
+
+  .vm-expanded-title {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: clamp(20px, 2vw, 25px);
+    line-height: 1.2;
+    color: var(--text-primary);
+    margin: 0 0 5px;
+  }
+
+  .vm-expanded-summary {
+    font-size: 14px;
+    line-height: 1.58;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .vm-expanded-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .vm-expanded-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 10px;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .vm-expanded-nav-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .vm-return-board-btn {
+    appearance: none;
+    background: transparent;
+    border: 1px solid var(--line-soft);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    padding: 6px 11px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .vm-return-board-btn:hover {
+    border-color: var(--blue-bright);
+    color: var(--text-primary);
+  }
+
+  @media (max-width: 960px) {
+    .vm-objective-strip {
+      grid-template-columns: 1fr 1fr;
+    }
+    .vm-board-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 860px) {
+    .vm-objective-strip,
+    .vm-sqdc-grid,
+    .vm-ticket-meta-grid,
+    .vm-expanded-details-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .vm-expanded-card {
+      position: relative;
+      inset: auto;
+      left: auto;
+      top: auto;
+      width: 100%;
+      max-height: none;
+      margin-top: 12px;
+      padding: 16px;
+    }
+
+    .vm-expandable-workbench[data-expanded="true"] .vm-board-chassis {
+      display: none;
+    }
+
+    .vm-expandable-workbench[data-expanded="true"] .vm-stage-scrim {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import {
+    animateFlipOpen,
+    animateFlipClose,
+    makeCardDraggable,
+  } from '../../lib/expandableCardEngine';
+
+  function initVisualManagementBoard() {
+    const root = document.getElementById('visual-board-workbench');
+    const stageContainer = document.getElementById('vm-stage-container');
+    if (!root || root.hasAttribute('data-initialized')) return;
+    root.setAttribute('data-initialized', 'true');
+
+    interface ZoneData {
+      tag: string;
+      step: string;
+      title: string;
+      summary: string;
+      question: string;
+      difference: string;
+      badgeText: string;
+      badgeClass: 'is-ok' | 'is-warn' | 'is-alert';
+      magnifiedHtml: string;
+      relatedKeys: string[];
+    }
+
+    const ZONES: Record<string, ZoneData> = {
+      objetivos: {
+        tag: 'SECCIÓN 01 · NORTE OPERACIONAL',
+        step: 'Sección 1 de 5',
+        title: 'Objetivos claros para la jornada',
+        summary:
+          'Un tablero de gestión visual comienza declarando qué significa «un buen día o un buen turno». Sin una referencia explícita, nadie puede distinguir si la operación va adelantada, en ritmo normal o atrasada.',
+        question:
+          '«¿Qué debemos lograr hoy en este proceso y bajo qué condiciones de seguridad y calidad?»',
+        difference:
+          'No es un cuadro decorativo ni una pantalla corporativa lejana: traduce la meta en unidades concretas comprensibles para quienes ejecutan la tarea.',
+        badgeText: 'Meta visible',
+        badgeClass: 'is-ok',
+        magnifiedHtml:
+          '<strong>Estándar esperado hoy (ilustrativo):</strong> 120 órdenes conformes (30 u./h) · 0 incidentes de seguridad · FTQ ≥ 99.0% · Cambio de formato &lt; 18 min.',
+        relatedKeys: ['estado', 'indicadores'],
+      },
+      estado: {
+        tag: 'SECCIÓN 02 · PULSO EN TIEMPO REAL',
+        step: 'Sección 2 de 5',
+        title: 'Estado actual frente a lo esperado',
+        summary:
+          'Muestra el pulso del proceso tramo a tramo (por ejemplo, hora a hora o lote a lote). Permite detectar una desviación cuando todavía quedan horas para recuperar el flujo, en lugar de enterarse al día siguiente.',
+        question:
+          '«¿Estamos dentro de condición normal ahora mismo o acaba de aparecer un atraso o bloqueo?»',
+        difference:
+          'Un informe mensual cuenta la historia cuando ya no tiene remedio; el control visual en curso permite actuar dentro del mismo turno.',
+        badgeText: 'Hora 4: Desvío (-8)',
+        badgeClass: 'is-warn',
+        magnifiedHtml:
+          '<strong>Seguimiento horario (ilustrativo):</strong> H1 (30/30 OK) · H2 (30/30 OK) · H3 (29/30 OK) · <strong>H4 (22/30 — Desvío de -8 u. detectado a tiempo)</strong>.',
+        relatedKeys: ['objetivos', 'indicadores', 'responsables'],
+      },
+      indicadores: {
+        tag: 'SECCIÓN 03 · SALUD INTEGRAL (SQDC)',
+        step: 'Sección 3 de 5',
+        title: 'Indicadores equilibrados del proceso',
+        summary:
+          'Agrupa pocos indicadores vitales —habitualmente Seguridad, Calidad, Entrega y Costo/Capacidad— para evitar que el cumplimiento de volumen se logre sacrificando la seguridad o transfiriendo defectos.',
+        question:
+          '«¿Estamos sosteniendo el desempeño con equilibrio o un resultado está deteriorando otro?»',
+        difference:
+          'Evita saturar al equipo con decenas de gráficos complejos; utiliza códigos visuales simples (verde, ámbar, rojo) con umbrales definidos.',
+        badgeText: 'Equilibrio SQDC',
+        badgeClass: 'is-ok',
+        magnifiedHtml:
+          '<strong>Lectura integral (ilustrativa):</strong> Seguridad: 0 incidentes (Verde) · Calidad FTQ: 99.1% (Verde) · Entrega: 92.5% (Ámbar por H4) · Cambio SMED: 16 min (Verde).',
+        relatedKeys: ['objetivos', 'estado', 'responsables'],
+      },
+      responsables: {
+        tag: 'SECCIÓN 04 · PROPIEDAD Y SOPORTE',
+        step: 'Sección 4 de 5',
+        title: 'Responsables y registro de anomalías',
+        summary:
+          'Cuando un indicador cambia a ámbar o rojo, el tablero registra qué obstáculo ocurrió en el proceso y quién lidera su contención o escalamiento. Visibiliza el problema, no señala culpables.',
+        question:
+          '«¿Qué detuvo el flujo en la hora 4 y quién necesita apoyo para destrabarlo?»',
+        difference:
+          'Transforma las quejas informales de pasillo en problemas concretos asignados a un responsable con capacidad de gestión.',
+        badgeText: 'Soporte activo',
+        badgeClass: 'is-alert',
+        magnifiedHtml:
+          '<strong>Anomalía registrada (Hora 4):</strong> Espera de bobina de etiquetas verificada en estación 2 · <strong>Responsable de destrabar:</strong> M. Rojas (Logística interna).',
+        relatedKeys: ['estado', 'indicadores', 'seguimiento'],
+      },
+      seguimiento: {
+        tag: 'SECCIÓN 05 · DISCIPLINA DE CIERRE',
+        step: 'Sección 5 de 5',
+        title: 'Seguimiento de acuerdos y efectividad',
+        summary:
+          'Un tablero pierde toda credibilidad si se anotan problemas todos los días pero ninguna acción se cierra. Esta zona conecta la reunión breve de hoy con la verificación del turno siguiente.',
+        question:
+          '«¿La acción acordada ayer resolvió realmente el obstáculo o necesitamos ajustar el estándar?»',
+        difference:
+          'Cierra el ciclo entre observar y mejorar: convierte el tablero en el punto de encuentro vivo donde el equipo coordina su trabajo diario.',
+        badgeText: 'Cierre 14:00h',
+        badgeClass: 'is-ok',
+        magnifiedHtml:
+          '<strong>Compromiso operativo:</strong> Adelantar preparación del carro B 15 minutos antes del cambio de lote · <strong>Verificación:</strong> 14:00 h en relevo de turno T2.',
+        relatedKeys: ['objetivos', 'responsables'],
+      },
+    };
+
+    const keys = ['objetivos', 'estado', 'indicadores', 'responsables', 'seguimiento'];
+    let currentIdx = 0;
+    let isExpanded = false;
+    let lastOriginZone: HTMLElement | null = null;
+
+    const pills = root.querySelectorAll<HTMLButtonElement>('[data-vm-zone]');
+    const zones = root.querySelectorAll<HTMLButtonElement>('[data-vm-target]');
+    const inspector = document.getElementById('vm-inspector') as HTMLElement | null;
+    const dragHandle = document.getElementById('vm-drag-handle');
+    const scrim = document.getElementById('vm-stage-scrim');
+    const stateHint = document.getElementById('vm-state-hint');
+
+    const tagEl = document.getElementById('vm-tag');
+    const stepEl = document.getElementById('vm-step');
+    const titleEl = document.getElementById('vm-title');
+    const summaryEl = document.getElementById('vm-summary');
+    const qEl = document.getElementById('vm-question');
+    const diffEl = document.getElementById('vm-difference');
+    const magBadge = document.getElementById('vm-magnified-badge');
+    const magContent = document.getElementById('vm-magnified-content');
+
+    const closeBtn = document.getElementById('vm-close-btn');
+    const returnBtn = document.getElementById('vm-return-btn');
+    const prevBtn = document.getElementById('vm-prev-btn');
+    const nextBtn = document.getElementById('vm-next-btn');
+
+    const dragCtrl = inspector
+      ? makeCardDraggable({
+          cardEl: inspector,
+          handleEl: dragHandle,
+          boundaryEl: stageContainer || root,
+        })
+      : null;
+
+    function populateCardContent(key: string) {
+      const item = ZONES[key];
+      if (!item) return;
+      if (tagEl) tagEl.textContent = item.tag;
+      if (stepEl) stepEl.textContent = item.step;
+      if (titleEl) titleEl.textContent = item.title;
+      if (summaryEl) summaryEl.textContent = item.summary;
+      if (qEl) qEl.textContent = item.question;
+      if (diffEl) diffEl.textContent = item.difference;
+      if (magBadge) {
+        magBadge.textContent = item.badgeText;
+        magBadge.className = `status-badge ${item.badgeClass}`;
+      }
+      if (magContent) {
+        magContent.innerHTML = item.magnifiedHtml;
+      }
+    }
+
+    function syncActiveButtons(key: string | null) {
+      const related = key && ZONES[key] ? ZONES[key].relatedKeys : [];
+
+      pills.forEach((p) => {
+        const active = key !== null && p.getAttribute('data-vm-zone') === key;
+        p.classList.toggle('is-active', active);
+        p.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      zones.forEach((z) => {
+        const zKey = z.getAttribute('data-vm-target') || '';
+        const active = key !== null && zKey === key;
+        const linked = key !== null && related.includes(zKey);
+        z.classList.toggle('is-active', active);
+        z.classList.toggle('is-linked-zone', linked);
+        z.setAttribute('aria-expanded', active && isExpanded ? 'true' : 'false');
+      });
+    }
+
+    function openZone(key: string, focusClose = true) {
+      const i = keys.indexOf(key);
+      if (i === -1 || !inspector || !root) return;
+      const wasExpanded = isExpanded;
+      currentIdx = i;
+
+      const originZone = root.querySelector<HTMLElement>(`[data-vm-target="${key}"]`);
+      lastOriginZone = originZone;
+
+      populateCardContent(key);
+      isExpanded = true;
+      root.setAttribute('data-expanded', 'true');
+      inspector.hidden = false;
+      inspector.setAttribute('aria-hidden', 'false');
+      syncActiveButtons(key);
+
+      if (stateHint) {
+        stateHint.textContent =
+          'Arrastra la barra superior de la ficha para despejar el tablero · Haz clic en otra sección o pulsa [X] / [Escape]';
+      }
+
+      if (!wasExpanded) {
+        animateFlipOpen(originZone, inspector);
+      }
+
+      if (focusClose) {
+        setTimeout(() => closeBtn?.focus({ preventScroll: true }), 60);
+      }
+    }
+
+    function closeExpandedCard() {
+      if (!isExpanded || !inspector || !root) return;
+      const originToFocus = lastOriginZone;
+
+      animateFlipClose(originToFocus, inspector, () => {
+        isExpanded = false;
+        dragCtrl?.resetPosition(false);
+        root.setAttribute('data-expanded', 'false');
+        inspector.hidden = true;
+        inspector.setAttribute('aria-hidden', 'true');
+        syncActiveButtons(null);
+        if (stateHint) {
+          stateHint.textContent =
+            'Selecciona cualquier sección del tablero para abrir su ficha técnica y arrástrala para comparar las zonas conectadas';
+        }
+        originToFocus?.focus({ preventScroll: true });
+      });
+    }
+
+    pills.forEach((p) => {
+      p.addEventListener('click', () => {
+        const k = p.getAttribute('data-vm-zone');
+        if (k) openZone(k, false);
+      });
+    });
+
+    zones.forEach((z) => {
+      z.addEventListener('click', () => {
+        const k = z.getAttribute('data-vm-target');
+        if (!k) return;
+        if (isExpanded && keys[currentIdx] === k) {
+          closeExpandedCard();
+        } else {
+          openZone(k, true);
+        }
+      });
+    });
+
+    closeBtn?.addEventListener('click', closeExpandedCard);
+    returnBtn?.addEventListener('click', closeExpandedCard);
+    scrim?.addEventListener('click', closeExpandedCard);
+
+    prevBtn?.addEventListener('click', () => {
+      openZone(keys[(currentIdx - 1 + keys.length) % keys.length], false);
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      openZone(keys[(currentIdx + 1) % keys.length], false);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (!isExpanded) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        closeExpandedCard();
+      }
+    });
+  }
+
+  initVisualManagementBoard();
+  document.addEventListener('astro:page-load', initVisualManagementBoard);
+</script>

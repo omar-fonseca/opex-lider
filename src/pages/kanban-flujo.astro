@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import KanbanWipSimulator from '../components/diagrams/KanbanWipSimulator.astro';
+---
+
+<BaseLayout
+  title="07 · Tablero Kanban y flujo"
+  description="Secuencia visual explorable de un tablero Kanban: avance de actividades, límite de trabajo en curso (WIP) y manejo de restricciones."
+  currentPath="/kanban-flujo"
+>
+  <article class="page chapter-page" aria-labelledby="p07-heading">
+    <header class="chapter-lead-grid">
+      <div class="editorial-heading">
+        <p class="eyebrow">07 · CONTROL DE FLUJO Y WIP</p>
+        <h1 id="p07-heading">
+          Menos tareas abiertas al mismo tiempo,<br />
+          <em>más entregas terminadas con calidad.</em>
+        </h1>
+        <p class="lead">
+          Un tablero Kanban operativo no es una lista de deseos donde se acumulan tarjetas sin control. Su elemento regulador es el límite de Trabajo en Curso (WIP, por sus siglas en inglés: <em>Work In Progress</em>), que protege al equipo de la multitarea improductiva y expone de inmediato cualquier restricción del flujo.
+        </p>
+      </div>
+
+      <aside class="chapter-purpose-pill" aria-label="Propósito de esta página">
+        <span>PROPÓSITO DE APRENDIZAJE</span>
+        <p>
+          Observar visualmente cómo avanza una actividad a través de los estados del proceso, cómo se identifica el trabajo en curso (WIP) y qué decisiones debe tomar el líder cuando una etapa alcanza su límite por una restricción.
+        </p>
+      </aside>
+    </header>
+
+    <!-- Experiencia interactiva 07: Simulador de flujo y límite WIP -->
+    <KanbanWipSimulator />
+
+    <!-- Lectura editorial -->
+    <div class="editorial-copy-grid">
+      <div class="reading-block">
+        <span>01 · QUÉ ES EL WIP</span>
+        <h3>El costo oculto de tener todo empezado</h3>
+        <p>
+          El trabajo en curso comprende todas las órdenes o lotes que ya consumieron recursos pero aún no han sido entregados como salida completa. Cuando el WIP crece sin límite, el tiempo total de respuesta se alarga y los defectos tardan más en descubrirse.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>02 · FUNCIÓN DEL LÍMITE WIP</span>
+        <h3>Un tope explícito por etapa</h3>
+        <p>
+          Fijar un máximo de actividades simultáneas en cada columna obliga a sincronizar el proceso. Si una etapa llega a su tope, las etapas anteriores no pueden seguir empujando trabajo: deben ayudar a destrabar el flujo.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>03 · GESTIÓN DE LA RESTRICCIÓN</span>
+        <h3>El cuello de botella marca el ritmo</h3>
+        <p>
+          Cuando una actividad se bloquea en una etapa crítica, iniciar más órdenes al principio del proceso solo agrava la congestión. La prioridad del líder es proteger y desbloquear la etapa restrictiva.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>04 · REGLA DE EJECUCIÓN</span>
+        <h3>Terminar antes de empezar</h3>
+        <p>
+          En la revisión diaria del tablero, el equipo lee las columnas de derecha a izquierda (desde la salida hacia la entrada): primero asegura cómo cerrar lo que está más cerca de entregarse y solo al final inicia nuevas órdenes.
+        </p>
+      </div>
+    </div>
+
+    <!-- Aplicación operacional ilustrativa -->
+    <aside class="practical-example" aria-label="Aplicación operacional ilustrativa">
+      <div>
+        <span>APLICACIÓN ILUSTRATIVA · COORDINACIÓN DE INSPECCIÓN Y LIBERACIÓN</span>
+        <strong style="display: block; color: var(--text-primary); font-size: 13px; margin-top: 6px; font-family: 'Manrope', sans-serif;">Cómo el límite WIP evitó un embotellamiento mayor</strong>
+      </div>
+      <p>
+        En un área de acondicionamiento de equipos, la etapa de «Ejecución y prueba funcional» tenía un límite WIP de 2 unidades. A media mañana, una orden quedó detenida porque el banco de prueba reportó una lectura fuera de rango. Antes de tener el tablero con límite WIP, el área de preparación habría seguido desmontando más equipos, saturando el taller con piezas abiertas. Con la regla activa, al alcanzarse el tope de 2/2, el líder detuvo el ingreso de nuevas órdenes, coordinó el reemplazo inmediato del patrón de prueba y restableció el flujo en menos de cuarenta minutos.
+      </p>
+    </aside>
+
+    <!-- Puente hacia la página 08 -->
+    <div class="chapter-next-bridge">
+      <div>
+        <span class="bridge-eyebrow">CONTINUACIÓN EDITORIAL · PÁGINA 08</span>
+        <h4>¿Cómo saber si nuestro proceso está logrando su propósito?</h4>
+        <p>
+          Los tableros y flujos nos muestran cómo avanza el trabajo hoy. Para conectar ese flujo diario con los objetivos estratégicos sin caer en mediciones vacías, necesitamos construir una estructura clara de indicadores (KPI).
+        </p>
+      </div>
+      <a href="/kpi-concepto" class="primary-action">
+        <span>Ir a 08 · KPI: medir lo importante</span>
+        <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M14 7l5 5-5 5"></path>
+        </svg>
+      </a>
+    </div>
+  </article>
+</BaseLayout>

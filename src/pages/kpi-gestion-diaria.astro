@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DailyKpiRoutineFlow from '../components/diagrams/DailyKpiRoutineFlow.astro';
+---
+
+<BaseLayout
+  title="09 · KPI aplicado a la gestión diaria"
+  description="Cómo un líder observa un indicador, detecta una desviación, verifica información en terreno (Gemba), coordina acciones y realiza seguimiento."
+  currentPath="/kpi-gestion-diaria"
+>
+  <article class="page chapter-page" aria-labelledby="p09-heading">
+    <header class="chapter-lead-grid">
+      <div class="editorial-heading">
+        <p class="eyebrow">09 · RUTINA DE GESTIÓN DIARIA</p>
+        <h1 id="p09-heading">
+          El KPI señala dónde mirar;<br />
+          <em>el terreno revela cómo mejorar.</em>
+        </h1>
+        <p class="lead">
+          El mayor riesgo al gestionar con indicadores es creer que el número por sí solo explica la causa de un problema. Cuando un KPI cae por debajo de la meta, la respuesta de excelencia operacional nunca es reaccionar con presión genérica, sino activar una secuencia disciplinada: observar el dato, detectar la brecha, acudir al proceso para verificar los hechos, coordinar acciones concretas y dar seguimiento.
+        </p>
+      </div>
+
+      <aside class="chapter-purpose-pill" aria-label="Propósito de esta página">
+        <span>PROPÓSITO DE APRENDIZAJE</span>
+        <p>
+          Recorrer el flujo completo de gestión diaria de un líder operacional y comprender por qué la verificación en terreno (Gemba) es el puente indispensable entre un indicador desviado y una acción efectiva.
+        </p>
+      </aside>
+    </header>
+
+    <!-- Experiencia interactiva 09: Flujo de Gestión Diaria con KPI -->
+    <DailyKpiRoutineFlow />
+
+    <!-- Lectura editorial -->
+    <div class="editorial-copy-grid">
+      <div class="reading-block">
+        <span>01 · LA METÁFORA DEL TERMÓMETRO</span>
+        <h3>Por qué un KPI no es una causa raíz</h3>
+        <p>
+          Un indicador es como un termómetro clínico: confirma con precisión que existe fiebre, pero no distingue si proviene de una infección, deshidratación o inflamación. Quien intenta «bajar el número» sin observar el proceso solo maquilla el síntoma.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>02 · VERIFICAR EN EL GEMBA</span>
+        <h3>Preguntar al proceso con respeto</h3>
+        <p>
+          Ir al terreno ante una desviación no es buscar quién se equivocó, sino reconstruir junto al equipo qué condición falló en la entrada, en la secuencia de actividades, en las herramientas o en el flujo de señales.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>03 · CONTENCIÓN Y CORRECCIÓN</span>
+        <h3>Dos velocidades de acción</h3>
+        <p>
+          La gestión diaria distingue entre proteger al cliente hoy (contención inmediata del lote o servicio afectado) y modificar la condición del proceso para que la desviación no vuelva a aparecer mañana.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>04 · DISCIPLINA DE SEGUIMIENTO</span>
+        <h3>Cerrar el ciclo en el turno siguiente</h3>
+        <p>
+          Toda acción acordada frente al tablero debe verificarse en la siguiente rutina diaria. Solo cuando comprobamos que el proceso fluye sin fricción y que el indicador recupera su estabilidad podemos dar el acuerdo por cerrado.
+        </p>
+      </div>
+    </div>
+
+    <!-- Aplicación operacional ilustrativa -->
+    <aside class="practical-example" aria-label="Aplicación operacional ilustrativa">
+      <div>
+        <span>SÍNTESIS OPERACIONAL · EL RECORRIDO DE LAS 10 PÁGINAS (00–09)</span>
+        <strong style="display: block; color: var(--text-primary); font-size: 13px; margin-top: 6px; font-family: 'Manrope', sans-serif;">Cómo se integran todos los conceptos en un solo turno de trabajo</strong>
+      </div>
+      <p>
+        En esta primera edición de diez páginas hemos construido un circuito completo: comprendimos que la excelencia operacional es un <em>sistema</em> de cuatro fuerzas (Págs. 00–02); ubicamos al <em>líder dentro del proceso</em> cuidando sus cinco etapas desde la entrada hasta la retroalimentación (Págs. 03–04); hicimos visible la normalidad mediante <em>tableros de gestión visual</em> y regulamos el ritmo con señales <em>Kanban y límites WIP</em> (Págs. 05–07); y finalmente conectamos el propósito con <em>indicadores KPI</em> que guían la verificación y mejora en la gestión diaria (Págs. 08–09).
+      </p>
+    </aside>
+
+    <!-- Cierre de la primera edición navegable 00–09 -->
+    <div class="chapter-next-bridge">
+      <div>
+        <span class="bridge-eyebrow">CIERRE DE LA PRIMERA EDICIÓN NAVEGABLE (PÁGINAS 00–09)</span>
+        <h4>Has completado el recorrido fundamental de OPEX LÍDER</h4>
+        <p>
+          Puedes volver a cualquier página desde el índice lateral, utilizar el buscador (`Ctrl + K`) para repasar un modelo interactivo en tus reuniones de equipo o regresar a la cubierta orbital.
+        </p>
+      </div>
+      <a href="/" class="primary-action">
+        <span>Volver a 00 · Cubierta</span>
+        <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M14 7l5 5-5 5"></path>
+        </svg>
+      </a>
+    </div>
+  </article>
+</BaseLayout>

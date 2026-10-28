@@ -1,0 +1,417 @@
+---
+// Página 09 — KPI aplicado a la gestión diaria
+// Fase 5B: Flujo de gestión operacional explorable con ampliación FLIP de etapas
+---
+
+<div class="interactive-workbench expandable-workbench" id="daily-kpi-workbench" data-expanded="false">
+  <div class="expandable-stage" id="dk-stage">
+    <div class="workbench-canvas expandable-canvas-wrap" id="dk-canvas-wrap">
+      <div class="canvas-Topline">
+        <span class="canvas-kicker">CICLO DE GESTIÓN DIARIA: DEL DATO A LA VERIFICACIÓN EN TERRENO</span>
+        <span class="canvas-hint">Haz clic en cualquier etapa para ampliar cómo transformar un desvío numérico en acción real</span>
+      </div>
+
+      <div class="stage-selector-bar" role="tablist" aria-label="Etapas del KPI aplicado a la gestión diaria">
+        <button type="button" class="stage-pill-btn is-active" role="tab" aria-selected="true" data-dk-stage="observar" data-interactive-node>
+          <span class="stage-pill-num">01</span> Observar KPI
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-dk-stage="detectar" data-interactive-node>
+          <span class="stage-pill-num">02</span> Detectar desvío
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-dk-stage="verificar" data-interactive-node>
+          <span class="stage-pill-num">03</span> Verificar en Gemba
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-dk-stage="coordinar" data-interactive-node>
+          <span class="stage-pill-num">04</span> Coordinar acción
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-dk-stage="seguimiento" data-interactive-node>
+          <span class="stage-pill-num">05</span> Seguimiento
+        </button>
+      </div>
+
+      <!-- Diagrama SVG del ciclo operativo diario (Termómetro en el tablero vs. Causa en el proceso) -->
+      <svg class="interactive-svg" viewBox="0 0 820 385" role="img" aria-label="Flujo de 5 etapas: Observar el indicador, Detectar la desviación, Verificar en terreno (Gemba), Coordinar acciones y Realizar seguimiento">
+        <defs>
+          <marker id="dkArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 8 5 L 0 9 z" fill="#60a5fa" />
+          </marker>
+        </defs>
+
+        <!-- Dos planos diferenciados: Tablero (Síntoma / Dato) vs. Terreno / Gemba (Evidencia y Acción) -->
+        <rect x="24" y="18" width="772" height="134" rx="14" fill="rgba(16, 31, 60, 0.45)" stroke="rgba(96, 165, 250, 0.2)" />
+        <text x="44" y="38" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.4">PLANO 1 · LECTURA EN EL TABLERO (EL KPI MUESTRA EL SÍNTOMA, NO LA CAUSA)</text>
+
+        <rect x="24" y="176" width="772" height="190" rx="14" fill="rgba(12, 32, 46, 0.48)" stroke="rgba(52, 211, 153, 0.22)" />
+        <text x="44" y="198" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.4">PLANO 2 · VERIFICACIÓN Y ACCIÓN EN TERRENO / GEMBA (DONDE ESTÁ LA CAUSA REAL)</text>
+
+        <!-- Conectores entre las 5 etapas -->
+        <line x1="368" y1="92" x2="438" y2="92" stroke="#60a5fa" stroke-width="2.4" marker-end="url(#dkArrow)" />
+        <!-- Bajada crítica del Tablero al Gemba -->
+        <path d="M 600 136 L 600 164 L 154 164 L 154 214" fill="none" stroke="#fbbf24" stroke-width="2.4" stroke-dasharray="5 4" marker-end="url(#dkArrow)" />
+        <line x1="264" y1="268" x2="298" y2="268" stroke="#60a5fa" stroke-width="2.4" marker-end="url(#dkArrow)" />
+        <line x1="522" y1="268" x2="556" y2="268" stroke="#60a5fa" stroke-width="2.4" marker-end="url(#dkArrow)" />
+        <!-- Retorno de Seguimiento hacia Observar KPI -->
+        <path class="svg-flow-line" d="M 666 218 L 666 160 L 774 160 L 774 92 L 762 92" fill="none" stroke="rgba(52, 211, 153, 0.45)" stroke-width="1.8" />
+
+        <!-- ETAPA 1: OBSERVAR KPI -->
+        <g class="svg-node-group is-active" data-dk-node="observar" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Etapa 1: Observar el indicador">
+          <rect class="node-card-bg" x="52" y="52" width="316" height="82" rx="12" fill="rgba(14, 28, 54, 0.94)" stroke="#60a5fa" stroke-width="2" />
+          <text x="72" y="74" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">01 · LECTURA PROGRAMADA ⤢</text>
+          <text x="72" y="96" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="16.5" font-weight="700">Observar el indicador</text>
+          <text x="72" y="116" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Revisión de inicio de turno (Ej: OTIF 91.5%)</text>
+        </g>
+
+        <!-- ETAPA 2: DETECTAR DESVIACIÓN -->
+        <g class="svg-node-group" data-dk-node="detectar" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Etapa 2: Detectar la desviación">
+          <rect class="node-card-bg" x="444" y="52" width="316" height="82" rx="12" fill="rgba(42, 28, 16, 0.92)" stroke="rgba(251, 191, 36, 0.55)" stroke-width="1.6" />
+          <text x="464" y="74" fill="#fde68a" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">02 · ALERTA DE BRECHA ⤢</text>
+          <text x="464" y="96" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="16.5" font-weight="700">Detectar la desviación</text>
+          <text x="464" y="116" fill="#fde68a" font-family="Manrope, sans-serif" font-size="11.5">Brecha: -4.5 pts respecto a la meta (96%)</text>
+        </g>
+
+        <!-- ETAPA 3: VERIFICAR EN TERRENO (GEMBA) -->
+        <g class="svg-node-group" data-dk-node="verificar" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Etapa 3: Verificar información en terreno">
+          <rect class="node-card-bg" x="44" y="218" width="220" height="106" rx="12" fill="rgba(14, 28, 54, 0.94)" stroke="rgba(148, 163, 184, 0.38)" stroke-width="1.6" />
+          <text x="64" y="240" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">03 · IR AL PROCESO ⤢</text>
+          <text x="64" y="262" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="16" font-weight="700">Verificar en Gemba</text>
+          <text x="64" y="282" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Observar hechos reales sin</text>
+          <text x="64" y="298" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">adivinar desde el escritorio.</text>
+        </g>
+
+        <!-- ETAPA 4: COORDINAR ACCIONES -->
+        <g class="svg-node-group" data-dk-node="coordinar" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Etapa 4: Coordinar acciones">
+          <rect class="node-card-bg" x="302" y="218" width="220" height="106" rx="12" fill="rgba(14, 28, 54, 0.94)" stroke="rgba(148, 163, 184, 0.38)" stroke-width="1.6" />
+          <text x="322" y="240" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">04 · RESPUESTA DIRIGIDA ⤢</text>
+          <text x="322" y="262" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="16" font-weight="700">Coordinar acciones</text>
+          <text x="322" y="282" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Contener el desvío y actuar</text>
+          <text x="322" y="298" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">sobre la causa verificada.</text>
+        </g>
+
+        <!-- ETAPA 5: SEGUIMIENTO Y ESTÁNDAR -->
+        <g class="svg-node-group" data-dk-node="seguimiento" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Etapa 5: Realizar seguimiento">
+          <rect class="node-card-bg" x="560" y="218" width="216" height="106" rx="12" fill="rgba(14, 35, 48, 0.94)" stroke="rgba(52, 211, 153, 0.5)" stroke-width="1.6" />
+          <text x="580" y="240" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">05 · CIERRE DE CICLO ⤢</text>
+          <text x="580" y="262" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="16" font-weight="700">Seguimiento</text>
+          <text x="580" y="282" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Comprobar si la acción</text>
+          <text x="580" y="298" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">recuperó el indicador.</text>
+        </g>
+
+        <!-- Nota de advertencia pedagógica en la base del diagrama -->
+        <text x="410" y="352" text-anchor="middle" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="11" font-weight="600">
+          Principio clave: Un KPI es como un termómetro; indica que hay fiebre, pero nunca explica por sí solo qué originó la infección.
+        </text>
+      </svg>
+    </div>
+
+    <div class="expandable-scrim" id="dk-scrim" aria-hidden="true"></div>
+
+    <!-- Tarjeta editorial expandible (FLIP) -->
+    <aside
+      class="expanded-editorial-card"
+      id="dk-inspector"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="dk-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="expanded-topbar">
+        <div class="inspector-badge-row" style="margin-bottom: 0;">
+          <span class="inspector-tag" id="dk-tag">ETAPA 01 · LECTURA DEL DATO</span>
+          <span class="inspector-step-indicator" id="dk-step">Paso 1 de 5</span>
+        </div>
+        <button type="button" class="expanded-close-btn" id="dk-close-btn" aria-label="Cerrar vista ampliada">
+          <span aria-hidden="true">✕</span> Cerrar
+        </button>
+      </div>
+
+      <div>
+        <h3 class="inspector-title" id="dk-title">Observar el indicador con ritmo definido</h3>
+        <p class="inspector-summary" id="dk-summary">
+          La gestión diaria comienza revisando el indicador en el momento oportuno (al iniciar el turno o al cierre de cada bloque horario). El líder y el equipo leen el dato objetivo sin excusas ni interpretaciones apresuradas.
+        </p>
+      </div>
+
+      <div class="expanded-magnified-box">
+        <div class="expanded-magnified-header">
+          <span>PUENTE ENTRE EL TABLERO Y EL TERRENO (GEMBA)</span>
+          <span>Plano 1: Dato / Síntoma → Plano 2: Evidencia y Acción</span>
+        </div>
+        <div class="expanded-flow-strip">
+          <span class="expanded-flow-pill is-current" data-dk-strip="observar">01 · Observar KPI</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-dk-strip="detectar">02 · Detectar desvío</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-dk-strip="verificar">03 · Verificar en Gemba</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-dk-strip="coordinar">04 · Coordinar acción</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-dk-strip="seguimiento">05 · Seguimiento</span>
+        </div>
+      </div>
+
+      <div class="expanded-detail-cols">
+        <div class="inspector-detail-box">
+          <span>¿QUÉ HACE EL LÍDER EN ESTE PASO?</span>
+          <p id="dk-action">
+            Reúne al equipo frente al tablero durante 5 a 10 minutos y enfoca la atención en los indicadores clave del proceso.
+          </p>
+        </div>
+        <div class="inspector-detail-box">
+          <span>ERROR FRECUENTE A EVITAR</span>
+          <p id="dk-avoid">
+            Revisar los indicadores únicamente a fin de mes o leerlos en una oficina aislada sin la presencia de quienes operan el proceso.
+          </p>
+        </div>
+      </div>
+
+      <div class="expanded-footer-bar">
+        <button type="button" class="step-nav-btn" id="dk-prev-btn">← Etapa anterior</button>
+        <button type="button" class="step-nav-btn" id="dk-return-btn">Volver al diagrama completo</button>
+        <button type="button" class="step-nav-btn" id="dk-next-btn">Siguiente etapa →</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  import { animateFlipOpen, animateFlipClose, makeCardDraggable } from '../../lib/expandableCardEngine';
+
+  function initDailyKpiRoutineFlow() {
+    const root = document.getElementById('daily-kpi-workbench');
+    if (!root || root.hasAttribute('data-initialized')) return;
+    root.setAttribute('data-initialized', 'true');
+
+    const STAGES: Record<string, {
+      tag: string;
+      step: string;
+      title: string;
+      summary: string;
+      action: string;
+      avoid: string;
+    }> = {
+      observar: {
+        tag: 'ETAPA 01 · LECTURA DEL DATO',
+        step: 'Paso 1 de 5',
+        title: 'Observar el indicador con ritmo definido',
+        summary:
+          'La gestión diaria comienza revisando el indicador en el momento oportuno (al iniciar el turno o al cierre de cada bloque horario). El líder y el equipo leen el dato objetivo sin excusas ni interpretaciones apresuradas.',
+        action:
+          'Reúne al equipo frente al tablero durante 5 a 10 minutos y enfoca la atención en los indicadores clave del proceso.',
+        avoid:
+          'Revisar los indicadores únicamente a fin de mes o leerlos en una oficina aislada sin la presencia de quienes operan el proceso.',
+      },
+      detectar: {
+        tag: 'ETAPA 02 · IDENTIFICAR LA BRECHA',
+        step: 'Paso 2 de 5',
+        title: 'Detectar la desviación frente a la meta',
+        summary:
+          'Al comparar el resultado (91.5%) contra la meta (96.0%), la brecha de -4.5 puntos se hace evidente. El indicador cumple aquí su verdadera función: encender una señal de alerta temprana sobre dónde concentrar la atención hoy.',
+        action:
+          'Cuantificar con precisión cuántos casos, lotes u órdenes explican la desviación (en el caso ilustrativo, 9 pedidos con atraso o faltante).',
+        avoid:
+          'Suponer que el porcentaje por sí solo explica la causa del problema o reaccionar pidiendo «más esfuerzo» sin saber qué falló.',
+      },
+      verificar: {
+        tag: 'ETAPA 03 · IR AL TERRENO (GEMBA)',
+        step: 'Paso 3 de 5',
+        title: 'Verificar la información en el lugar del proceso',
+        summary:
+          'Un KPI nunca dice el porqué. Para comprender qué originó los 9 desvíos, el líder va al proceso (Gemba), conversa con los operadores y revisa los hechos reales: descubre que 7 de los 9 atrasos ocurrieron en el cambio de turno por falta de confirmación de etiquetas.',
+        action:
+          'Contrastar el dato con la observación directa del proceso, separando opiniones o suposiciones de los hechos verificables.',
+        avoid:
+          'Quedarse frente a la pantalla inventando teorías o buscando un culpable individual cuando el problema reside en el método o en la coordinación.',
+      },
+      coordinar: {
+        tag: 'ETAPA 04 · ACCIÓN CONCRETA',
+        step: 'Paso 4 de 5',
+        title: 'Coordinar acciones sobre la causa verificada',
+        summary:
+          'Con la evidencia del terreno, el líder coordina dos niveles de respuesta: una acción inmediata de contención (liberar los lotes retenidos) y un ajuste concreto en el proceso (entregar las etiquetas impresas 15 minutos antes del relevo).',
+        action:
+          'Definir qué se hará, quién es el responsable directo y en qué momento del día quedará implementado el ajuste.',
+        avoid:
+          'Anotar compromisos vagos como «tener más cuidado» o «mejorar la comunicación» que no modifican ninguna condición real del trabajo.',
+      },
+      seguimiento: {
+        tag: 'ETAPA 05 · APRENDIZAJE Y ESTÁNDAR',
+        step: 'Paso 5 de 5',
+        title: 'Realizar seguimiento y proteger el nuevo estándar',
+        summary:
+          'En el turno siguiente, el líder vuelve a observar tanto el proceso como el indicador. Si la acción eliminó los atrasos en el relevo y el KPI recupera su nivel esperado, el ajuste se incorpora al estándar diario del equipo.',
+        action:
+          'Verificar en terreno que el acuerdo se mantuvo vivo y reconocer al equipo cuando el flujo recupera su estabilidad.',
+        avoid:
+          'Dar por cerrado un problema solo porque se envió un correo o se asignó una tarea, sin comprobar su efecto real en el proceso.',
+      },
+    };
+
+    const order = ['observar', 'detectar', 'verificar', 'coordinar', 'seguimiento'];
+    let idx = 0;
+    let isExpanded = false;
+    let isClosing = false;
+    let activeOriginEl: Element | null = null;
+
+    const pills = root.querySelectorAll<HTMLButtonElement>('[data-dk-stage]');
+    const nodes = root.querySelectorAll<SVGGElement>('[data-dk-node]');
+    const stripPills = root.querySelectorAll<HTMLElement>('[data-dk-strip]');
+    const scrim = document.getElementById('dk-scrim');
+    const inspector = document.getElementById('dk-inspector');
+    const closeBtn = document.getElementById('dk-close-btn');
+    const returnBtn = document.getElementById('dk-return-btn');
+    const tagEl = document.getElementById('dk-tag');
+    const stepEl = document.getElementById('dk-step');
+    const titleEl = document.getElementById('dk-title');
+    const summaryEl = document.getElementById('dk-summary');
+    const actEl = document.getElementById('dk-action');
+    const avoidEl = document.getElementById('dk-avoid');
+    const prevBtn = document.getElementById('dk-prev-btn');
+    const nextBtn = document.getElementById('dk-next-btn');
+
+    if (inspector) {
+      const stageEl = root.querySelector<HTMLElement>('.expandable-stage') || root;
+      const handleEl = inspector.querySelector<HTMLElement>('.expanded-topbar') || inspector;
+      makeCardDraggable({
+        cardEl: inspector,
+        handleEl,
+        boundsEl: stageEl,
+        storageKey: 'opex-drag-page-09',
+      });
+    }
+
+    function getSvgNode(key: string): SVGGElement | null {
+      return root?.querySelector<SVGGElement>(`[data-dk-node="${key}"]`) ?? null;
+    }
+
+    function populateStage(key: string) {
+      const i = order.indexOf(key);
+      if (i === -1) return;
+      idx = i;
+      const item = STAGES[key];
+
+      pills.forEach((p) => {
+        const active = p.getAttribute('data-dk-stage') === key;
+        p.classList.toggle('is-active', active);
+        p.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      nodes.forEach((n) => {
+        const active = n.getAttribute('data-dk-node') === key;
+        n.classList.toggle('is-active', active);
+        n.setAttribute('aria-expanded', active && isExpanded ? 'true' : 'false');
+      });
+
+      stripPills.forEach((sp) => {
+        sp.classList.toggle('is-current', sp.getAttribute('data-dk-strip') === key);
+      });
+
+      if (tagEl) tagEl.textContent = item.tag;
+      if (stepEl) stepEl.textContent = item.step;
+      if (titleEl) titleEl.textContent = item.title;
+      if (summaryEl) summaryEl.textContent = item.summary;
+      if (actEl) actEl.textContent = item.action;
+      if (avoidEl) avoidEl.textContent = item.avoid;
+    }
+
+    function openStage(key: string, originEl?: Element | null) {
+      if (!inspector) return;
+      isClosing = false;
+      const resolvedOrigin = (originEl || getSvgNode(key)) as HTMLElement | SVGElement | null;
+      activeOriginEl = resolvedOrigin;
+
+      const wasExpanded = isExpanded;
+      isExpanded = true;
+
+      populateStage(key);
+      root.setAttribute('data-expanded', 'true');
+      inspector.hidden = false;
+      inspector.setAttribute('aria-hidden', 'false');
+      scrim?.setAttribute('aria-hidden', 'false');
+
+      animateFlipOpen(resolvedOrigin, inspector, { durationOpen: wasExpanded ? 260 : 360 });
+      if (!wasExpanded) {
+        setTimeout(() => {
+          closeBtn?.focus({ preventScroll: true });
+        }, 60);
+      }
+    }
+
+    function closeStage() {
+      if (!isExpanded || isClosing || !inspector) return;
+      isClosing = true;
+
+      const originToReturn = (activeOriginEl || getSvgNode(order[idx])) as HTMLElement | SVGElement | null;
+
+      animateFlipClose(originToReturn, inspector, { durationClose: 280 }, () => {
+        isExpanded = false;
+        isClosing = false;
+        root.setAttribute('data-expanded', 'false');
+        inspector.hidden = true;
+        inspector.setAttribute('aria-hidden', 'true');
+        scrim?.setAttribute('aria-hidden', 'true');
+
+        nodes.forEach((n) => n.setAttribute('aria-expanded', 'false'));
+
+        if (originToReturn && 'focus' in originToReturn && typeof (originToReturn as HTMLElement).focus === 'function') {
+          (originToReturn as HTMLElement).focus({ preventScroll: true });
+        }
+      });
+    }
+
+    pills.forEach((p) => {
+      p.addEventListener('click', () => {
+        const k = p.getAttribute('data-dk-stage');
+        if (k) openStage(k, getSvgNode(k) || p);
+      });
+    });
+
+    nodes.forEach((n) => {
+      n.addEventListener('click', () => {
+        const k = n.getAttribute('data-dk-node');
+        if (k) openStage(k, n);
+      });
+      n.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const k = n.getAttribute('data-dk-node');
+          if (k) openStage(k, n);
+        }
+      });
+    });
+
+    closeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeStage();
+    });
+
+    returnBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeStage();
+    });
+
+    scrim?.addEventListener('click', () => {
+      closeStage();
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      const nextKey = order[(idx - 1 + order.length) % order.length];
+      openStage(nextKey, getSvgNode(nextKey));
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      const nextKey = order[(idx + 1) % order.length];
+      openStage(nextKey, getSvgNode(nextKey));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isExpanded) {
+        e.preventDefault();
+        closeStage();
+      }
+    });
+  }
+
+  initDailyKpiRoutineFlow();
+  document.addEventListener('astro:page-load', initDailyKpiRoutineFlow);
+</script>

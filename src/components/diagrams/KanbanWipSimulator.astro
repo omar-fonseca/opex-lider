@@ -1,0 +1,781 @@
+---
+// Página 07 — Tablero Kanban y flujo (Fase 5B: Exploración ampliable de actividades, restricciones y WIP con motor FLIP)
+// Secuencia visual explorable: avance de actividades, control de trabajo en curso (WIP) y gestión de restricciones
+---
+
+<div class="expandable-workbench" id="kanban-wip-workbench" data-expanded="false">
+  <div class="expandable-header">
+    <div class="canvas-Topline">
+      <span class="canvas-kicker">SIMULACIÓN VISUAL DE FLUJO KANBAN Y LÍMITE WIP</span>
+      <span class="canvas-hint" id="wip-state-hint">Selecciona un momento (M1–M4) o toca cualquier tarjeta/columna del tablero para ampliar su diagnóstico</span>
+    </div>
+
+    <div class="stage-selector-bar" role="tablist" aria-label="Secuencia del flujo Kanban y WIP">
+      <button type="button" class="stage-pill-btn is-active" role="tab" aria-selected="true" data-wip-state="estable" data-interactive-node>
+        <span class="stage-pill-num">M1</span> Flujo estable
+      </button>
+      <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-wip-state="avance" data-interactive-node>
+        <span class="stage-pill-num">M2</span> Avance por jalón
+      </button>
+      <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-wip-state="restriccion" data-interactive-node>
+        <span class="stage-pill-num">M3</span> Restricción y tope WIP
+      </button>
+      <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-wip-state="desbloqueo" data-interactive-node>
+        <span class="stage-pill-num">M4</span> Desbloqueo del flujo
+      </button>
+    </div>
+  </div>
+
+  <div class="expandable-stage">
+    <div class="expandable-canvas-wrap">
+      <!-- Tablero de flujo de ancho completo con 4 etapas y límites WIP explícitos -->
+      <div class="wip-board-grid" id="wip-board-grid" aria-label="Estados del proceso en el tablero Kanban">
+        <!-- Columna 1: Cola autorizada -->
+        <div class="wip-lane" data-lane="cola" tabindex="0" role="button" aria-label="Ampliar análisis desde columna 01 Listo para iniciar">
+          <div class="wip-lane-head">
+            <div class="wip-lane-title-row">
+              <span class="wip-lane-name">01 · Listo para iniciar</span>
+              <span class="wip-expand-mini" aria-hidden="true">↗</span>
+            </div>
+            <span class="wip-counter" id="wip-count-cola">2 en espera</span>
+          </div>
+          <div class="wip-cards-slot" id="wip-slot-cola"></div>
+        </div>
+
+        <!-- Columna 2: Preparación -->
+        <div class="wip-lane" data-lane="preparacion" tabindex="0" role="button" aria-label="Ampliar análisis desde columna 02 Preparación">
+          <div class="wip-lane-head">
+            <div class="wip-lane-title-row">
+              <span class="wip-lane-name">02 · Preparación</span>
+              <span class="wip-expand-mini" aria-hidden="true">↗</span>
+            </div>
+            <span class="wip-counter" id="wip-count-prep">2 / 2 MÁX</span>
+          </div>
+          <div class="wip-cards-slot" id="wip-slot-prep"></div>
+        </div>
+
+        <!-- Columna 3: Ejecución y Prueba -->
+        <div class="wip-lane" data-lane="ejecucion" id="wip-lane-ejecucion" tabindex="0" role="button" aria-label="Ampliar análisis desde columna 03 Ejecución y Prueba">
+          <div class="wip-lane-head">
+            <div class="wip-lane-title-row">
+              <span class="wip-lane-name">03 · Ejecución / Prueba</span>
+              <span class="wip-expand-mini" aria-hidden="true">↗</span>
+            </div>
+            <span class="wip-counter" id="wip-count-ejec">1 / 2 MÁX</span>
+          </div>
+          <div class="wip-cards-slot" id="wip-slot-ejec"></div>
+        </div>
+
+        <!-- Columna 4: Entregado -->
+        <div class="wip-lane" data-lane="entregado" tabindex="0" role="button" aria-label="Ampliar análisis desde columna 04 Completado">
+          <div class="wip-lane-head">
+            <div class="wip-lane-title-row">
+              <span class="wip-lane-name">04 · Completado</span>
+              <span class="wip-expand-mini" aria-hidden="true">↗</span>
+            </div>
+            <span class="wip-counter" id="wip-count-done">1 completada</span>
+          </div>
+          <div class="wip-cards-slot" id="wip-slot-done"></div>
+        </div>
+      </div>
+
+      <!-- Barra inferior de telemetría WIP + botón de ampliación directa -->
+      <div class="wip-telemetry-bar" id="wip-telemetry-bar">
+        <div>
+          <span class="telemetry-label">TRABAJO EN CURSO (WIP ACTIVO):</span>
+          <strong id="wip-total-value">3 órdenes en curso (Límite WIP: 4)</strong>
+        </div>
+        <div class="wip-telemetry-actions">
+          <span class="status-badge is-ok" id="wip-status-pill">Flujo balanceado</span>
+          <button type="button" class="wip-expand-trigger-btn" id="wip-open-detail-btn" aria-haspopup="dialog">
+            Ampliar diagnóstico del flujo ↗
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Velo contextual -->
+    <div class="expandable-scrim" id="wip-stage-scrim" aria-hidden="true" title="Cerrar diagnóstico ampliado"></div>
+
+    <!-- Tarjeta editorial ampliada (FLIP) -->
+    <aside
+      class="expanded-editorial-card"
+      id="wip-inspector"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="wip-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="expanded-topbar">
+        <div class="inspector-badge-row" style="margin-bottom: 0;">
+          <span class="inspector-tag" id="wip-tag">MOMENTO 01 · FLUJO BALANCEADO</span>
+          <span class="inspector-step-indicator" id="wip-step">Estado 1 de 4</span>
+        </div>
+
+        <button
+          type="button"
+          class="expanded-close-btn"
+          id="wip-close-btn"
+          aria-label="Cerrar diagnóstico ampliado y regresar al tablero Kanban"
+          title="Cerrar (Escape)"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          <span>Cerrar</span>
+        </button>
+      </div>
+
+      <div class="expanded-body">
+        <div class="expanded-magnified-box">
+          <div class="expanded-magnified-head">
+            <span class="expanded-magnified-label" id="wip-magnified-label">LECTURA DE CAPACIDAD Y WIP EN EL TABLERO</span>
+            <span class="status-badge is-ok" id="wip-magnified-badge">Flujo balanceado</span>
+          </div>
+          <div class="expanded-magnified-copy" id="wip-magnified-copy">
+            <strong>3 órdenes en curso (Límite total: 4):</strong> Preparación (2/2 MÁX) · Ejecución (1/2 MÁX, 1 cupo libre) · Completado (1 entregada).
+          </div>
+        </div>
+
+        <div>
+          <h3 class="expanded-title" id="wip-title">El trabajo en curso (WIP) bajo control</h3>
+          <p class="expanded-summary" id="wip-summary">
+            Cada etapa del proceso tiene un número máximo de actividades permitidas al mismo tiempo (límite WIP). Cuando el equipo respeta ese tope, cada orden avanza sin colas ocultas ni cambios constantes de prioridad.
+          </p>
+        </div>
+
+        <div class="expanded-details-grid">
+          <div class="inspector-detail-box">
+            <span>¿QUÉ OCURRE EN EL FLUJO?</span>
+            <p id="wip-flow-note">
+              Preparación tiene 2 órdenes activas (en su límite de 2) y Ejecución tiene 1 orden activa (con 1 cupo libre para recibir trabajo).
+            </p>
+          </div>
+          <div class="inspector-detail-box">
+            <span>DECISIÓN DEL LÍDER Y DEL EQUIPO</span>
+            <p id="wip-leader-note">
+              Priorizar terminar lo que ya está en Ejecución antes de iniciar nuevas órdenes desde la cola inicial.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="expanded-footer">
+        <div class="expanded-nav-group">
+          <button type="button" class="step-nav-btn" id="wip-prev-btn">← Momento anterior</button>
+          <button type="button" class="step-nav-btn" id="wip-next-btn">Siguiente momento →</button>
+        </div>
+        <button type="button" class="expanded-return-btn" id="wip-return-btn">
+          Volver al tablero Kanban [ESC]
+        </button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<style>
+  .wip-board-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    min-height: 335px;
+  }
+
+  .wip-lane {
+    background: rgba(11, 22, 42, 0.84);
+    border: 1.5px solid rgba(148, 163, 184, 0.28);
+    border-radius: 13px;
+    padding: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    cursor: pointer;
+    transition: border-color 0.22s ease, background 0.22s ease, transform 0.22s ease;
+  }
+
+  html[data-theme="light"] .wip-lane {
+    background: rgba(235, 242, 250, 0.9);
+    border-color: rgba(71, 85, 105, 0.24);
+  }
+
+  .wip-lane:hover {
+    border-color: var(--blue-bright);
+    transform: translateY(-2px);
+  }
+
+  .wip-lane:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: 2px;
+  }
+
+  .wip-lane.is-bottleneck {
+    border-color: #f59e0b;
+    background: rgba(65, 38, 12, 0.42);
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
+  }
+
+  html[data-theme="light"] .wip-lane.is-bottleneck {
+    background: rgba(254, 243, 199, 0.8);
+    border-color: #d97706;
+  }
+
+  .wip-lane-head {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .wip-lane-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .wip-lane-name {
+    font-family: "DM Sans", sans-serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .wip-expand-mini {
+    font-family: "DM Sans", sans-serif;
+    font-size: 11px;
+    color: var(--blue-soft);
+    opacity: 0.8;
+  }
+
+  .wip-counter {
+    font-family: "DM Sans", sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--blue-soft);
+  }
+
+  .wip-cards-slot {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  :global(.wip-work-card) {
+    background: rgba(23, 45, 84, 0.9);
+    border: 1px solid rgba(96, 165, 250, 0.42);
+    border-left: 3.5px solid #60a5fa;
+    border-radius: 9px;
+    padding: 10px 11px;
+    font-family: "DM Sans", sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  :global(.wip-work-card:hover) {
+    transform: scale(1.02);
+    box-shadow: 0 8px 18px rgba(4, 12, 28, 0.35);
+  }
+
+  html[data-theme="light"] :global(.wip-work-card) {
+    background: #ffffff;
+    border-color: rgba(37, 99, 235, 0.35);
+    border-left: 3.5px solid #2563eb;
+  }
+
+  :global(.wip-work-card.is-blocked) {
+    background: rgba(88, 28, 28, 0.72);
+    border-color: rgba(248, 113, 113, 0.65);
+    border-left: 3.5px solid #ef4444;
+  }
+
+  html[data-theme="light"] :global(.wip-work-card.is-blocked) {
+    background: #fef2f2;
+    border-color: #ef4444;
+  }
+
+  :global(.wip-work-card.is-done) {
+    border-left-color: #10b981;
+    border-color: rgba(16, 185, 129, 0.42);
+  }
+
+  :global(.wip-card-id) {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--blue-soft);
+  }
+
+  :global(.wip-card-title) {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  :global(.wip-card-note) {
+    font-size: 10.5px;
+    color: var(--text-secondary);
+  }
+
+  .wip-telemetry-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: rgba(10, 20, 38, 0.78);
+    border: 1px solid var(--line-soft);
+    border-radius: 11px;
+    padding: 11px 15px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 12.5px;
+  }
+
+  html[data-theme="light"] .wip-telemetry-bar {
+    background: rgba(226, 235, 246, 0.88);
+  }
+
+  .telemetry-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--blue-soft);
+    margin-right: 6px;
+  }
+
+  .wip-telemetry-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .wip-expand-trigger-btn {
+    appearance: none;
+    background: rgba(59, 130, 246, 0.16);
+    border: 1px solid rgba(96, 165, 250, 0.45);
+    color: var(--text-primary);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .wip-expand-trigger-btn:hover {
+    background: rgba(59, 130, 246, 0.28);
+    border-color: #93c5fd;
+  }
+
+  @media (max-width: 780px) {
+    .wip-board-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .wip-board-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { animateFlipOpen, animateFlipClose, makeCardDraggable } from '../../lib/expandableCardEngine';
+
+  function initKanbanWipSimulator() {
+    const root = document.getElementById('kanban-wip-workbench');
+    if (!root || root.hasAttribute('data-initialized')) return;
+    root.setAttribute('data-initialized', 'true');
+
+    interface CardItem {
+      id: string;
+      title: string;
+      note: string;
+      status?: 'normal' | 'blocked' | 'done';
+    }
+
+    interface WipScenario {
+      tag: string;
+      step: string;
+      title: string;
+      summary: string;
+      flowNote: string;
+      leaderNote: string;
+      wipTotal: string;
+      badgeText: string;
+      badgeClass: 'is-ok' | 'is-warn' | 'is-alert';
+      bottleneck: boolean;
+      magnifiedHtml: string;
+      counts: { cola: string; prep: string; ejec: string; done: string };
+      lanes: {
+        cola: CardItem[];
+        prep: CardItem[];
+        ejec: CardItem[];
+        done: CardItem[];
+      };
+    }
+
+    const SCENARIOS: Record<string, WipScenario> = {
+      estable: {
+        tag: 'MOMENTO 01 · FLUJO BALANCEADO',
+        step: 'Estado 1 de 4',
+        title: 'El trabajo en curso (WIP) bajo control',
+        summary:
+          'Cada etapa del proceso tiene un número máximo de actividades permitidas al mismo tiempo (límite WIP). Cuando el equipo respeta ese tope, cada orden avanza sin colas ocultas ni cambios constantes de prioridad.',
+        flowNote:
+          'Preparación tiene 2 órdenes activas (en su límite de 2) y Ejecución tiene 1 orden activa (con 1 cupo libre para recibir trabajo).',
+        leaderNote:
+          'Priorizar terminar lo que ya está en Ejecución antes de iniciar nuevas órdenes desde la cola inicial.',
+        wipTotal: '3 órdenes en curso (Límite WIP: 4)',
+        badgeText: 'Flujo balanceado',
+        badgeClass: 'is-ok',
+        bottleneck: false,
+        magnifiedHtml:
+          '<strong>3 órdenes en curso (Límite WIP: 4):</strong> Preparación (2/2 MÁX) · Ejecución (1/2 MÁX, 1 cupo libre) · Completado (1 entregada).',
+        counts: { cola: '2 en espera', prep: '2 / 2 MÁX', ejec: '1 / 2 MÁX', done: '1 completada' },
+        lanes: {
+          cola: [
+            { id: 'OT-105', title: 'Ajuste línea B', note: 'Lista para iniciar' },
+            { id: 'OT-106', title: 'Inspección válvula', note: 'En turno programado' },
+          ],
+          prep: [
+            { id: 'OT-103', title: 'Kit rodamientos', note: 'Material completo' },
+            { id: 'OT-104', title: 'Calibración sensor', note: 'Lista para pasar →' },
+          ],
+          ejec: [
+            { id: 'OT-102', title: 'Cambio sello bomba', note: 'En verificación final' },
+          ],
+          done: [
+            { id: 'OT-101', title: 'Limpieza filtro A', note: 'Cerrada conforme', status: 'done' },
+          ],
+        },
+      },
+      avance: {
+        tag: 'MOMENTO 02 · AVANCE POR JALÓN (PULL)',
+        step: 'Estado 2 de 4',
+        title: 'Una actividad avanza solo cuando hay cupo adelante',
+        summary:
+          'Al completarse OT-102 y pasar a «Completado», se libera capacidad en Ejecución. Esa señal permite jalar OT-104 desde Preparación y, a su vez, abrir espacio para que OT-105 ingrese desde la cola.',
+        flowNote:
+          'El trabajo se mueve de derecha a izquierda en señales: primero sale una entrega y luego ingresa una nueva tarea.',
+        leaderNote:
+          'Mantener el ritmo (Takt) observando la salida real de órdenes completadas, no la cantidad de órdenes empezadas.',
+        wipTotal: '3 órdenes en curso (Límite WIP: 4)',
+        badgeText: 'Avance sincronizado',
+        badgeClass: 'is-ok',
+        bottleneck: false,
+        magnifiedHtml:
+          '<strong>Efecto Jalón (Pull):</strong> OT-102 pasa a Completado → libera cupo en Ejecución → entra OT-104 → entra OT-105 a Preparación.',
+        counts: { cola: '1 en espera', prep: '2 / 2 MÁX', ejec: '1 / 2 MÁX', done: '2 completadas' },
+        lanes: {
+          cola: [
+            { id: 'OT-106', title: 'Inspección válvula', note: 'Siguiente en cola' },
+          ],
+          prep: [
+            { id: 'OT-103', title: 'Kit rodamientos', note: 'Preparación 80%' },
+            { id: 'OT-105', title: 'Ajuste línea B', note: 'Recién jalada →' },
+          ],
+          ejec: [
+            { id: 'OT-104', title: 'Calibración sensor', note: 'En prueba funcional' },
+          ],
+          done: [
+            { id: 'OT-101', title: 'Limpieza filtro A', note: 'Cerrada conforme', status: 'done' },
+            { id: 'OT-102', title: 'Cambio sello bomba', note: 'Entregada a tiempo', status: 'done' },
+          ],
+        },
+      },
+      restriccion: {
+        tag: 'MOMENTO 03 · RESTRICCIÓN VISIBLE',
+        step: 'Estado 3 de 4',
+        title: 'Qué ocurre cuando aparece un cuello de botella',
+        summary:
+          'OT-104 detecta una desviación técnica durante la prueba y OT-103 entra al segundo cupo de Ejecución. Ahora Ejecución alcanzó su límite (2/2). Aunque Preparación termine sus tareas, NO puede empujar más trabajo hacia adelante.',
+        flowNote:
+          'El límite WIP detiene la sobreproducción y hace visible de inmediato dónde está la restricción del proceso.',
+        leaderNote:
+          'No forzar la entrada de más órdenes. Toda la atención del líder se concentra en resolver el bloqueo de OT-104.',
+        wipTotal: '4 órdenes en curso (TOPE WIP 4/4 ALCANZADO)',
+        badgeText: 'Restricción en Ejecución',
+        badgeClass: 'is-alert',
+        bottleneck: true,
+        magnifiedHtml:
+          '<strong>ALERTA DE TOPE WIP (2/2 en Ejecución):</strong> OT-104 bloqueada por patrón fuera de rango. Preparación detiene el empuje hasta resolver.',
+        counts: { cola: '1 retenida', prep: '2 / 2 MÁX', ejec: '2 / 2 TOPE', done: '2 completadas' },
+        lanes: {
+          cola: [
+            { id: 'OT-107', title: 'Revisión tablero', note: 'Espera cupo WIP' },
+          ],
+          prep: [
+            { id: 'OT-105', title: 'Ajuste línea B', note: 'Lista (espera cupo)' },
+            { id: 'OT-106', title: 'Inspección válvula', note: 'En preparación' },
+          ],
+          ejec: [
+            { id: 'OT-104', title: 'Calibración sensor', note: 'BLOQUEO: patrón fuera de rango', status: 'blocked' },
+            { id: 'OT-103', title: 'Kit rodamientos', note: 'En montaje activo' },
+          ],
+          done: [
+            { id: 'OT-101', title: 'Limpieza filtro A', note: 'Cerrada conforme', status: 'done' },
+            { id: 'OT-102', title: 'Cambio sello bomba', note: 'Entregada a tiempo', status: 'done' },
+          ],
+        },
+      },
+      desbloqueo: {
+        tag: 'MOMENTO 04 · DESBLOQUEO COLABORATIVO',
+        step: 'Estado 4 de 4',
+        title: 'Resolver la restricción restablece el flujo',
+        summary:
+          'En lugar de seguir acumulando tareas en Preparación, el líder y un especialista apoyan la etapa bloqueada: reemplazan el patrón de calibración, liberan OT-104 y documentan la causa para que no se repita.',
+        flowNote:
+          'Al destrabar la etapa restrictiva, tanto OT-104 como OT-103 avanzan a Completado y el sistema recupera su capacidad normal.',
+        leaderNote:
+          'Lección clave de Kanban: «Deja de empezar y empieza a terminar». El flujo mejora al aliviar el cuello de botella.',
+        wipTotal: '2 órdenes en curso (Capacidad restablecida)',
+        badgeText: 'Flujo recuperado',
+        badgeClass: 'is-ok',
+        bottleneck: false,
+        magnifiedHtml:
+          '<strong>Cuello de botella resuelto:</strong> 4 órdenes completadas conformes y capacidad liberada en Preparación (1/2) y Ejecución (1/2).',
+        counts: { cola: '0 en espera', prep: '1 / 2 MÁX', ejec: '1 / 2 MÁX', done: '4 completadas' },
+        lanes: {
+          cola: [],
+          prep: [
+            { id: 'OT-107', title: 'Revisión tablero', note: 'Ingresa con flujo limpio' },
+          ],
+          ejec: [
+            { id: 'OT-105', title: 'Ajuste línea B', note: 'Avanza sin fricción' },
+          ],
+          done: [
+            { id: 'OT-101', title: 'Limpieza filtro A', note: 'Cerrada conforme', status: 'done' },
+            { id: 'OT-102', title: 'Cambio sello bomba', note: 'Entregada a tiempo', status: 'done' },
+            { id: 'OT-104', title: 'Calibración sensor', note: 'Desbloqueada y validada', status: 'done' },
+            { id: 'OT-103', title: 'Kit rodamientos', note: 'Completada en estándar', status: 'done' },
+          ],
+        },
+      },
+    };
+
+    const keys = ['estable', 'avance', 'restriccion', 'desbloqueo'];
+    let currentIdx = 0;
+    let isExpanded = false;
+    let lastOriginEl: HTMLElement | null = null;
+
+    const pills = root.querySelectorAll<HTMLButtonElement>('[data-wip-state]');
+    const lanes = root.querySelectorAll<HTMLElement>('.wip-lane');
+    const inspector = document.getElementById('wip-inspector');
+    const scrim = document.getElementById('wip-stage-scrim');
+    const stateHint = document.getElementById('wip-state-hint');
+    const openDetailBtn = document.getElementById('wip-open-detail-btn');
+    const closeBtn = document.getElementById('wip-close-btn');
+    const returnBtn = document.getElementById('wip-return-btn');
+
+    const tagEl = document.getElementById('wip-tag');
+    const stepEl = document.getElementById('wip-step');
+    const titleEl = document.getElementById('wip-title');
+    const summaryEl = document.getElementById('wip-summary');
+    const flowEl = document.getElementById('wip-flow-note');
+    const leaderEl = document.getElementById('wip-leader-note');
+    const totalEl = document.getElementById('wip-total-value');
+    const statusPill = document.getElementById('wip-status-pill');
+    const magBadge = document.getElementById('wip-magnified-badge');
+    const magCopy = document.getElementById('wip-magnified-copy');
+    const laneEjec = document.getElementById('wip-lane-ejecucion');
+
+    const countCola = document.getElementById('wip-count-cola');
+    const countPrep = document.getElementById('wip-count-prep');
+    const countEjec = document.getElementById('wip-count-ejec');
+    const countDone = document.getElementById('wip-count-done');
+
+    const slotCola = document.getElementById('wip-slot-cola');
+    const slotPrep = document.getElementById('wip-slot-prep');
+    const slotEjec = document.getElementById('wip-slot-ejec');
+    const slotDone = document.getElementById('wip-slot-done');
+
+    const prevBtn = document.getElementById('wip-prev-btn');
+    const nextBtn = document.getElementById('wip-next-btn');
+
+    if (inspector) {
+      const stageEl = root.querySelector<HTMLElement>('.expandable-stage') || root;
+      const handleEl = inspector.querySelector<HTMLElement>('.expanded-topbar') || inspector;
+      makeCardDraggable({
+        cardEl: inspector,
+        handleEl,
+        boundsEl: stageEl,
+        storageKey: 'opex-drag-page-07',
+      });
+    }
+
+    function renderCards(container: HTMLElement | null, cards: CardItem[]) {
+      if (!container) return;
+      container.innerHTML = '';
+      if (cards.length === 0) {
+        const empty = document.createElement('div');
+        empty.style.fontSize = '11px';
+        empty.style.color = 'var(--text-muted)';
+        empty.style.padding = '8px 4px';
+        empty.textContent = 'Cupo disponible';
+        container.appendChild(empty);
+        return;
+      }
+      cards.forEach((c) => {
+        const card = document.createElement('div');
+        card.className = `wip-work-card ${c.status === 'blocked' ? 'is-blocked' : ''} ${c.status === 'done' ? 'is-done' : ''}`;
+        card.setAttribute('data-card-id', c.id);
+        const idSpan = document.createElement('span');
+        idSpan.className = 'wip-card-id';
+        idSpan.textContent = `${c.id} ↗`;
+        const titleStrong = document.createElement('strong');
+        titleStrong.className = 'wip-card-title';
+        titleStrong.textContent = c.title;
+        const noteSpan = document.createElement('span');
+        noteSpan.className = 'wip-card-note';
+        noteSpan.textContent = c.note;
+        card.append(idSpan, titleStrong, noteSpan);
+        container.appendChild(card);
+      });
+    }
+
+    function updateBoardAndCardData(key: string) {
+      const i = keys.indexOf(key);
+      if (i === -1) return;
+      currentIdx = i;
+      const sc = SCENARIOS[key];
+
+      pills.forEach((p) => {
+        const active = p.getAttribute('data-wip-state') === key;
+        p.classList.toggle('is-active', active);
+        p.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      laneEjec?.classList.toggle('is-bottleneck', sc.bottleneck);
+
+      if (countCola) countCola.textContent = sc.counts.cola;
+      if (countPrep) countPrep.textContent = sc.counts.prep;
+      if (countEjec) countEjec.textContent = sc.counts.ejec;
+      if (countDone) countDone.textContent = sc.counts.done;
+
+      renderCards(slotCola, sc.lanes.cola);
+      renderCards(slotPrep, sc.lanes.prep);
+      renderCards(slotEjec, sc.lanes.ejec);
+      renderCards(slotDone, sc.lanes.done);
+
+      if (totalEl) totalEl.textContent = sc.wipTotal;
+      if (statusPill) {
+        statusPill.textContent = sc.badgeText;
+        statusPill.className = `status-badge ${sc.badgeClass}`;
+      }
+      if (magBadge) {
+        magBadge.textContent = sc.badgeText;
+        magBadge.className = `status-badge ${sc.badgeClass}`;
+      }
+      if (magCopy) magCopy.innerHTML = sc.magnifiedHtml;
+      if (tagEl) tagEl.textContent = sc.tag;
+      if (stepEl) stepEl.textContent = sc.step;
+      if (titleEl) titleEl.textContent = sc.title;
+      if (summaryEl) summaryEl.textContent = sc.summary;
+      if (flowEl) flowEl.textContent = sc.flowNote;
+      if (leaderEl) leaderEl.textContent = sc.leaderNote;
+    }
+
+    function openExpandedDiagnosis(originEl: HTMLElement | null, focusClose = true) {
+      if (!inspector) return;
+      lastOriginEl = originEl || laneEjec || openDetailBtn;
+      isExpanded = true;
+      root.setAttribute('data-expanded', 'true');
+      inspector.hidden = false;
+      inspector.setAttribute('aria-hidden', 'false');
+
+      if (stateHint) {
+        stateHint.textContent = 'Explorando diagnóstico ampliado · Pulsa [X] o [Escape] para volver al tablero Kanban';
+      }
+
+      animateFlipOpen(lastOriginEl, inspector);
+
+      if (focusClose) {
+        setTimeout(() => closeBtn?.focus({ preventScroll: true }), 60);
+      }
+    }
+
+    function closeExpandedDiagnosis() {
+      if (!isExpanded || !inspector) return;
+      const originToFocus = lastOriginEl;
+
+      animateFlipClose(originToFocus, inspector, () => {
+        isExpanded = false;
+        root.setAttribute('data-expanded', 'false');
+        inspector.hidden = true;
+        inspector.setAttribute('aria-hidden', 'true');
+        if (stateHint) {
+          stateHint.textContent =
+            'Selecciona un momento (M1–M4) o toca cualquier tarjeta/columna del tablero para ampliar su diagnóstico';
+        }
+        originToFocus?.focus({ preventScroll: true });
+      });
+    }
+
+    // Estado inicial en el tablero (Cerrado para ver las 4 columnas completas)
+    updateBoardAndCardData('estable');
+
+    pills.forEach((p) => {
+      p.addEventListener('click', () => {
+        const k = p.getAttribute('data-wip-state');
+        if (k) {
+          updateBoardAndCardData(k);
+          openExpandedDiagnosis(p, false);
+        }
+      });
+    });
+
+    lanes.forEach((lane) => {
+      lane.addEventListener('click', (e) => {
+        const targetCard = (e.target as HTMLElement)?.closest<HTMLElement>('.wip-work-card');
+        openExpandedDiagnosis(targetCard || lane, true);
+      });
+      lane.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openExpandedDiagnosis(lane, true);
+        }
+      });
+    });
+
+    openDetailBtn?.addEventListener('click', () => {
+      openExpandedDiagnosis(openDetailBtn, true);
+    });
+
+    closeBtn?.addEventListener('click', closeExpandedDiagnosis);
+    returnBtn?.addEventListener('click', closeExpandedDiagnosis);
+    scrim?.addEventListener('click', closeExpandedDiagnosis);
+
+    prevBtn?.addEventListener('click', () => {
+      const nextKey = keys[(currentIdx - 1 + keys.length) % keys.length];
+      updateBoardAndCardData(nextKey);
+      openExpandedDiagnosis(laneEjec, false);
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      const nextKey = keys[(currentIdx + 1) % keys.length];
+      updateBoardAndCardData(nextKey);
+      openExpandedDiagnosis(laneEjec, false);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (!isExpanded) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        closeExpandedDiagnosis();
+      }
+    });
+  }
+
+  initKanbanWipSimulator();
+  document.addEventListener('astro:page-load', initKanbanWipSimulator);
+</script>

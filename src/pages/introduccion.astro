@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="01 · Excelencia operacional"
+  description="Introducción editorial a la excelencia operacional: comprender el sistema antes de aplicar herramientas."
+  currentPath="/introduccion"
+>
+  <article class="page intro-page" aria-labelledby="intro-heading">
+    <div class="editorial-heading">
+      <p class="eyebrow">EXCELENCIA OPERACIONAL</p>
+      <h1 id="intro-heading">
+        Antes de hablar de herramientas,<br />
+        <em>comprende el sistema.</em>
+      </h1>
+      <p class="lead">
+        La excelencia operacional no es un conjunto de formatos ni una acumulación de metodologías aisladas. Es la coherencia viva entre lo que la organización declara, lo que sus líderes modelan en el terreno y lo que los procesos permiten realizar de manera predecible cada día.
+      </p>
+    </div>
+
+    <!-- Cuadrícula editorial de lectura -->
+    <div class="editorial-copy-grid">
+      <div class="reading-block">
+        <span>01 · ADVERTENCIA FUNDAMENTAL</span>
+        <h3>El espejismo de las herramientas</h3>
+        <p>
+          Implementar 5S, tableros Kanban o rutinas de supervisión sin clarificar su propósito genera fatiga y burocracia. Las herramientas solo cobran sentido cuando responden a un problema real de la operación y cuando el equipo entiende qué brecha busca cerrar.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>02 · PERSPECTIVA HOLÍSTICA</span>
+        <h3>El sistema como totalidad viva</h3>
+        <p>
+          Una desviación en calidad o un retraso en entrega rara vez es un fallo individual. Con frecuencia involucra el diseño del flujo, la claridad del estándar, el ritmo de los insumos y la forma en que el líder reacciona frente al error. Quien solo mira la pieza pierde de vista el engranaje.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>03 · EL FACTOR HUMANO</span>
+        <h3>Seguridad para cuestionar</h3>
+        <p>
+          Ningún estándar se mantiene vivo sin personas dispuestas a levantar la mano ante una anomalía. Cuando un entorno castiga el error, los problemas no desaparecen: se ocultan hasta convertirse en crisis. La excelencia exige confianza técnica y psicológica en la línea de trabajo.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>04 · MÉTODO CIENTÍFICO</span>
+        <h3>De la intuición a la evidencia</h3>
+        <p>
+          Aprender en las operaciones significa sustituir las opiniones jerárquicas por datos contrastados en el Gemba (el lugar real). Cada desviación deja de ser una molestia y pasa a ser información privilegiada para ajustar el proceso con rigor y disciplina.
+        </p>
+      </div>
+    </div>
+
+    <!-- Ejemplo práctico contextualizado -->
+    <aside class="practical-example" aria-label="Caso práctico de aplicación">
+      <div>
+        <span>CASO BREVE · DESVIACIÓN EN ENTREGA</span>
+        <strong style="display: block; color: var(--text-primary); font-size: 13px; margin-top: 6px; font-family: 'Manrope', sans-serif;">Dos respuestas frente al mismo incidente</strong>
+      </div>
+      <p>
+        Un pedido crítico sale con retraso hacia el cliente. El líder reactivo convoca una reunión urgente, presiona por horas extras y busca un culpable inmediato para emitir una advertencia. El líder de excelencia operacional, en cambio, camina el proceso: verifica si la carga de trabajo era visible, si el indicador anticipó el desvío, si los materiales llegaron conformes y si el equipo contaba con el estándar adecuado para corregir a tiempo. En el primer caso se sembró temor; en el segundo, se fortaleció el sistema.
+      </p>
+    </aside>
+
+    <!-- Cita editorial inspiradora -->
+    <blockquote class="editorial-quote">
+      <span>PRINCIPIO CLAVE</span>
+      <p>
+        “La excelencia no es un suceso aislado ni una auditoría aprobada: es la disciplina de transformar cada desviación diaria en un aprendizaje colectivo.”
+      </p>
+    </blockquote>
+
+    <!-- Caja de avance hacia el Sistema Interactivo -->
+    <div class="intro-cta-box">
+      <div>
+        <h4 style="font-family: 'Playfair Display', serif; font-size: 19px; color: var(--text-primary); margin-bottom: 6px;">
+          Explora la anatomía del sistema
+        </h4>
+        <p>
+          En el siguiente capítulo interactivo, podrás experimentar cómo interactúan las cuatro fuerzas esenciales: Personas, Procesos, Liderazgo y Mejora.
+        </p>
+      </div>
+      <a href="/sistema" class="primary-action">
+        <span>Ir al sistema interactivo</span>
+        <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M14 7l5 5-5 5"></path>
+        </svg>
+      </a>
+    </div>
+  </article>
+</BaseLayout>

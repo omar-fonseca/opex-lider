@@ -1,0 +1,513 @@
+---
+const nodes = [
+  {
+    name: "PERSONAS",
+    note: "El conocimiento, el criterio y la energía que hacen avanzar al sistema.",
+    relation: "Se vincula con Liderazgo y Procesos: aporta el criterio humano para ejecutar el estándar, detectar anomalías y sostener la Mejora en el terreno.",
+    connectedTo: [1, 4, 5],
+    connectedLabel: "Liderazgo · Procesos · Mejora",
+    x: 18,
+    y: 22
+  },
+  {
+    name: "PROCESOS",
+    note: "La forma compartida de transformar intención en valor.",
+    relation: "Conecta a las Personas con los Resultados: estabiliza el flujo de trabajo para que cada desviación sea visible y corregible en la fuente.",
+    connectedTo: [0, 2, 3],
+    connectedLabel: "Personas · Estrategia · Resultados",
+    x: 78,
+    y: 22
+  },
+  {
+    name: "ESTRATEGIA",
+    note: "El rumbo que permite elegir qué hacer y, sobre todo, qué no hacer.",
+    relation: "Orienta a Procesos y Liderazgo: traduce la visión organizacional en prioridades operacionales claras para enfocar los esfuerzos del equipo.",
+    connectedTo: [1, 3, 5],
+    connectedLabel: "Liderazgo · Procesos · Resultados",
+    x: 90,
+    y: 54
+  },
+  {
+    name: "RESULTADOS",
+    note: "La evidencia que convierte una aspiración en aprendizaje concreto.",
+    relation: "Articula Procesos, Estrategia y Mejora: refleja el desempeño real del sistema y señala dónde iniciar el siguiente ciclo de aprendizaje.",
+    connectedTo: [1, 2, 4],
+    connectedLabel: "Procesos · Estrategia · Mejora",
+    x: 72,
+    y: 84
+  },
+  {
+    name: "MEJORA",
+    note: "La disciplina de cuestionar, experimentar y elevar el estándar.",
+    relation: "Conecta Resultados con Personas y Liderazgo: transforma cada brecha operacional en experimentación estructurada para evolucionar el sistema.",
+    connectedTo: [0, 3, 5],
+    connectedLabel: "Personas · Liderazgo · Resultados",
+    x: 28,
+    y: 84
+  },
+  {
+    name: "LIDERAZGO",
+    note: "La fuerza que conecta propósito, sistema y comportamiento.",
+    relation: "Activa a las Personas y sostiene la Mejora: traduce la Estrategia en comportamientos observables y elimina barreras en la operación diaria.",
+    connectedTo: [0, 2, 4],
+    connectedLabel: "Personas · Estrategia · Mejora",
+    x: 10,
+    y: 54
+  }
+];
+
+// Pares de conexiones orbitales entre nodos (sin duplicados)
+const orbitalLinks: { from: number; to: number; x1: number; y1: number; x2: number; y2: number }[] = [];
+nodes.forEach((node, i) => {
+  node.connectedTo.forEach((targetIdx) => {
+    if (i < targetIdx) {
+      orbitalLinks.push({
+        from: i,
+        to: targetIdx,
+        x1: node.x,
+        y1: node.y,
+        x2: nodes[targetIdx].x,
+        y2: nodes[targetIdx].y,
+      });
+    }
+  });
+});
+
+const defaultIndex = 5;
+const initialNode = nodes[defaultIndex];
+---
+
+<div class="cover-diagram-block" id="constellation" data-expanded="false" aria-label="Sistema orbital interactivo de conceptos de liderazgo operacional">
+  <div class="constellation" id="constellation-stage">
+    <div class="orbit orbit-one" aria-hidden="true"></div>
+    <div class="orbit orbit-two" aria-hidden="true"></div>
+    <div class="constellation-glow" aria-hidden="true"></div>
+
+    <svg class="constellation-lines" id="constellation-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <!-- Conexiones relacionales entre nodos orbitales -->
+      {orbitalLinks.map((link) => (
+        <line
+          class="orbital-link"
+          data-from={link.from}
+          data-to={link.to}
+          x1={link.x1}
+          y1={link.y1}
+          x2={link.x2}
+          y2={link.y2}
+          pathLength="1"
+        />
+      ))}
+
+      <!-- Conexiones radiales hacia el núcleo OPEX -->
+      {nodes.map((node, i) => (
+        <line 
+          id={`constellation-line-${i}`}
+          class="radial-link"
+          x1="50" 
+          y1="50" 
+          x2={node.x} 
+          y2={node.y} 
+          pathLength="1"
+        />
+      ))}
+
+      <!-- Línea conectora dinámica entre el nodo activo y la ficha desplazable -->
+      <line
+        id="constellation-tether-line"
+        class="tether-link"
+        x1="50"
+        y1="50"
+        x2="50"
+        y2="50"
+        pathLength="1"
+      />
+      <circle cx="50" cy="50" r="1.4"></circle>
+    </svg>
+
+    <div class="core-mark" id="constellation-core" aria-hidden="true">
+      <span>OPEX</span>
+      <i></i>
+    </div>
+
+    {nodes.map((node, i) => (
+      <button 
+        type="button"
+        class={`constellation-node node-${i + 1}`}
+        style={`left: ${node.x}%; top: ${node.y}%;`}
+        data-index={i}
+        data-name={node.name}
+        data-note={node.note}
+        data-relation={node.relation}
+        data-connected={node.connectedTo.join(",")}
+        data-connected-label={node.connectedLabel}
+        data-x={node.x}
+        data-y={node.y}
+        aria-pressed="false"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-controls="node-insight"
+        aria-label={`Ampliar concepto ${node.name}`}
+      >
+        <i aria-hidden="true"></i>
+        <span>{node.name}</span>
+      </button>
+    ))}
+
+    <!-- Velo sutil clicable (sin bloquear los nodos ni las conexiones orbitales) -->
+    <div class="constellation-scrim" id="constellation-scrim" aria-hidden="true" title="Haz clic en el fondo para cerrar la ficha y volver a la órbita completa"></div>
+
+    <!-- Ficha conceptual amplia y desplazable (Fase 5E) -->
+    <article
+      class="node-insight cover-expanded-insight"
+      id="node-insight"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="insight-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="node-insight-head" id="insight-drag-handle" data-drag-handle>
+        <div class="insight-title-group">
+          <span class="insight-live-dot" aria-hidden="true"></span>
+          <span class="insight-badge" id="insight-number">NODO 06 · ACTIVO</span>
+          <h2 class="insight-title" id="insight-title">{initialNode.name}</h2>
+        </div>
+        <button
+          type="button"
+          class="cover-insight-close-btn"
+          id="insight-close-btn"
+          aria-label="Cerrar tarjeta explicativa y recuperar la cubierta"
+        >
+          <span aria-hidden="true">✕</span> Cerrar
+        </button>
+      </div>
+
+      <div class="insight-connection-row">
+        <span class="insight-links" id="insight-links">Conecta: {initialNode.connectedLabel}</span>
+        <div class="insight-connected-chips" id="insight-connected-chips" aria-label="Saltar a conceptos conectados"></div>
+      </div>
+
+      <p class="insight-text" id="insight-text">{initialNode.note}</p>
+
+      <div class="insight-relation">
+        <span class="insight-relation-label">RELACIÓN CON EL SISTEMA Y APLICACIÓN</span>
+        <p id="insight-relation-text">{initialNode.relation}</p>
+      </div>
+
+      <div class="cover-insight-footer">
+        <div class="cover-insight-nav">
+          <button type="button" class="cover-nav-pill" id="insight-prev-btn">← Anterior</button>
+          <button type="button" class="cover-nav-pill" id="insight-next-btn">Siguiente →</button>
+        </div>
+        <button type="button" class="cover-return-link" id="insight-return-btn">
+          Volver a la órbita completa [ESC]
+        </button>
+      </div>
+    </article>
+
+    <span class="touch-hint" id="constellation-touch-hint" aria-hidden="true">
+      TOCA CUALQUIER NODO PARA ABRIR SU FICHA Y ARRÁSTRALA PARA DESCUBRIR LAS CONEXIONES
+    </span>
+  </div>
+</div>
+
+<!-- Fase 5E: Indicación editorial breve y discreta en la columna izquierda (sin tarjeta grande que duplique paneles) -->
+<div class="cover-card-block" id="cover-card-block" data-expanded="false">
+  <p class="cover-inline-cue" id="cover-rest-prompt" role="status" aria-live="polite">
+    <span class="insight-live-dot" aria-hidden="true"></span>
+    <span class="cover-inline-cue-kicker">EXPLORACIÓN ORBITAL ·</span>
+    <span class="cover-inline-cue-status" id="cover-rest-status">
+      Selecciona cualquier nodo en la órbita derecha para desplegar su ficha conceptual desplazable.
+    </span>
+  </p>
+</div>
+
+<script>
+  import {
+    animateFlipOpen,
+    animateFlipClose,
+    animateProgressiveConnections,
+    makeCardDraggable,
+  } from '../../lib/expandableCardEngine';
+
+  function initConstellation() {
+    const container = document.getElementById('constellation');
+    const stageEl = document.getElementById('constellation-stage');
+    const cardBlock = document.getElementById('cover-card-block');
+    if (!container || container.hasAttribute('data-initialized')) return;
+    container.setAttribute('data-initialized', 'true');
+
+    const coverSection = container.closest<HTMLElement>('.cover-page') || container;
+    const nodeButtons = Array.from(container.querySelectorAll<HTMLButtonElement>('.constellation-node'));
+    const radialLines = Array.from(container.querySelectorAll<SVGLineElement>('.constellation-lines .radial-link'));
+    const orbitalLinks = Array.from(container.querySelectorAll<SVGLineElement>('.constellation-lines .orbital-link'));
+    const tetherLine = document.getElementById('constellation-tether-line') as SVGLineElement | null;
+    const coreMark = document.getElementById('constellation-core');
+    const scrim = document.getElementById('constellation-scrim');
+    const insightCard = document.getElementById('node-insight') as HTMLElement | null;
+    const dragHandle = document.getElementById('insight-drag-handle');
+    const insightNumber = document.getElementById('insight-number');
+    const insightLinks = document.getElementById('insight-links');
+    const insightTitle = document.getElementById('insight-title');
+    const insightText = document.getElementById('insight-text');
+    const insightRelationText = document.getElementById('insight-relation-text');
+    const connectedChips = document.getElementById('insight-connected-chips');
+    const closeBtn = document.getElementById('insight-close-btn');
+    const returnBtn = document.getElementById('insight-return-btn');
+    const prevBtn = document.getElementById('insight-prev-btn');
+    const nextBtn = document.getElementById('insight-next-btn');
+    const restStatus = document.getElementById('cover-rest-status');
+    const touchHint = document.getElementById('constellation-touch-hint');
+
+    let isExpanded = false;
+    let activeIndex = -1;
+    let lastOriginBtn: HTMLButtonElement | null = null;
+
+    function updateTetherToCard() {
+      if (!isExpanded || activeIndex < 0 || !tetherLine || !stageEl || !insightCard) return;
+      const activeBtn = nodeButtons[activeIndex];
+      if (!activeBtn) return;
+
+      const x1 = activeBtn.getAttribute('data-x') || '50';
+      const y1 = activeBtn.getAttribute('data-y') || '50';
+      tetherLine.setAttribute('x1', x1);
+      tetherLine.setAttribute('y1', y1);
+
+      const stageRect = stageEl.getBoundingClientRect();
+      const cardRect = insightCard.getBoundingClientRect();
+      if (stageRect.width > 0 && stageRect.height > 0 && cardRect.width > 0) {
+        const rawCx = ((cardRect.left + cardRect.width / 2 - stageRect.left) / stageRect.width) * 100;
+        const rawCy = ((cardRect.top + 28 - stageRect.top) / stageRect.height) * 100;
+        const cx = Math.max(-18, Math.min(118, rawCx));
+        const cy = Math.max(4, Math.min(96, rawCy));
+        tetherLine.setAttribute('x2', cx.toFixed(1));
+        tetherLine.setAttribute('y2', cy.toFixed(1));
+      }
+    }
+
+    const dragCtrl = insightCard
+      ? makeCardDraggable({
+          cardEl: insightCard,
+          handleEl: dragHandle,
+          boundaryEl: coverSection,
+          onMove: () => updateTetherToCard(),
+        })
+      : null;
+
+    function renderConnectedChips(connectedIndices: number[]) {
+      if (!connectedChips) return;
+      connectedChips.innerHTML = '';
+      connectedIndices.forEach((targetIdx) => {
+        const targetBtn = nodeButtons[targetIdx];
+        if (!targetBtn) return;
+        const targetName = targetBtn.getAttribute('data-name') || '';
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'insight-chip-btn';
+        chip.textContent = `→ ${targetName}`;
+        chip.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openConceptNode(targetBtn, false);
+        });
+        connectedChips.appendChild(chip);
+      });
+    }
+
+    function openConceptNode(btn: HTMLButtonElement, focusClose = true) {
+      if (!insightCard || !container) return;
+      const index = parseInt(btn.getAttribute('data-index') || '0', 10);
+      const name = btn.getAttribute('data-name') || '';
+      const note = btn.getAttribute('data-note') || '';
+      const relation = btn.getAttribute('data-relation') || '';
+      const connectedLabel = btn.getAttribute('data-connected-label') || '';
+      const x = btn.getAttribute('data-x') || '50';
+      const y = btn.getAttribute('data-y') || '50';
+      const connectedIndices = (btn.getAttribute('data-connected') || '')
+        .split(',')
+        .map((n) => parseInt(n, 10))
+        .filter((n) => !Number.isNaN(n));
+
+      const wasExpanded = isExpanded;
+      activeIndex = index;
+      lastOriginBtn = btn;
+
+      // Actualizar nodos orbitales: protagonista, conectados y segundo plano
+      nodeButtons.forEach((b, idx) => {
+        const isActive = idx === index;
+        const isConnected = connectedIndices.includes(idx);
+        b.classList.toggle('active', isActive);
+        b.classList.toggle('is-connected', isConnected);
+        b.classList.toggle('is-dimmed', !isActive && !isConnected);
+        b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        b.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+      });
+
+      // Actualizar líneas radiales y orbitales + animar encendido progresivo
+      const activeSvgLines: SVGElement[] = [];
+      radialLines.forEach((line, idx) => {
+        const isPrimary = idx === index;
+        const isSecondary = connectedIndices.includes(idx);
+        line.classList.toggle('active', isPrimary);
+        line.classList.toggle('is-secondary', isSecondary);
+        if (isPrimary || isSecondary) activeSvgLines.push(line);
+      });
+
+      orbitalLinks.forEach((link) => {
+        const from = parseInt(link.getAttribute('data-from') || '-1', 10);
+        const to = parseInt(link.getAttribute('data-to') || '-1', 10);
+        const isRelated = from === index || to === index;
+        link.classList.toggle('active', isRelated);
+        if (isRelated) activeSvgLines.push(link);
+      });
+
+      if (tetherLine) {
+        tetherLine.setAttribute('x1', x);
+        tetherLine.setAttribute('y1', y);
+        tetherLine.classList.add('active');
+        activeSvgLines.push(tetherLine);
+      }
+
+      animateProgressiveConnections(activeSvgLines, 40);
+
+      if (coreMark) {
+        coreMark.classList.remove('is-pulsing');
+        void coreMark.offsetWidth;
+        coreMark.classList.add('is-pulsing');
+      }
+
+      if (insightNumber) insightNumber.textContent = `NODO ${String(index + 1).padStart(2, '0')} · ACTIVO`;
+      if (insightLinks) insightLinks.textContent = `Conecta: ${connectedLabel}`;
+      if (insightTitle) insightTitle.textContent = name;
+      if (insightText) insightText.textContent = note;
+      if (insightRelationText) insightRelationText.textContent = relation;
+      renderConnectedChips(connectedIndices);
+
+      if (restStatus) {
+        restStatus.textContent = `Explorando 0${index + 1} · ${name} — Arrastra la barra superior de la ficha para despejar la órbita.`;
+      }
+      if (touchHint) {
+        touchHint.textContent = 'ARRASTRA LA FICHA PARA VER LAS CONEXIONES DETRÁS O PULSA [✕ CERRAR] / [ESC]';
+      }
+
+      isExpanded = true;
+      container.setAttribute('data-expanded', 'true');
+      cardBlock?.setAttribute('data-expanded', 'true');
+      insightCard.hidden = false;
+      insightCard.setAttribute('aria-hidden', 'false');
+
+      updateTetherToCard();
+
+      if (!wasExpanded) {
+        animateFlipOpen(btn, insightCard, { durationOpen: 390 });
+      } else {
+        insightCard.classList.remove('is-updated');
+        void insightCard.offsetWidth;
+        insightCard.classList.add('is-updated');
+      }
+
+      if (focusClose) {
+        setTimeout(() => closeBtn?.focus({ preventScroll: true }), 60);
+      }
+    }
+
+    function closeConceptNode() {
+      if (!isExpanded || !insightCard || !container) return;
+      const originToFocus = lastOriginBtn || nodeButtons[activeIndex] || null;
+
+      animateFlipClose(originToFocus, insightCard, () => {
+        isExpanded = false;
+        activeIndex = -1;
+        dragCtrl?.resetPosition(false);
+        container.setAttribute('data-expanded', 'false');
+        cardBlock?.setAttribute('data-expanded', 'false');
+        insightCard.hidden = true;
+        insightCard.setAttribute('aria-hidden', 'true');
+
+        nodeButtons.forEach((b) => {
+          b.classList.remove('active', 'is-connected', 'is-dimmed');
+          b.setAttribute('aria-pressed', 'false');
+          b.setAttribute('aria-expanded', 'false');
+        });
+
+        radialLines.forEach((l) => l.classList.remove('active', 'is-secondary'));
+        orbitalLinks.forEach((l) => l.classList.remove('active'));
+        tetherLine?.classList.remove('active');
+
+        if (restStatus) {
+          restStatus.textContent =
+            'Selecciona cualquier nodo en la órbita derecha para desplegar su ficha conceptual desplazable.';
+        }
+        if (touchHint) {
+          touchHint.textContent =
+            'TOCA CUALQUIER NODO PARA ABRIR SU FICHA Y ARRÁSTRALA PARA DESCUBRIR LAS CONEXIONES';
+        }
+
+        originToFocus?.focus({ preventScroll: true });
+      });
+    }
+
+    nodeButtons.forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        if (isExpanded && activeIndex === idx) {
+          closeConceptNode();
+        } else {
+          openConceptNode(btn, true);
+        }
+      });
+
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          e.stopPropagation();
+          const nextBtn = nodeButtons[(idx + 1) % nodeButtons.length];
+          nextBtn?.focus();
+          if (nextBtn && isExpanded) openConceptNode(nextBtn, false);
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          e.stopPropagation();
+          const prevBtn = nodeButtons[(idx - 1 + nodeButtons.length) % nodeButtons.length];
+          prevBtn?.focus();
+          if (prevBtn && isExpanded) openConceptNode(prevBtn, false);
+        }
+      });
+    });
+
+    closeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeConceptNode();
+    });
+
+    returnBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeConceptNode();
+    });
+
+    scrim?.addEventListener('click', () => {
+      closeConceptNode();
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      const nextIdx = (activeIndex - 1 + nodeButtons.length) % nodeButtons.length;
+      const target = nodeButtons[nextIdx];
+      if (target) openConceptNode(target, false);
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      const nextIdx = (activeIndex + 1) % nodeButtons.length;
+      const target = nodeButtons[nextIdx];
+      if (target) openConceptNode(target, false);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (!isExpanded) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        closeConceptNode();
+      }
+    });
+  }
+
+  initConstellation();
+  document.addEventListener('astro:page-load', initConstellation);
+</script>

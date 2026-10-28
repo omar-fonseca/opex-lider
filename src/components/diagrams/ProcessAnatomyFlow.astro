@@ -1,0 +1,601 @@
+---
+// Página 04 — Anatomía de un proceso
+// Fase 5C (Bloque B): Navegación inmersiva dentro de un proceso con aproximación de cámara,
+// sentido de flujo direccional animado, subdiagrama ampliado de cada etapa y transición FLIP.
+---
+
+<div
+  class="interactive-workbench expandable-workbench"
+  id="process-anatomy-workbench"
+  data-expanded="false"
+  data-focus-mode="false"
+>
+  <div class="expandable-stage" id="pa-stage">
+    <!-- Lienzo principal de ancho completo -->
+    <div class="workbench-canvas expandable-canvas-wrap" id="pa-canvas-wrap">
+      <div class="canvas-Topline">
+        <div class="system-stage-meta">
+          <span class="canvas-kicker">SECUENCIA SISTÉMICA DE PROCESO · ANATOMÍA EN 5 ETAPAS</span>
+          <span class="canvas-hint" id="pa-state-hint">
+            Selecciona cualquier etapa para aproximarte a ella, ampliar sus elementos internos y recorrer el sentido del flujo
+          </span>
+        </div>
+        <div class="lp-toolbar-actions">
+          <button type="button" class="lp-sequence-btn" id="pa-sequence-btn" title="Avanzar paso a paso por el flujo del proceso">
+            <span aria-hidden="true">▶</span> Recorrer flujo (1/5)
+          </button>
+          <button type="button" class="focus-mode-toggle-btn" id="pa-focus-mode-btn" aria-pressed="false">
+            <span aria-hidden="true">⤢</span> Modo Enfoque
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra superior de acceso rápido a las 5 etapas -->
+      <div class="stage-selector-bar" role="tablist" aria-label="Etapas de la anatomía de un proceso">
+        <button type="button" class="stage-pill-btn is-active" role="tab" aria-selected="true" data-proc-stage="entrada" data-interactive-node>
+          <span class="stage-pill-num">01</span> Entrada
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-proc-stage="actividades" data-interactive-node>
+          <span class="stage-pill-num">02</span> Actividades
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-proc-stage="transformacion" data-interactive-node>
+          <span class="stage-pill-num">03</span> Transformación
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-proc-stage="salida" data-interactive-node>
+          <span class="stage-pill-num">04</span> Salida
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-proc-stage="retroalimentacion" data-interactive-node>
+          <span class="stage-pill-num">05</span> Retroalimentación
+        </button>
+      </div>
+
+      <!-- Diagrama SVG de flujo horizontal + bucle inferior de retroalimentación con aproximación de cámara -->
+      <svg
+        class="interactive-svg"
+        id="pa-main-svg"
+        viewBox="0 0 820 390"
+        role="img"
+        aria-label="Flujo de 5 etapas de un proceso: Entrada, Actividades, Transformación, Salida y Retroalimentación"
+      >
+        <defs>
+          <marker id="paArrowHead" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 8 5 L 0 9 z" fill="#60a5fa" />
+          </marker>
+          <marker id="paLoopArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 8 5 L 0 9 z" fill="#34d399" />
+          </marker>
+          <linearGradient id="paCardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="rgba(22, 43, 82, 0.94)" />
+            <stop offset="100%" stop-color="rgba(12, 24, 48, 0.94)" />
+          </linearGradient>
+        </defs>
+
+        <g id="pa-camera-group" style="transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); transform-origin: 410px 195px;">
+          <!-- Contenedor del sistema de proceso -->
+          <rect x="28" y="34" width="764" height="176" rx="18" fill="rgba(15, 29, 56, 0.44)" stroke="rgba(96, 165, 250, 0.2)" stroke-width="1.2" />
+          <text x="52" y="58" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.6">
+            FLUJO DIRECTO DE CREACIÓN DE VALOR · SENTIDO DEL FLUJO →
+          </text>
+
+          <!-- Conectores principales entre etapas (1 -> 2 -> 3 -> 4) -->
+          <g stroke="#60a5fa" stroke-width="2.6" fill="none">
+            <line id="pa-link-1-2" class="pa-flow-connector" data-flow-pair="entrada,actividades" x1="194" y1="128" x2="224" y2="128" marker-end="url(#paArrowHead)" pathLength="1" />
+            <line id="pa-link-2-3" class="pa-flow-connector" data-flow-pair="actividades,transformacion" x1="388" y1="128" x2="418" y2="128" marker-end="url(#paArrowHead)" pathLength="1" />
+            <line id="pa-link-3-4" class="pa-flow-connector" data-flow-pair="transformacion,salida" x1="582" y1="128" x2="612" y2="128" marker-end="url(#paArrowHead)" pathLength="1" />
+          </g>
+
+          <!-- Bucle de Retroalimentación (Etapa 4 Salida -> Etapa 5 Retroalimentación -> Etapa 1 Entrada y Etapa 2 Actividades) -->
+          <path
+            id="pa-feedback-loop"
+            class="svg-flow-line pa-flow-connector"
+            data-flow-pair="salida,retroalimentacion,entrada"
+            d="M 692 184 L 692 296 Q 692 316 672 316 L 140 316 Q 120 316 120 296 L 120 190"
+            fill="none"
+            stroke="#34d399"
+            stroke-width="2.5"
+            marker-end="url(#paLoopArrow)"
+            pathLength="1"
+          />
+
+          <!-- Partícula viajera que indica visualmente el sentido del flujo entre etapas -->
+          <circle id="pa-flow-traveler" cx="121" cy="128" r="6" fill="#60a5fa" stroke="#ffffff" stroke-width="2" opacity="0" pointer-events="none" />
+
+          <!-- ETAPA 1: ENTRADA -->
+          <g class="svg-node-group is-active" data-proc-node="entrada" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Etapa 1: Entrada — Pulsa para aproximarte y ampliar">
+            <rect class="node-card-bg" x="48" y="74" width="146" height="108" rx="13" fill="url(#paCardGrad)" stroke="#60a5fa" stroke-width="2" />
+            <text x="64" y="99" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="10" font-weight="700" letter-spacing="1.2">01 · INPUT ↗</text>
+            <text x="64" y="123" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="18.5" font-weight="700">Entrada</text>
+            <text x="64" y="145" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Material, datos,</text>
+            <text x="64" y="162" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">requerimiento claro</text>
+          </g>
+
+          <!-- ETAPA 2: ACTIVIDADES -->
+          <g class="svg-node-group" data-proc-node="actividades" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Etapa 2: Actividades — Pulsa para aproximarte y ampliar">
+            <rect class="node-card-bg" x="232" y="74" width="156" height="108" rx="13" fill="url(#paCardGrad)" stroke="rgba(148, 163, 184, 0.35)" stroke-width="1.5" />
+            <text x="248" y="99" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="10" font-weight="700" letter-spacing="1.2">02 · SECUENCIA ↗</text>
+            <text x="248" y="123" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="18.5" font-weight="700">Actividades</text>
+            <text x="248" y="145" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Tareas, método</text>
+            <text x="248" y="162" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">y coordinación</text>
+          </g>
+
+          <!-- ETAPA 3: TRANSFORMACIÓN -->
+          <g class="svg-node-group" data-proc-node="transformacion" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Etapa 3: Transformación — Pulsa para aproximarte y ampliar">
+            <rect class="node-card-bg" x="426" y="74" width="156" height="108" rx="13" fill="url(#paCardGrad)" stroke="rgba(148, 163, 184, 0.35)" stroke-width="1.5" />
+            <text x="442" y="99" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="10" font-weight="700" letter-spacing="1.2">03 · VALOR ↗</text>
+            <text x="442" y="123" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="17.5" font-weight="700">Transformación</text>
+            <text x="442" y="145" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Cambio físico</text>
+            <text x="442" y="162" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">o informativo real</text>
+          </g>
+
+          <!-- ETAPA 4: SALIDA -->
+          <g class="svg-node-group" data-proc-node="salida" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Etapa 4: Salida — Pulsa para aproximarte y ampliar">
+            <rect class="node-card-bg" x="620" y="74" width="146" height="108" rx="13" fill="url(#paCardGrad)" stroke="rgba(148, 163, 184, 0.35)" stroke-width="1.5" />
+            <text x="636" y="99" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="10" font-weight="700" letter-spacing="1.2">04 · OUTPUT ↗</text>
+            <text x="636" y="123" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="18.5" font-weight="700">Salida</text>
+            <text x="636" y="145" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Entrega al cliente</text>
+            <text x="636" y="162" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">interno o externo</text>
+          </g>
+
+          <!-- ETAPA 5: RETROALIMENTACIÓN (Bucle inferior) -->
+          <g class="svg-node-group" data-proc-node="retroalimentacion" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Etapa 5: Retroalimentación — Pulsa para aproximarte y ampliar">
+            <rect class="node-card-bg" x="284" y="256" width="252" height="90" rx="14" fill="rgba(12, 34, 48, 0.95)" stroke="rgba(52, 211, 153, 0.55)" stroke-width="1.8" />
+            <text x="410" y="281" text-anchor="middle" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="10" font-weight="700" letter-spacing="1.4">
+              05 · APRENDIZAJE Y CONTROL ↺ ↗
+            </text>
+            <text x="410" y="305" text-anchor="middle" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="18" font-weight="700">
+              Retroalimentación
+            </text>
+            <text x="410" y="326" text-anchor="middle" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">
+              Verificación de calidad, tiempo y ajuste en la fuente
+            </text>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Velo de enfoque contextual -->
+    <div class="expandable-scrim" id="pa-stage-scrim" aria-hidden="true"></div>
+
+    <!-- Tarjeta editorial expandible (FLIP) con subdiagrama interno de la etapa -->
+    <aside
+      class="expanded-editorial-card"
+      id="pa-inspector"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="pa-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="expanded-topbar">
+        <div class="inspector-badge-row" style="margin-bottom: 0;">
+          <span class="inspector-tag" id="pa-tag">ETAPA 01 · ENTRADA</span>
+          <span class="inspector-step-indicator" id="pa-step">Paso 1 de 5</span>
+        </div>
+        <button type="button" class="expanded-close-btn" id="pa-close-btn" aria-label="Cerrar etapa ampliada y volver al proceso completo">
+          <span aria-hidden="true">✕</span> Cerrar
+        </button>
+      </div>
+
+      <div class="expanded-body">
+        <!-- Subdiagrama vectorial ampliado de los elementos internos de la etapa y sentido del flujo -->
+        <div class="expanded-magnified-box">
+          <div class="expanded-magnified-head">
+            <span class="expanded-magnified-label">REPRESENTACIÓN AMPLIADA DE LA ETAPA Y SENTIDO DEL FLUJO</span>
+            <span class="status-badge is-ok" id="pa-magnified-badge">01 · Input del proceso</span>
+          </div>
+
+          <div class="lp-micro-diagram-row">
+            <svg class="lp-micro-svg" id="pa-micro-svg" viewBox="0 0 600 66" aria-hidden="true">
+              <defs>
+                <marker id="paMicroArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M 0 1 L 8 5 L 0 9 z" fill="#60a5fa" />
+                </marker>
+              </defs>
+              <rect x="6" y="11" width="132" height="44" rx="8" fill="rgba(15, 29, 56, 0.85)" stroke="rgba(148, 163, 184, 0.45)" stroke-width="1.4" />
+              <text id="pa-sub-prev" x="72" y="37" text-anchor="middle" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="10.5" font-weight="700">Origen: Proveedor</text>
+
+              <line x1="138" y1="33" x2="178" y2="33" stroke="#60a5fa" stroke-width="2.2" marker-end="url(#paMicroArrow)" />
+
+              <rect x="182" y="7" width="236" height="52" rx="10" fill="rgba(23, 49, 97, 0.95)" stroke="#60a5fa" stroke-width="2" />
+              <text id="pa-sub-main-title" x="300" y="27" text-anchor="middle" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">ELEMENTOS DE LA ETAPA</text>
+              <text id="pa-sub-main-items" x="300" y="45" text-anchor="middle" fill="#ffffff" font-family="Manrope, sans-serif" font-size="11" font-weight="700">Materiales · Datos · Especificación</text>
+
+              <line x1="418" y1="33" x2="458" y2="33" stroke="#34d399" stroke-width="2.2" marker-end="url(#paMicroArrow)" />
+
+              <rect x="462" y="11" width="132" height="44" rx="8" fill="rgba(14, 42, 52, 0.85)" stroke="#34d399" stroke-width="1.6" />
+              <text id="pa-sub-next" x="528" y="37" text-anchor="middle" fill="#6ee7b7" font-family="Manrope, sans-serif" font-size="10.5" font-weight="700">Hacia: 02 · Actividades</text>
+            </svg>
+          </div>
+
+          <p class="expanded-magnified-copy" id="pa-magnified-copy">
+            <strong>Proveedor → [01 · Entrada] → 02 · Actividades:</strong> Materiales, información técnica y requerimientos verificados en la fuente.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="expanded-title" id="pa-title">Entrada: condiciones para iniciar bien</h3>
+          <p class="expanded-summary" id="pa-summary">
+            Todo proceso comienza con lo que recibe: materias primas, repuestos, órdenes de trabajo, solicitudes de clientes o información técnica. Si la entrada llega incompleta o con errores, el proceso entero trabajará corrigiendo defectos de origen.
+          </p>
+        </div>
+
+        <div class="expanded-details-grid">
+          <div class="inspector-detail-box">
+            <span>¿QUÉ NECESITA ESTA ETAPA?</span>
+            <p id="pa-needs">
+              Especificaciones claras, disponibilidad a tiempo y criterios definidos de aceptación antes de liberar el trabajo.
+            </p>
+          </div>
+          <div class="inspector-detail-box">
+            <span>CONEXIÓN CON LA SIGUIENTE ETAPA</span>
+            <p id="pa-connection">
+              Una entrada verificada habilita que las Actividades se ejecuten al primer intento sin interrupciones ni búsquedas de información faltante.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="expanded-footer">
+        <div class="expanded-nav-group">
+          <button type="button" class="step-nav-btn" id="pa-prev-btn">← Etapa anterior</button>
+          <button type="button" class="step-nav-btn" id="pa-next-btn">Siguiente etapa →</button>
+        </div>
+        <button type="button" class="expanded-return-btn" id="pa-return-btn">
+          Volver al proceso completo [ESC]
+        </button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  import {
+    animateFlipOpen,
+    animateFlipClose,
+    animateProgressiveConnections,
+    makeCardDraggable,
+    resetCardDragOffset,
+    prefersReducedMotion,
+  } from '../../lib/expandableCardEngine';
+
+  function initProcessAnatomyFlow() {
+    const root = document.getElementById('process-anatomy-workbench');
+    if (!root || root.hasAttribute('data-initialized')) return;
+    root.setAttribute('data-initialized', 'true');
+
+    const STAGES: Record<string, {
+      tag: string;
+      step: string;
+      title: string;
+      summary: string;
+      needs: string;
+      connection: string;
+      badge: string;
+      magnifiedHtml: string;
+      cameraTransform: string;
+      coords: { x: number; y: number };
+      subDiagram: { prev: string; items: string; next: string };
+    }> = {
+      entrada: {
+        tag: 'ETAPA 01 · ENTRADA',
+        step: 'Paso 1 de 5',
+        title: 'Entrada: condiciones para iniciar bien',
+        summary:
+          'Todo proceso comienza con lo que recibe: materias primas, repuestos, órdenes de trabajo, solicitudes de clientes o información técnica. Si la entrada llega incompleta o con errores, el proceso entero trabajará corrigiendo defectos de origen.',
+        needs:
+          'Especificaciones claras, disponibilidad a tiempo y criterios definidos de aceptación antes de liberar el trabajo.',
+        connection:
+          'Una entrada verificada habilita que las Actividades se ejecuten al primer intento sin interrupciones ni búsquedas de información faltante.',
+        badge: '01 · Input del proceso',
+        magnifiedHtml:
+          '<strong>Proveedor → [01 · Entrada] → 02 · Actividades:</strong> Materiales, información técnica y requerimientos verificados en la fuente.',
+        cameraTransform: 'translate(135px, 28px) scale(1.16)',
+        coords: { x: 121, y: 128 },
+        subDiagram: {
+          prev: 'Origen: Proveedor / 05',
+          items: 'Materiales · Datos · Especificación clara',
+          next: 'Hacia: 02 · Actividades',
+        },
+      },
+      actividades: {
+        tag: 'ETAPA 02 · ACTIVIDADES',
+        step: 'Paso 2 de 5',
+        title: 'Actividades: secuencia organizada de trabajo',
+        summary:
+          'Conjunto de pasos operativos que las personas y los equipos realizan sobre las entradas. Aquí se hace visible la diferencia entre movimiento (estar ocupado) y trabajo estandarizado (avanzar con método).',
+        needs:
+          'Estándar operativo comprensible, herramientas listas, competencias entrenadas y carga de trabajo balanceada entre puestos.',
+        connection:
+          'Al ejecutarse en el orden y tiempo previstos, las actividades preparan la Transformación efectiva sin acumular inventarios intermedios.',
+        badge: '02 · Trabajo estandarizado',
+        magnifiedHtml:
+          '<strong>01 · Entrada → [02 · Actividades] → 03 · Transformación:</strong> Secuencia de tareas coordinadas bajo un método compartido.',
+        cameraTransform: 'translate(45px, 28px) scale(1.16)',
+        coords: { x: 310, y: 128 },
+        subDiagram: {
+          prev: 'Desde: 01 · Entrada',
+          items: 'Secuencia · Método · Coordinación',
+          next: 'Hacia: 03 · Transformación',
+        },
+      },
+      transformacion: {
+        tag: 'ETAPA 03 · TRANSFORMACIÓN',
+        step: 'Paso 3 de 5',
+        title: 'Transformación: el momento donde nace el valor',
+        summary:
+          'Es el núcleo del proceso: el instante en que una materia prima cambia de forma, un equipo averiado recupera su función o una solicitud se convierte en un servicio resuelto para el usuario.',
+        needs:
+          'Parámetros técnicos bajo control, cero defectos transferidos y atención del equipo sobre los puntos críticos de calidad y seguridad.',
+        connection:
+          'El valor creado en la transformación se consolida directamente en la Salida que recibirá el cliente interno o externo.',
+        badge: '03 · Creación de valor',
+        magnifiedHtml:
+          '<strong>02 · Actividades → [03 · Transformación] → 04 · Salida:</strong> Conversión física o informativa que agrega valor real.',
+        cameraTransform: 'translate(-45px, 28px) scale(1.16)',
+        coords: { x: 504, y: 128 },
+        subDiagram: {
+          prev: 'Desde: 02 · Actividades',
+          items: 'Parámetros · Calidad en fuente · Valor',
+          next: 'Hacia: 04 · Salida',
+        },
+      },
+      salida: {
+        tag: 'ETAPA 04 · SALIDA',
+        step: 'Paso 4 de 5',
+        title: 'Salida: entrega verificable para quien sigue',
+        summary:
+          'Resultado tangible o informativo que el proceso entrega al siguiente eslabón de la cadena o al cliente final. La calidad de una salida la evalúa quien la recibe, no solo quien la produce.',
+        needs:
+          'Cumplimiento de calidad a la primera, entrega en el plazo acordado (OTIF) y trazabilidad clara del lote o servicio completado.',
+        connection:
+          'El desempeño real de la salida activa la Retroalimentación: compara lo entregado contra lo esperado para sostener o corregir el proceso.',
+        badge: '04 · Output verificable',
+        magnifiedHtml:
+          '<strong>03 · Transformación → [04 · Salida] → Cliente / 05 · Retroalimentación:</strong> Entrega conforme en calidad, cantidad y oportunidad.',
+        cameraTransform: 'translate(-135px, 28px) scale(1.16)',
+        coords: { x: 693, y: 128 },
+        subDiagram: {
+          prev: 'Desde: 03 · Transformación',
+          items: 'Calidad conforme · Plazo (OTIF) · Trazabilidad',
+          next: 'Hacia: Cliente / 05 · Bucle',
+        },
+      },
+      retroalimentacion: {
+        tag: 'ETAPA 05 · RETROALIMENTACIÓN',
+        step: 'Paso 5 de 5',
+        title: 'Retroalimentación: el circuito que evita repetir errores',
+        summary:
+          'Sin retroalimentación, un proceso es ciego: repite las mismas desviaciones turno tras turno. Este bucle recoge datos de calidad, tiempos y obstáculos para ajustar la Entrada y las Actividades.',
+        needs:
+          'Revisión frecuente en terreno, registro honesto de anomalías y conversación constructiva entre etapas consecutivas.',
+        connection:
+          'Cierra el ciclo hacia la Entrada y las Actividades, convirtiendo la operación diaria en un sistema capaz de aprender y estabilizarse.',
+        badge: '05 · Bucle de aprendizaje',
+        magnifiedHtml:
+          '<strong>04 · Salida → [05 · Retroalimentación] ↺ 01 · Entrada:</strong> Comparación entre resultado y estándar para ajustar el proceso.',
+        cameraTransform: 'translate(0px, -48px) scale(1.16)',
+        coords: { x: 410, y: 301 },
+        subDiagram: {
+          prev: 'Desde: 04 · Salida',
+          items: 'Datos reales · Análisis de brecha · Ajuste',
+          next: 'Retorno: 01 · Entrada ↺',
+        },
+      },
+    };
+
+    const order = ['entrada', 'actividades', 'transformacion', 'salida', 'retroalimentacion'];
+    let idx = 0;
+    let isExpanded = false;
+    let lastOriginNode: HTMLElement | SVGElement | null = null;
+
+    const pills = root.querySelectorAll<HTMLButtonElement>('[data-proc-stage]');
+    const nodes = root.querySelectorAll<SVGGElement>('[data-proc-node]');
+    const connectors = root.querySelectorAll<SVGElement>('.pa-flow-connector');
+    const cameraGroup = document.getElementById('pa-camera-group');
+    const flowTraveler = document.getElementById('pa-flow-traveler');
+    const sequenceBtn = document.getElementById('pa-sequence-btn');
+    const focusModeBtn = document.getElementById('pa-focus-mode-btn');
+
+    const inspector = document.getElementById('pa-inspector') as HTMLElement | null;
+    const scrim = document.getElementById('pa-stage-scrim');
+    const stateHint = document.getElementById('pa-state-hint');
+
+    const tagEl = document.getElementById('pa-tag');
+    const stepEl = document.getElementById('pa-step');
+    const titleEl = document.getElementById('pa-title');
+    const summaryEl = document.getElementById('pa-summary');
+    const needsEl = document.getElementById('pa-needs');
+    const connEl = document.getElementById('pa-connection');
+    const magBadge = document.getElementById('pa-magnified-badge');
+    const magCopy = document.getElementById('pa-magnified-copy');
+    const subPrev = document.getElementById('pa-sub-prev');
+    const subItems = document.getElementById('pa-sub-main-items');
+    const subNext = document.getElementById('pa-sub-next');
+
+    const closeBtn = document.getElementById('pa-close-btn');
+    const returnBtn = document.getElementById('pa-return-btn');
+    const prevBtn = document.getElementById('pa-prev-btn');
+    const nextBtn = document.getElementById('pa-next-btn');
+
+    if (inspector) {
+      const stageEl = root.querySelector<HTMLElement>('.expandable-stage') || root;
+      const handleEl = inspector.querySelector<HTMLElement>('.expanded-topbar') || inspector;
+      makeCardDraggable({
+        cardEl: inspector,
+        handleEl,
+        boundsEl: stageEl,
+        storageKey: 'opex-drag-page-04',
+      });
+    }
+
+    function animateFlowBetween(fromKey: string, toKey: string) {
+      if (!flowTraveler || prefersReducedMotion()) return;
+      const from = STAGES[fromKey]?.coords || { x: 121, y: 128 };
+      const to = STAGES[toKey]?.coords || { x: 121, y: 128 };
+      flowTraveler.setAttribute('opacity', '1');
+      flowTraveler.animate(
+        [
+          { cx: `${from.x}`, cy: `${from.y}`, opacity: 1, r: '5' },
+          { cx: `${to.x}`, cy: `${to.y}`, opacity: 1, r: '8' },
+          { cx: `${to.x}`, cy: `${to.y}`, opacity: 0, r: '12' },
+        ],
+        { duration: 480, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+      );
+      setTimeout(() => flowTraveler.setAttribute('opacity', '0'), 500);
+    }
+
+    function syncVisualSelection(key: string | null) {
+      pills.forEach((p) => {
+        const active = key !== null && p.getAttribute('data-proc-stage') === key;
+        p.classList.toggle('is-active', active);
+        p.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      nodes.forEach((n) => {
+        const active = key !== null && n.getAttribute('data-proc-node') === key;
+        n.classList.toggle('is-active', active);
+        n.setAttribute('aria-expanded', active && isExpanded ? 'true' : 'false');
+      });
+
+      if (key) {
+        const activeLines: SVGElement[] = [];
+        connectors.forEach((c) => {
+          const pairs = (c.getAttribute('data-flow-pair') || '').split(',');
+          if (pairs.includes(key)) activeLines.push(c);
+        });
+        animateProgressiveConnections(activeLines, 45);
+      }
+    }
+
+    function openStage(key: string, focusClose = true) {
+      const prevKey = order[idx];
+      const found = order.indexOf(key);
+      if (found === -1 || !inspector || !root) return;
+      idx = found;
+      const data = STAGES[key];
+
+      if (prevKey !== key) {
+        animateFlowBetween(prevKey, key);
+      }
+
+      const originNode = root.querySelector<SVGGElement>(`[data-proc-node="${key}"]`);
+      lastOriginNode = originNode;
+
+      if (cameraGroup && !prefersReducedMotion()) {
+        cameraGroup.style.transform = data.cameraTransform;
+      }
+
+      if (tagEl) tagEl.textContent = data.tag;
+      if (stepEl) stepEl.textContent = data.step;
+      if (titleEl) titleEl.textContent = data.title;
+      if (summaryEl) summaryEl.textContent = data.summary;
+      if (needsEl) needsEl.textContent = data.needs;
+      if (connEl) connEl.textContent = data.connection;
+      if (magBadge) magBadge.textContent = data.badge;
+      if (magCopy) magCopy.innerHTML = data.magnifiedHtml;
+      if (subPrev) subPrev.textContent = data.subDiagram.prev;
+      if (subItems) subItems.textContent = data.subDiagram.items;
+      if (subNext) subNext.textContent = data.subDiagram.next;
+      if (sequenceBtn) {
+        sequenceBtn.innerHTML = `<span aria-hidden="true">▶</span> Recorrer flujo (${found + 1}/5)`;
+      }
+
+      isExpanded = true;
+      root.setAttribute('data-expanded', 'true');
+      inspector.hidden = false;
+      inspector.setAttribute('aria-hidden', 'false');
+      syncVisualSelection(key);
+
+      if (stateHint) {
+        stateHint.textContent = 'Explorando etapa ampliada · Pulsa [✕ Cerrar] o [Escape] para regresar al proceso completo';
+      }
+
+      animateFlipOpen(originNode, inspector);
+
+      if (focusClose) {
+        setTimeout(() => closeBtn?.focus({ preventScroll: true }), 60);
+      }
+    }
+
+    function closeStage() {
+      if (!isExpanded || !inspector || !root) return;
+      const originToFocus = lastOriginNode;
+
+      if (cameraGroup) {
+        cameraGroup.style.transform = 'translate(0px, 0px) scale(1)';
+      }
+
+      animateFlipClose(originToFocus, inspector, () => {
+        isExpanded = false;
+        root.setAttribute('data-expanded', 'false');
+        inspector.hidden = true;
+        inspector.setAttribute('aria-hidden', 'true');
+        syncVisualSelection(order[idx]);
+        if (stateHint) {
+          stateHint.textContent =
+            'Selecciona cualquier etapa para aproximarte a ella, ampliar sus elementos internos y recorrer el sentido del flujo';
+        }
+        if (originToFocus && 'focus' in originToFocus) {
+          (originToFocus as HTMLElement).focus({ preventScroll: true });
+        }
+      });
+    }
+
+    sequenceBtn?.addEventListener('click', () => {
+      const nextIdx = (idx + 1) % order.length;
+      openStage(order[nextIdx], false);
+    });
+
+    focusModeBtn?.addEventListener('click', () => {
+      const active = root.getAttribute('data-focus-mode') === 'true';
+      root.setAttribute('data-focus-mode', active ? 'false' : 'true');
+      focusModeBtn.setAttribute('aria-pressed', active ? 'false' : 'true');
+      focusModeBtn.classList.toggle('is-active', !active);
+    });
+
+    pills.forEach((p) => {
+      p.addEventListener('click', () => {
+        const k = p.getAttribute('data-proc-stage');
+        if (k) openStage(k, false);
+      });
+    });
+
+    nodes.forEach((n) => {
+      n.addEventListener('click', () => {
+        const k = n.getAttribute('data-proc-node');
+        if (k) openStage(k, true);
+      });
+      n.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const k = n.getAttribute('data-proc-node');
+          if (k) openStage(k, true);
+        }
+      });
+    });
+
+    closeBtn?.addEventListener('click', closeStage);
+    returnBtn?.addEventListener('click', closeStage);
+    scrim?.addEventListener('click', closeStage);
+
+    prevBtn?.addEventListener('click', () => {
+      openStage(order[(idx - 1 + order.length) % order.length], false);
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      openStage(order[(idx + 1) % order.length], false);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (!isExpanded) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        closeStage();
+      }
+    });
+  }
+
+  initProcessAnatomyFlow();
+  document.addEventListener('astro:page-load', initProcessAnatomyFlow);
+</script>

@@ -1,0 +1,91 @@
+---
+import { BOOK_PAGES, TOTAL_BOOK_PAGES, getPageNavigation } from '../../lib/bookManifest';
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+const navInfo = getPageNavigation(currentPath);
+const currentSectionNumber = navInfo.currentPage;
+const editorialProgressPercent = navInfo.progressPercent;
+const readingEstimate = navInfo.current.readingEstimate;
+---
+
+<aside class="book-nav" id="book-nav" aria-label="Índice y navegación del libro">
+  <div class="brand-lockup">
+    <a href="/" class="brand-name" aria-label="OPEX LÍDER — Inicio">
+      OPEX <strong>LÍDER</strong>
+    </a>
+    <!-- Control de cierre exclusivo para el panel superpuesto en móvil/tableta (<= 940px) -->
+    <button
+      type="button"
+      class="nav-collapse-btn"
+      id="nav-close-btn"
+      aria-label="Cerrar panel de índice"
+      aria-expanded="false"
+      aria-controls="book-nav"
+      title="Cerrar índice"
+    >
+      <svg class="sidebar-glyph" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6"></path>
+      </svg>
+      <span>Cerrar</span>
+    </button>
+  </div>
+
+  <div class="index-label">
+    <span>Índice del libro</span>
+    <span>{TOTAL_BOOK_PAGES} págs. (00–09)</span>
+  </div>
+
+  <nav aria-label="Capítulos de OPEX LÍDER">
+    {BOOK_PAGES.map((ch) => {
+      const isActive = navInfo.current.href === ch.href;
+      return ch.available ? (
+        <a 
+          href={ch.href} 
+          class={`chapter-link ${isActive ? 'active' : ''}`}
+          data-chapter-href={ch.href}
+          aria-current={isActive ? "page" : undefined}
+        >
+          <span class="chapter-number">{ch.number}</span>
+          <span class="chapter-title">{ch.title}</span>
+          <span class="chapter-indicators" aria-hidden="true">
+            <span class="chapter-bookmark-dot" title="Marcador guardado"></span>
+            {isActive && <span class="chapter-dot"></span>}
+          </span>
+        </a>
+      ) : (
+        <div class="chapter-link is-upcoming" aria-disabled="true">
+          <span class="chapter-number">{ch.number}</span>
+          <span class="chapter-title">{ch.title}</span>
+          <span class="chapter-badge">Próx.</span>
+        </div>
+      );
+    })}
+  </nav>
+
+  <div class="nav-progress" aria-label="Estado de avance de lectura">
+    <div class="progress-copy">
+      <span id="nav-progress-label">Avance ({currentSectionNumber}/{TOTAL_BOOK_PAGES} págs.)</span>
+      <strong id="nav-progress-value">{editorialProgressPercent}%</strong>
+    </div>
+    <div
+      class="progress-track"
+      id="nav-progress-bar"
+      role="progressbar"
+      aria-label="Avance sobre la edición de 10 páginas de OPEX LÍDER"
+      aria-valuenow={editorialProgressPercent}
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <i id="nav-progress-fill" style={`width: ${editorialProgressPercent}%;`}></i>
+    </div>
+    <p id="nav-progress-meta">
+      {readingEstimate} · Primera edición (00–09)
+    </p>
+  </div>
+</aside>
+
+<button class="nav-scrim" id="nav-scrim" aria-label="Cerrar índice" tabindex="-1"></button>

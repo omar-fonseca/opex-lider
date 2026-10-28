@@ -1,0 +1,82 @@
+---
+import { TOTAL_BOOK_PAGES } from '../../lib/bookManifest';
+
+interface Props {
+  prevHref?: string | null;
+  prevTitle?: string | null;
+  nextHref?: string | null;
+  nextTitle?: string | null;
+  progressPercent: number;
+  currentPage?: number;
+  totalPages?: number;
+}
+
+const {
+  prevHref,
+  prevTitle,
+  nextHref,
+  nextTitle,
+  progressPercent,
+  currentPage = 1,
+  totalPages = TOTAL_BOOK_PAGES,
+} = Astro.props;
+---
+
+<footer class="reader-footer" role="navigation" aria-label="Navegación entre páginas del libro">
+  <!-- Botón Anterior -->
+  {prevHref ? (
+    <a href={prevHref} class="footer-nav-link" aria-label={`Ir a la página anterior: ${prevTitle}`}>
+      <svg class="arrow-icon left" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 12h14M14 7l5 5-5 5"></path>
+      </svg>
+      <span>
+        <small>ANTERIOR</small>
+        {prevTitle}
+      </span>
+    </a>
+  ) : (
+    <div class="footer-nav-disabled" aria-hidden="true"></div>
+  )}
+
+  <!-- Indicador central de progreso -->
+  <div class="footer-progress-wrap">
+    <div class="footer-progress-meta">
+      <span id="footer-tour-status">Página {String(currentPage - 1).padStart(2, '0')} de {String(totalPages - 1).padStart(2, '0')}</span>
+      <span id="footer-editorial-status">Avance {progressPercent}%</span>
+    </div>
+    <div
+      class="footer-rule"
+      id="footer-progress-bar"
+      role="progressbar"
+      aria-label={`Avance sobre la edición de 10 páginas: ${progressPercent}% (página ${currentPage} de ${totalPages})`}
+      aria-valuenow={progressPercent}
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <i id="footer-progress-fill" style={`width: ${progressPercent}%;`}></i>
+    </div>
+  </div>
+
+  <!-- Botón Siguiente -->
+  {nextHref ? (
+    <a href={nextHref} class="footer-nav-link" aria-label={`Ir a la página siguiente: ${nextTitle}`}>
+      <span>
+        <small>SIGUIENTE</small>
+        {nextTitle}
+      </span>
+      <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 12h14M14 7l5 5-5 5"></path>
+      </svg>
+    </a>
+  ) : (
+    <a href="/" class="footer-nav-link" aria-label="Volver al inicio del libro: 00 · Cubierta">
+      <span>
+        <small>FIN DE LA EDICIÓN 00–09</small>
+        Volver a 00 · Cubierta
+      </span>
+      <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 12h14M14 7l5 5-5 5"></path>
+      </svg>
+    </a>
+  )}
+</footer>

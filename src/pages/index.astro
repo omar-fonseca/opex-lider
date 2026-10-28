@@ -1,16 +1,70 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Constellation from '../components/diagrams/Constellation.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout
+  title="00 · Cubierta"
+  description="OPEX LÍDER — Libro interactivo de liderazgo y excelencia operacional. Concepción y diseño digital por Omar Yesid Fonseca."
+  currentPath="/"
+>
+  <section class="page cover-page" aria-labelledby="cover-title">
+    <!-- 1. Columna izquierda (superior): Título y subtítulo -->
+    <div class="cover-header-block">
+      <p class="eyebrow">LIBRO INTERACTIVO · EDICIÓN 01</p>
+      
+      <h1 id="cover-title">
+        OPEX <em>LÍDER</em>
+      </h1>
+
+      <p class="cover-subtitle">
+        Libro interactivo de liderazgo y excelencia operacional.
+      </p>
+    </div>
+
+    <!-- 2 y 3. Diagrama orbital (columna derecha en escritorio / 2º en móvil) + Tarjeta contextual dinámica (columna izquierda bajo el subtítulo en escritorio / 3º en móvil) -->
+    <Constellation />
+
+    <!-- 4. Referencia conceptual (debajo del diagrama en escritorio / 4º en móvil) -->
+    <div class="cover-manifesto-block" aria-label="Referencia conceptual del sistema">
+      <span class="manifesto-kicker">REFERENCIA CONCEPTUAL DEL SISTEMA</span>
+      <p class="cover-manifesto">
+        Personas. Procesos.<br />
+        Resultados. Mejora.
+      </p>
+    </div>
+
+    <!-- 5. Propósito de esta edición y continuación editorial (columna izquierda inferior en escritorio / 5º en móvil) -->
+    <div class="cover-purpose-block">
+      <div class="opening-note">
+        <span>PROPÓSITO DE ESTA EDICIÓN</span>
+        <p>
+          La excelencia operacional no comienza con una herramienta, sino con una manera de observar el trabajo. Este libro propone un recorrido para comprender cómo las decisiones del líder conectan propósito, procesos y aprendizaje cotidiano. Cada capítulo combina lectura concisa, modelos visuales y momentos de exploración para llevar las ideas desde la teoría hasta la operación real.
+        </p>
+      </div>
+
+      <!-- Botón principal solicitado: Comenzar experiencia -->
+      <a href="/introduccion" class="primary-action" id="start-experience-btn">
+        <span>Comenzar experiencia</span>
+        <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M14 7l5 5-5 5"></path>
+        </svg>
+      </a>
+    </div>
+
+    <!-- 6. Zona inferior de la cubierta: Crédito editorial y guía de lectura -->
+    <footer class="cover-bottom-bar" aria-label="Crédito de autoría y guía de lectura">
+      <div class="credit-block" aria-label="Crédito de autoría">
+        <strong class="credit-role">Concepción y diseño digital</strong>
+        <em class="credit-author">Omar Yesid Fonseca</em>
+      </div>
+
+      <div class="cover-reading-guide">
+        <span>CÓMO LEER ESTE LIBRO</span>
+        <p>
+          Avanza en orden o utiliza el índice para volver a una pregunta concreta. Toca los conceptos, observa qué conexiones aparecen y contrasta cada modelo con tu propio contexto operacional. No busques recetas: busca relaciones causales y comportamientos sostenibles.
+        </p>
+      </div>
+    </footer>
+  </section>
+</BaseLayout>

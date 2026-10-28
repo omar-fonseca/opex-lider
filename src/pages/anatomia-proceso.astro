@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProcessAnatomyFlow from '../components/diagrams/ProcessAnatomyFlow.astro';
+---
+
+<BaseLayout
+  title="04 · Anatomía de un proceso"
+  description="Flujo visual explorable de la anatomía de un proceso: Entrada, Actividades, Transformación, Salida y Retroalimentación."
+  currentPath="/anatomia-proceso"
+>
+  <article class="page chapter-page" aria-labelledby="p04-heading">
+    <header class="chapter-lead-grid">
+      <div class="editorial-heading">
+        <p class="eyebrow">04 · ARQUITECTURA DE FLUJO</p>
+        <h1 id="p04-heading">
+          Todo trabajo repetible tiene<br />
+          <em>una anatomía visible.</em>
+        </h1>
+        <p class="lead">
+          Ya sea en una planta industrial, un taller de mantenimiento, un centro de distribución o un equipo de servicios, cualquier proceso cumple una misma ley estructural: recibe entradas, ejecuta una secuencia de actividades para transformarlas en una salida de valor y aprende mediante retroalimentación.
+        </p>
+      </div>
+
+      <aside class="chapter-purpose-pill" aria-label="Propósito de esta página">
+        <span>PROPÓSITO DE APRENDIZAJE</span>
+        <p>
+          Distinguir las cinco etapas esenciales de un proceso y comprender por qué ninguna salida puede estabilizarse si no se cuidan sus entradas, su secuencia de transformación y su bucle de retroalimentación.
+        </p>
+      </aside>
+    </header>
+
+    <!-- Experiencia interactiva 04: Flujo de 5 etapas -->
+    <ProcessAnatomyFlow />
+
+    <!-- Lectura editorial estructurada -->
+    <div class="editorial-copy-grid">
+      <div class="reading-block">
+        <span>01 · CALIDAD EN LA FUENTE</span>
+        <h3>La entrada condiciona el esfuerzo</h3>
+        <p>
+          Cuando una orden de trabajo llega con datos incompletos o un insumo ingresa fuera de especificación, el equipo operativo se ve obligado a improvisar. Proteger el proceso comienza por acordar estándares claros con quien entrega la entrada.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>02 · VALOR VS. DESPERDICIO</span>
+        <h3>No toda actividad transforma</h3>
+        <p>
+          Dentro del proceso conviven pasos que realmente transforman el producto o servicio con otros que solo mueven, esperan, buscan o corrigen. Separar ambos permite simplificar el trabajo sin exigir mayor agotamiento físico.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>03 · EL CLIENTE SIGUIENTE</span>
+        <h3>La salida tiene nombre y receptor</h3>
+        <p>
+          El proceso no termina cuando alguien «suelta» la pieza o envía un correo, sino cuando la etapa siguiente puede utilizar esa entrega sin ajustes ni consultas adicionales. Pensar en el proceso siguiente evita optimizar islas aisladas.
+        </p>
+      </div>
+
+      <div class="reading-block">
+        <span>04 · SISTEMA CERRADO</span>
+        <h3>La retroalimentación estabiliza el flujo</h3>
+        <p>
+          Un proceso sin retroalimentación solo descubre sus fallas cuando el cliente reclama. Incorporar señales de verificación permite corregir parámetros en las entradas y actividades antes de que el desvío se multiplique.
+        </p>
+      </div>
+    </div>
+
+    <!-- Aplicación operacional ilustrativa -->
+    <aside class="practical-example" aria-label="Aplicación operacional ilustrativa">
+      <div>
+        <span>APLICACIÓN ILUSTRATIVA · SERVICIO TÉCNICO Y OPERACIONES</span>
+        <strong style="display: block; color: var(--text-primary); font-size: 13px; margin-top: 6px; font-family: 'Manrope', sans-serif;">Diagnosticar un retraso recorriendo las cinco etapas</strong>
+      </div>
+      <p>
+        Un área de preparación de pedidos presentaba demoras recurrentes en el despacho vespertino. En lugar de presionar únicamente la etapa final (<em>Salida</em>), el supervisor mapeó la anatomía del proceso con su equipo: descubrieron que las solicitudes ingresaban sin prioridad definida (<em>Entrada</em>), obligando a los operadores a reordenar cargas a mitad del turno (<em>Actividades</em>) e interrumpiendo el armado continuo (<em>Transformación</em>). Al establecer una ventana clara de recepción y una revisión breve a mitad de jornada (<em>Retroalimentación</em>), el tiempo total de ciclo disminuyó sin agregar horas extras.
+      </p>
+    </aside>
+
+    <!-- Puente hacia la página 05 -->
+    <div class="chapter-next-bridge">
+      <div>
+        <span class="bridge-eyebrow">CONTINUACIÓN EDITORIAL · PÁGINA 05</span>
+        <h4>Hacer visible el estado del proceso para todo el equipo</h4>
+        <p>
+          Conocer la anatomía de un proceso es el primer paso; el segundo es lograr que cualquier persona en el área pueda ver en pocos segundos si ese proceso fluye normalmente o necesita ayuda. Eso nos lleva a la Gestión Visual.
+        </p>
+      </div>
+      <a href="/gestion-visual" class="primary-action">
+        <span>Ir a 05 · Gestión visual</span>
+        <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M14 7l5 5-5 5"></path>
+        </svg>
+      </a>
+    </div>
+  </article>
+</BaseLayout>

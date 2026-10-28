@@ -1,0 +1,404 @@
+---
+// Página 08 — KPI: medir lo importante
+// Fase 5B: Árbol gráfico navegable y expandible (FLIP) — Propósito -> Objetivo -> Indicador -> Meta -> Resultado
+---
+
+<div class="interactive-workbench expandable-workbench" id="kpi-tree-workbench" data-expanded="false">
+  <div class="expandable-stage" id="kpi-stage">
+    <div class="workbench-canvas expandable-canvas-wrap" id="kpi-canvas-wrap">
+      <div class="canvas-Topline">
+        <span class="canvas-kicker">ÁRBOL DE ALINEACIÓN DE MEDICIÓN (EJEMPLO ILUSTRATIVO)</span>
+        <span class="canvas-hint">Haz clic en cualquier eslabón del árbol para ampliar su función y relación</span>
+      </div>
+
+      <div class="stage-selector-bar" role="tablist" aria-label="Nodos del árbol de medición KPI">
+        <button type="button" class="stage-pill-btn is-active" role="tab" aria-selected="true" data-kpi-node="proposito" data-interactive-node>
+          <span class="stage-pill-num">01</span> Propósito
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="objetivo" data-interactive-node>
+          <span class="stage-pill-num">02</span> Objetivo
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="indicador" data-interactive-node>
+          <span class="stage-pill-num">03</span> Indicador (KPI)
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="meta" data-interactive-node>
+          <span class="stage-pill-num">04</span> Meta
+        </button>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="resultado" data-interactive-node>
+          <span class="stage-pill-num">05</span> Resultado
+        </button>
+      </div>
+
+      <!-- Árbol SVG jerárquico: Propósito -> Objetivo -> Indicador -> Bifurcación comparativa (Meta vs Resultado = Brecha) -->
+      <svg class="interactive-svg" viewBox="0 0 820 390" role="img" aria-label="Árbol jerárquico navegable: Propósito, Objetivo, Indicador, Meta y Resultado con ejemplo ilustrativo">
+        <!-- Conectores del árbol -->
+        <g stroke="#60a5fa" stroke-width="2.4" fill="none">
+          <line x1="410" y1="76" x2="410" y2="102" />
+          <line x1="410" y1="164" x2="410" y2="190" />
+          <path d="M 410 254 L 410 274 L 225 274 L 225 292" />
+          <path d="M 410 254 L 410 274 L 595 274 L 595 292" />
+        </g>
+        <!-- Conector de comparación entre Meta y Resultado -->
+        <line x1="365" y1="332" x2="455" y2="332" stroke="#fbbf24" stroke-width="2.2" stroke-dasharray="4 4" />
+        <text x="410" y="324" text-anchor="middle" fill="#fde68a" font-family="DM Sans, sans-serif" font-size="10" font-weight="700">BRECHA: -4.5 pts</text>
+
+        <!-- NODO 1: PROPÓSITO -->
+        <g class="svg-node-group is-active" data-kpi-target="proposito" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Nivel 1: Propósito">
+          <rect class="node-card-bg" x="170" y="16" width="480" height="60" rx="12" fill="rgba(16, 33, 64, 0.94)" stroke="#60a5fa" stroke-width="2" />
+          <text x="194" y="38" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">01 · PROPÓSITO (¿PARA QUÉ EXISTE EL PROCESO?)</text>
+          <text x="630" y="38" text-anchor="end" fill="#60a5fa" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢ AMPLIAR</text>
+          <text x="194" y="58" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="15.5" font-weight="700">Asegurar continuidad operativa y entregas confiables al cliente</text>
+        </g>
+
+        <!-- NODO 2: OBJETIVO -->
+        <g class="svg-node-group" data-kpi-target="objetivo" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Nivel 2: Objetivo">
+          <rect class="node-card-bg" x="170" y="102" width="480" height="62" rx="12" fill="rgba(14, 28, 54, 0.92)" stroke="rgba(148, 163, 184, 0.35)" stroke-width="1.5" />
+          <text x="194" y="124" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">02 · OBJETIVO (¿QUÉ CAMBIO BUSCAMOS LOGRAR?)</text>
+          <text x="630" y="124" text-anchor="end" fill="#60a5fa" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢ AMPLIAR</text>
+          <text x="194" y="146" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="15.5" font-weight="700">Cumplir las entregas completas y en la ventana horaria acordada</text>
+        </g>
+
+        <!-- NODO 3: INDICADOR (KPI) -->
+        <g class="svg-node-group" data-kpi-target="indicador" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Nivel 3: Indicador KPI">
+          <rect class="node-card-bg" x="150" y="190" width="520" height="64" rx="12" fill="rgba(14, 28, 54, 0.92)" stroke="rgba(148, 165, 184, 0.35)" stroke-width="1.5" />
+          <text x="174" y="212" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">03 · INDICADOR / KPI (¿CÓMO LO MEDIMOS CON FÓRMULA CLARA?)</text>
+          <text x="650" y="212" text-anchor="end" fill="#60a5fa" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢ AMPLIAR</text>
+          <text x="174" y="233" fill="#ffffff" font-family="Manrope, sans-serif" font-size="13.5" font-weight="700">Cumplimiento OTIF (%) = (Pedidos completos y a tiempo / Total pedidos) × 100</text>
+          <text x="174" y="247" fill="#94a3b8" font-family="DM Sans, sans-serif" font-size="10.5">Caso ilustrativo sobre 200 pedidos semanales programados</text>
+        </g>
+
+        <!-- NODO 4: META (Abajo Izquierda) -->
+        <g class="svg-node-group" data-kpi-target="meta" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Nivel 4: Meta">
+          <rect class="node-card-bg" x="85" y="292" width="280" height="80" rx="12" fill="rgba(14, 33, 50, 0.92)" stroke="rgba(52, 211, 153, 0.5)" stroke-width="1.6" />
+          <text x="105" y="314" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">04 · META (UMBRAL ESPERADO)</text>
+          <text x="348" y="314" text-anchor="end" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢</text>
+          <text x="105" y="340" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="21" font-weight="700">≥ 96.0%</text>
+          <text x="195" y="339" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">(192 de 200 pedidos)</text>
+          <text x="105" y="360" fill="#94a3b8" font-family="DM Sans, sans-serif" font-size="10.5">Referencia de estabilidad del proceso</text>
+        </g>
+
+        <!-- NODO 5: RESULTADO (Abajo Derecha) -->
+        <g class="svg-node-group" data-kpi-target="resultado" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Nivel 5: Resultado">
+          <rect class="node-card-bg" x="455" y="292" width="280" height="80" rx="12" fill="rgba(42, 28, 16, 0.92)" stroke="rgba(251, 191, 36, 0.55)" stroke-width="1.6" />
+          <text x="475" y="314" fill="#fde68a" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">05 · RESULTADO REAL (SEMANA)</text>
+          <text x="718" y="314" text-anchor="end" fill="#fde68a" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢</text>
+          <text x="475" y="340" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="21" font-weight="700">91.5%</text>
+          <text x="550" y="339" fill="#fde68a" font-family="Manrope, sans-serif" font-size="11.5">(183 de 200 pedidos)</text>
+          <text x="475" y="360" fill="#cbd5e1" font-family="DM Sans, sans-serif" font-size="10.5">9 pedidos con desvío (activa análisis)</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Velo de enfoque contextual -->
+    <div class="expandable-scrim" id="kpi-scrim" aria-hidden="true"></div>
+
+    <!-- Tarjeta editorial expandible (FLIP) -->
+    <aside
+      class="expanded-editorial-card"
+      id="kpi-inspector"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="kpi-title"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="expanded-topbar">
+        <div class="inspector-badge-row" style="margin-bottom: 0;">
+          <span class="inspector-tag" id="kpi-tag">NIVEL 01 · PROPÓSITO</span>
+          <span class="inspector-step-indicator" id="kpi-step">Nodo 1 de 5</span>
+        </div>
+        <button type="button" class="expanded-close-btn" id="kpi-close-btn" aria-label="Cerrar vista ampliada del nodo KPI">
+          <span aria-hidden="true">✕</span> Cerrar
+        </button>
+      </div>
+
+      <div>
+        <h3 class="inspector-title" id="kpi-title">Propósito: la razón de ser antes del número</h3>
+        <p class="inspector-summary" id="kpi-summary">
+          Ningún indicador tiene sentido en el vacío. Antes de definir una fórmula, el líder y el equipo deben comprender qué valor aporta su proceso al cliente interno o externo. Medir sin propósito convierte los números en burocracia.
+        </p>
+      </div>
+
+      <div class="expanded-magnified-box">
+        <div class="expanded-magnified-header">
+          <span id="kpi-chain-label">POSICIÓN EN LA CADENA LÓGICA DE MEDICIÓN</span>
+          <span id="kpi-formula-badge">Caso: 200 pedidos semanales · Meta ≥ 96.0% vs. Real 91.5%</span>
+        </div>
+        <div class="expanded-flow-strip" id="kpi-flow-strip">
+          <span class="expanded-flow-pill is-current" data-kpi-strip="proposito">01 · Propósito</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-kpi-strip="objetivo">02 · Objetivo</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-kpi-strip="indicador">03 · Indicador (KPI)</span>
+          <span class="expanded-flow-arrow">→</span>
+          <span class="expanded-flow-pill" data-kpi-strip="meta">04 · Meta (≥96%)</span>
+          <span class="expanded-flow-arrow">↔</span>
+          <span class="expanded-flow-pill" data-kpi-strip="resultado">05 · Resultado (91.5%)</span>
+        </div>
+      </div>
+
+      <div class="expanded-detail-cols">
+        <div class="inspector-detail-box">
+          <span>RELACIÓN CON LOS DEMÁS NIVELES</span>
+          <p id="kpi-relation">
+            Orienta al Objetivo y evita elegir indicadores que optimicen una tarea local a costa de perjudicar al cliente final.
+          </p>
+        </div>
+        <div class="inspector-detail-box">
+          <span>EN EL EJEMPLO ILUSTRATIVO</span>
+          <p id="kpi-example">
+            El almacén o planta no existe para «mover cajas rápido», sino para garantizar que el usuario reciba su pedido completo, sin daños y cuando lo necesita.
+          </p>
+        </div>
+      </div>
+
+      <div class="expanded-footer-bar">
+        <button type="button" class="step-nav-btn" id="kpi-prev-btn">← Nivel anterior</button>
+        <button type="button" class="step-nav-btn" id="kpi-return-btn">Volver al árbol completo</button>
+        <button type="button" class="step-nav-btn" id="kpi-next-btn">Siguiente nivel →</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  import { animateFlipOpen, animateFlipClose, makeCardDraggable } from '../../lib/expandableCardEngine';
+
+  function initKpiAlignmentTree() {
+    const root = document.getElementById('kpi-tree-workbench');
+    if (!root || root.hasAttribute('data-initialized')) return;
+    root.setAttribute('data-initialized', 'true');
+
+    const NODES: Record<string, {
+      tag: string;
+      step: string;
+      title: string;
+      summary: string;
+      relation: string;
+      example: string;
+    }> = {
+      proposito: {
+        tag: 'NIVEL 01 · PROPÓSITO',
+        step: 'Nodo 1 de 5',
+        title: 'Propósito: la razón de ser antes del número',
+        summary:
+          'Ningún indicador tiene sentido en el vacío. Antes de definir una fórmula, el líder y el equipo deben comprender qué valor aporta su proceso al cliente interno o externo. Medir sin propósito convierte los números en burocracia.',
+        relation:
+          'Orienta al Objetivo y evita elegir indicadores que optimicen una tarea local a costa de perjudicar al cliente final.',
+        example:
+          'El almacén o planta no existe para «mover cajas rápido», sino para garantizar que el usuario reciba su pedido completo, sin daños y cuando lo necesita.',
+      },
+      objetivo: {
+        tag: 'NIVEL 02 · OBJETIVO',
+        step: 'Nodo 2 de 5',
+        title: 'Objetivo: dirección concreta de mejora o estabilidad',
+        summary:
+          'Traduce el propósito general en una intención operativa clara. Expresa qué atributo del proceso (seguridad, calidad, flujo, entrega o costo) necesitamos sostener o transformar.',
+        relation:
+          'Conecta el Propósito con el Indicador: define qué fenómeno específico vamos a observar.',
+        example:
+          'Asegurar que los pedidos salgan completos en cantidad, sin errores de documentación y dentro de la ventana horaria pactada.',
+      },
+      indicador: {
+        tag: 'NIVEL 03 · INDICADOR (KPI)',
+        step: 'Nodo 3 de 5',
+        title: 'Indicador (KPI): la regla objetiva de observación',
+        summary:
+          'Un KPI (Key Performance Indicator) es una medida cuantitativa con definición, fórmula, unidad y frecuencia explícitas. Permite que dos turnos distintos midan exactamente lo mismo sin opiniones subjetivas.',
+        relation:
+          'Hace medible el Objetivo y sirve de base para fijar la Meta y registrar el Resultado.',
+        example:
+          'Porcentaje OTIF (On-Time In-Full): pedidos entregados completos y a tiempo divididos entre los 200 pedidos programados de la semana (dato ilustrativo).',
+      },
+      meta: {
+        tag: 'NIVEL 04 · META',
+        step: 'Nodo 4 de 5',
+        title: 'Meta: el umbral que define la condición normal',
+        summary:
+          'Un número aislado como «91.5%» no dice nada si no sabemos contra qué compararlo. La meta establece el nivel de desempeño requerido por el cliente o por la capacidad estándar del proceso.',
+        relation:
+          'Al contrastarse con el Resultado real, permite calcular de inmediato si existe una brecha (desviación) que requiera atención.',
+        example:
+          'Meta ilustrativa ≥ 96.0% (al menos 192 de los 200 pedidos semanales entregados sin ningún atraso ni faltante).',
+      },
+      resultado: {
+        tag: 'NIVEL 05 · RESULTADO Y BRECHA',
+        step: 'Nodo 5 de 5',
+        title: 'Resultado: evidencia real que activa el aprendizaje',
+        summary:
+          'Es el dato obtenido al ejecutar el proceso. Su función no es premiar o castigar sin contexto, sino revelar la brecha frente a la meta para enfocar la observación del líder en el terreno.',
+        relation:
+          'Cierra el árbol: un resultado de 91.5% frente a una meta de 96.0% muestra una brecha de -4.5 puntos (9 pedidos afectados) que debemos investigar en el proceso.',
+        example:
+          'En lugar de discutir percepciones, el equipo sabe con precisión que 9 pedidos sufrieron desvíos y pasa a verificar en qué etapa ocurrieron.',
+      },
+    };
+
+    const keys = ['proposito', 'objetivo', 'indicador', 'meta', 'resultado'];
+    let idx = 0;
+    let isExpanded = false;
+    let isClosing = false;
+    let activeOriginEl: Element | null = null;
+
+    const pills = root.querySelectorAll<HTMLButtonElement>('[data-kpi-node]');
+    const svgNodes = root.querySelectorAll<SVGGElement>('[data-kpi-target]');
+    const stripPills = root.querySelectorAll<HTMLElement>('[data-kpi-strip]');
+    const scrim = document.getElementById('kpi-scrim');
+    const inspector = document.getElementById('kpi-inspector');
+    const closeBtn = document.getElementById('kpi-close-btn');
+    const returnBtn = document.getElementById('kpi-return-btn');
+    const tagEl = document.getElementById('kpi-tag');
+    const stepEl = document.getElementById('kpi-step');
+    const titleEl = document.getElementById('kpi-title');
+    const summaryEl = document.getElementById('kpi-summary');
+    const relEl = document.getElementById('kpi-relation');
+    const exEl = document.getElementById('kpi-example');
+    const prevBtn = document.getElementById('kpi-prev-btn');
+    const nextBtn = document.getElementById('kpi-next-btn');
+
+    if (inspector) {
+      const stageEl = root.querySelector<HTMLElement>('.expandable-stage') || root;
+      const handleEl = inspector.querySelector<HTMLElement>('.expanded-topbar') || inspector;
+      makeCardDraggable({
+        cardEl: inspector,
+        handleEl,
+        boundsEl: stageEl,
+        storageKey: 'opex-drag-page-08',
+      });
+    }
+
+    function getSvgNode(key: string): SVGGElement | null {
+      return root?.querySelector<SVGGElement>(`[data-kpi-target="${key}"]`) ?? null;
+    }
+
+    function populateContent(key: string) {
+      const i = keys.indexOf(key);
+      if (i === -1) return;
+      idx = i;
+      const item = NODES[key];
+
+      pills.forEach((p) => {
+        const active = p.getAttribute('data-kpi-node') === key;
+        p.classList.toggle('is-active', active);
+        p.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      svgNodes.forEach((n) => {
+        const active = n.getAttribute('data-kpi-target') === key;
+        n.classList.toggle('is-active', active);
+        n.setAttribute('aria-expanded', active && isExpanded ? 'true' : 'false');
+      });
+
+      stripPills.forEach((sp) => {
+        sp.classList.toggle('is-current', sp.getAttribute('data-kpi-strip') === key);
+      });
+
+      if (tagEl) tagEl.textContent = item.tag;
+      if (stepEl) stepEl.textContent = item.step;
+      if (titleEl) titleEl.textContent = item.title;
+      if (summaryEl) summaryEl.textContent = item.summary;
+      if (relEl) relEl.textContent = item.relation;
+      if (exEl) exEl.textContent = item.example;
+    }
+
+    function openNode(key: string, originEl?: Element | null) {
+      if (!inspector) return;
+      isClosing = false;
+      const resolvedOrigin = (originEl || getSvgNode(key)) as HTMLElement | SVGElement | null;
+      activeOriginEl = resolvedOrigin;
+
+      const wasAlreadyExpanded = isExpanded;
+      isExpanded = true;
+
+      populateContent(key);
+      root.setAttribute('data-expanded', 'true');
+      inspector.hidden = false;
+      inspector.setAttribute('aria-hidden', 'false');
+      scrim?.setAttribute('aria-hidden', 'false');
+
+      animateFlipOpen(resolvedOrigin, inspector, { durationOpen: wasAlreadyExpanded ? 260 : 360 });
+      if (!wasAlreadyExpanded) {
+        setTimeout(() => {
+          closeBtn?.focus({ preventScroll: true });
+        }, 60);
+      }
+    }
+
+    function closeNode() {
+      if (!isExpanded || isClosing || !inspector) return;
+      isClosing = true;
+
+      const originToReturn = (activeOriginEl || getSvgNode(keys[idx])) as HTMLElement | SVGElement | null;
+
+      animateFlipClose(originToReturn, inspector, { durationClose: 280 }, () => {
+        isExpanded = false;
+        isClosing = false;
+        root.setAttribute('data-expanded', 'false');
+        inspector.hidden = true;
+        inspector.setAttribute('aria-hidden', 'true');
+        scrim?.setAttribute('aria-hidden', 'true');
+
+        svgNodes.forEach((n) => n.setAttribute('aria-expanded', 'false'));
+
+        if (originToReturn && 'focus' in originToReturn && typeof (originToReturn as HTMLElement).focus === 'function') {
+          (originToReturn as HTMLElement).focus({ preventScroll: true });
+        }
+      });
+    }
+
+    pills.forEach((p) => {
+      p.addEventListener('click', () => {
+        const k = p.getAttribute('data-kpi-node');
+        if (k) openNode(k, getSvgNode(k) || p);
+      });
+    });
+
+    svgNodes.forEach((n) => {
+      n.addEventListener('click', () => {
+        const k = n.getAttribute('data-kpi-target');
+        if (k) openNode(k, n);
+      });
+      n.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const k = n.getAttribute('data-kpi-target');
+          if (k) openNode(k, n);
+        }
+      });
+    });
+
+    closeBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeNode();
+    });
+
+    returnBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeNode();
+    });
+
+    scrim?.addEventListener('click', () => {
+      closeNode();
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      const nextKey = keys[(idx - 1 + keys.length) % keys.length];
+      openNode(nextKey, getSvgNode(nextKey));
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      const nextKey = keys[(idx + 1) % keys.length];
+      openNode(nextKey, getSvgNode(nextKey));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isExpanded) {
+        e.preventDefault();
+        closeNode();
+      }
+    });
+  }
+
+  initKpiAlignmentTree();
+  document.addEventListener('astro:page-load', initKpiAlignmentTree);
+</script>
