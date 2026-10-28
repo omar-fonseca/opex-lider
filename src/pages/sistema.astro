@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import InteractiveSystem from '../components/diagrams/InteractiveSystem.astro';
+---
+
+<BaseLayout
+  title="02 · Sistema interactivo"
+  description="Diagrama interactivo de las 4 fuerzas de la excelencia operacional: Personas, Procesos, Liderazgo y Mejora."
+  currentPath="/sistema"
+  kicker="02 · SISTEMA INTERACTIVO"
+  topbarTitle="Las 4 fuerzas"
+  currentPage={3}
+  totalPages={3}
+  prevHref="/introduccion"
+  prevTitle="Excelencia operacional"
+  nextHref={null}
+  nextTitle={null}
+  progressPercent={33}
+>
+  <section class="page system-view" aria-labelledby="system-view-heading">
+    <div class="editorial-heading">
+      <p class="eyebrow">ARQUITECTURA OPERACIONAL</p>
+      <h1 id="system-view-heading">
+        Las 4 fuerzas de la<br />
+        <em>excelencia operacional.</em>
+      </h1>
+      <p class="lead">
+        Personas, Procesos, Liderazgo y Mejora no operan de forma aislada: constituyen un circuito dinámico e interdependiente. Selecciona cada fuerza en el diagrama para encender su conexión y descubrir su papel dentro del sistema.
+      </p>
+    </div>
+
+    <!-- Componente interactivo del diagrama con 4 fuerzas y tarjeta accesible -->
+    <InteractiveSystem />
+
+    <!-- Síntesis de interdependencia sistémica -->
+    <div class="system-synthesis" aria-label="Síntesis de las cuatro fuerzas">
+      <div class="synthesis-col is-active" data-concept-id="personas">
+        <span>01 · PERSONAS</span>
+        <h4>Criterio y Energía</h4>
+        <p>Aportan el discernimiento y la capacidad humana que ninguna automatización puede reemplazar por completo.</p>
+      </div>
+
+      <div class="synthesis-col" data-concept-id="procesos">
+        <span>02 · PROCESOS</span>
+        <h4>Estructura y Flujo</h4>
+        <p>Hacen predecible la entrega de valor y crean el punto de partida objetivo para contrastar desviaciones.</p>
+      </div>
+
+      <div class="synthesis-col" data-concept-id="liderazgo">
+        <span>03 · LIDERAZGO</span>
+        <h4>Alineación y Soporte</h4>
+        <p>Garantiza que el propósito y los recursos converjan en el lugar donde se ejecutan las operaciones.</p>
+      </div>
+
+      <div class="synthesis-col" data-concept-id="mejora">
+        <span>04 · MEJORA</span>
+        <h4>Evolución y Resiliencia</h4>
+        <p>Cierra la brecha entre la aspiración y la realidad mediante experimentos diarios basados en datos.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

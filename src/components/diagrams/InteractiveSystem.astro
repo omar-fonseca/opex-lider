@@ -1,0 +1,328 @@
+---
+const concepts = [
+  {
+    id: "personas",
+    number: "01",
+    badge: "FUERZA 01 · FUNDAMENTO",
+    title: "PERSONAS",
+    subtitle: "“La excelencia operacional no la producen los manuales: la hacen posible personas conscientes que comprenden el propósito de cada tarea.”",
+    explanation: "En un sistema maduro, las personas no esperan órdenes pasivas; desarrollan criterio para observar su entorno, detectar anomalías y tomar decisiones fundamentadas donde ocurre el trabajo.",
+    systemRelation: "Activa los Procesos al ejecutar el estándar con rigor y alimenta la Mejora al visibilizar desviaciones en tiempo real.",
+    connectionLabel: "Procesos · Mejora · Nexo central",
+    connectedIds: ["procesos", "mejora"],
+    leaderAction: "Desarrollar capacidades de resolución de problemas, brindar seguridad psicológica y transferir gradualmente la toma de decisiones.",
+    nodeClass: "node-personas",
+    svgLines: ["line-personas-procesos", "line-personas-mejora", "line-personas-nexus"]
+  },
+  {
+    id: "procesos",
+    number: "02",
+    badge: "FUERZA 02 · ESTRUCTURA",
+    title: "PROCESOS",
+    subtitle: "“El proceso es la forma compartida de hacer visible el trabajo. El estándar no es una camisa de fuerza: es la base indispensable de la mejora.”",
+    explanation: "Hacer visible el flujo de valor permite identificar cuellos de botella, eliminar desperdicios y asegurar que la calidad se construya en la fuente, no en una inspección posterior.",
+    systemRelation: "Traduce el criterio de las Personas en flujo predecible y ofrece al Liderazgo una referencia objetiva para observar el desempeño.",
+    connectionLabel: "Personas · Liderazgo · Nexo central",
+    connectedIds: ["personas", "liderazgo"],
+    leaderAction: "Construir estándares junto con los operadores reales del proceso y asegurar una gestión visual que hable por sí misma.",
+    nodeClass: "node-procesos",
+    svgLines: ["line-personas-procesos", "line-procesos-liderazgo", "line-procesos-nexus"]
+  },
+  {
+    id: "liderazgo",
+    number: "03",
+    badge: "FUERZA 03 · CONEXIÓN",
+    title: "LIDERAZGO",
+    subtitle: "“Liderar no es situarse en el centro para controlarlo todo, sino crear las condiciones para que el sistema opere con autonomía y propósito.”",
+    explanation: "El líder excelente conecta la visión de largo plazo con la disciplina de la gestión diaria. Cuando surge una desviación, no busca culpables: pregunta qué condición del proceso permitió el error.",
+    systemRelation: "Estabiliza los Procesos mediante disciplina operativa e impulsa la Mejora eliminando obstáculos para que el equipo aprenda.",
+    connectionLabel: "Procesos · Mejora · Nexo central",
+    connectedIds: ["procesos", "mejora"],
+    leaderAction: "Practicar preguntas reflexivas en el Gemba, modelar humildad de aprendizaje y eliminar las barreras que frenan al equipo.",
+    nodeClass: "node-liderazgo",
+    svgLines: ["line-procesos-liderazgo", "line-liderazgo-mejora", "line-liderazgo-nexus"]
+  },
+  {
+    id: "mejora",
+    number: "04",
+    badge: "FUERZA 04 · EVOLUCIÓN",
+    title: "MEJORA CONTINUA",
+    shortTitle: "MEJORA",
+    subtitle: "“La mejora continua no surge de eventos heroicos aislados, sino de la práctica rigurosa del método científico ante cada brecha operacional.”",
+    explanation: "A través del ciclo PDCA (Planificar, Hacer, Verificar, Actuar), cada problema se convierte en información privilegiada para comprender el proceso y evolucionar el estándar hacia un nivel superior.",
+    systemRelation: "Articula el soporte del Liderazgo con el talento de las Personas para elevar continuamente la capacidad del sistema.",
+    connectionLabel: "Liderazgo · Personas · Nexo central",
+    connectedIds: ["liderazgo", "personas"],
+    leaderAction: "Fomentar pequeños experimentos controlados a diario y celebrar que los problemas se hagan visibles a tiempo.",
+    nodeClass: "node-mejora",
+    svgLines: ["line-liderazgo-mejora", "line-personas-mejora", "line-mejora-nexus"]
+  }
+];
+
+const initialConcept = concepts[0];
+---
+
+<div class="system-container" id="interactive-system">
+  <!-- Diagram Canvas with 4 Nodes and SVG pathways -->
+  <div
+    class="diagram-canvas"
+    role="tablist"
+    aria-label="Seleccionar una de las 4 fuerzas de la excelencia operacional"
+  >
+    <div class="diagram-ring diagram-ring-outer" aria-hidden="true"></div>
+    <div class="diagram-ring diagram-ring-inner" aria-hidden="true"></div>
+
+    <svg class="diagram-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <!-- Outer diamond pathways connecting the 4 nodes -->
+      <line id="line-personas-procesos" class="active" x1="50" y1="14" x2="86" y2="50" />
+      <line id="line-procesos-liderazgo" class="" x1="86" y1="50" x2="50" y2="86" />
+      <line id="line-liderazgo-mejora" class="" x1="50" y1="86" x2="14" y2="50" />
+      <line id="line-personas-mejora" class="active" x1="14" y1="50" x2="50" y2="14" />
+
+      <!-- Center nexus radiating links -->
+      <line id="line-personas-nexus" class="active" x1="50" y1="14" x2="50" y2="50" stroke-dasharray="2 3" />
+      <line id="line-procesos-nexus" class="" x1="86" y1="50" x2="50" y2="50" stroke-dasharray="2 3" />
+      <line id="line-liderazgo-nexus" class="" x1="50" y1="86" x2="50" y2="50" stroke-dasharray="2 3" />
+      <line id="line-mejora-nexus" class="" x1="14" y1="50" x2="50" y2="50" stroke-dasharray="2 3" />
+    </svg>
+
+    <!-- Center Nexus -->
+    <div class="diagram-center-nexus" id="diagram-center-nexus" aria-hidden="true">
+      <div>
+        <span id="nexus-kicker">NEXO VIVO · 01</span>
+        <strong>SISTEMA</strong>
+        <i></i>
+      </div>
+    </div>
+
+    <!-- The 4 Interactive Concept Buttons -->
+    {concepts.map((concept, index) => {
+      const isInitialActive = index === 0;
+      const isInitialConnected = initialConcept.connectedIds.includes(concept.id);
+      return (
+        <button
+          type="button"
+          id={`btn-concept-${concept.id}`}
+          class={`system-node-button ${concept.nodeClass} ${isInitialActive ? "active" : ""} ${isInitialConnected ? "is-connected" : ""}`}
+          data-id={concept.id}
+          data-index={index}
+          role="tab"
+          aria-selected={isInitialActive ? "true" : "false"}
+          aria-controls="system-card-panel"
+          tabindex={isInitialActive ? "0" : "-1"}
+        >
+          <span class="node-number">{concept.number}</span>
+          <strong class="node-title">{concept.shortTitle ?? concept.title}</strong>
+          <i aria-hidden="true"></i>
+        </button>
+      );
+    })}
+  </div>
+
+  <!-- Accessible Contextual Card (updates smoothly on node selection) -->
+  <article 
+    class="system-card-panel" 
+    id="system-card-panel" 
+    role="tabpanel" 
+    aria-live="polite"
+    aria-labelledby="btn-concept-personas"
+  >
+    <div>
+      <div class="system-card-header">
+        <span class="system-card-badge" id="card-badge">{initialConcept.badge}</span>
+        <div class="system-card-meta">
+          <span class="system-card-links" id="card-links">Conecta: {initialConcept.connectionLabel}</span>
+          <span class="system-card-step" id="card-step">01 / 04</span>
+        </div>
+      </div>
+
+      <h3 class="system-card-title" id="card-title">{initialConcept.title}</h3>
+      <p class="system-card-summary" id="card-subtitle">
+        {initialConcept.subtitle}
+      </p>
+
+      <div class="system-card-details">
+        <p id="card-explanation">
+          {initialConcept.explanation}
+        </p>
+      </div>
+
+      <div class="system-card-relation">
+        <span>RELACIÓN CON EL SISTEMA</span>
+        <p id="card-relation">
+          {initialConcept.systemRelation}
+        </p>
+      </div>
+    </div>
+
+    <div class="system-card-leader-action">
+      <span>APLICACIÓN · ACCIÓN DEL LÍDER</span>
+      <p id="card-action">
+        {initialConcept.leaderAction}
+      </p>
+    </div>
+  </article>
+</div>
+
+<!-- Embedded JSON data for client logic -->
+<script type="application/json" id="concepts-data" is:inline set:html={JSON.stringify(concepts)}></script>
+
+<script>
+  function setupInteractiveSystem() {
+    const rawData = document.getElementById('concepts-data')?.textContent;
+    if (!rawData) return;
+    
+    interface ConceptItem {
+      id: string;
+      number: string;
+      badge: string;
+      title: string;
+      subtitle: string;
+      explanation: string;
+      systemRelation: string;
+      connectionLabel: string;
+      connectedIds: string[];
+      leaderAction: string;
+      svgLines: string[];
+    }
+
+    let concepts: ConceptItem[] = [];
+    try {
+      concepts = JSON.parse(rawData);
+    } catch {
+      return;
+    }
+
+    const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.system-node-button'));
+    const svgLines = document.querySelectorAll<SVGLineElement>('.diagram-svg line');
+    const centerNexus = document.getElementById('diagram-center-nexus');
+    const nexusKicker = document.getElementById('nexus-kicker');
+    const panel = document.getElementById('system-card-panel');
+    const cardBadge = document.getElementById('card-badge');
+    const cardLinks = document.getElementById('card-links');
+    const cardStep = document.getElementById('card-step');
+    const cardTitle = document.getElementById('card-title');
+    const cardSubtitle = document.getElementById('card-subtitle');
+    const cardExplanation = document.getElementById('card-explanation');
+    const cardRelation = document.getElementById('card-relation');
+    const cardAction = document.getElementById('card-action');
+    const synthesisCols = document.querySelectorAll<HTMLElement>('.synthesis-col[data-concept-id]');
+
+    let transitionTimer: number | undefined;
+
+    function selectConcept(conceptId: string, focusButton = false) {
+      const concept = concepts.find(c => c.id === conceptId);
+      if (!concept) return;
+
+      // Update button active & connected states and ARIA attributes
+      buttons.forEach(btn => {
+        const id = btn.getAttribute('data-id') || '';
+        const isMatch = id === conceptId;
+        const isConnected = concept.connectedIds.includes(id);
+        btn.classList.toggle('active', isMatch);
+        btn.classList.toggle('is-connected', isConnected);
+        btn.setAttribute('aria-selected', isMatch ? 'true' : 'false');
+        btn.setAttribute('tabindex', isMatch ? '0' : '-1');
+        if (isMatch && focusButton) {
+          btn.focus();
+        }
+      });
+
+      // Highlight matching synthesis column below if present
+      synthesisCols.forEach(col => {
+        const colId = col.getAttribute('data-concept-id');
+        col.classList.toggle('is-active', colId === conceptId);
+      });
+
+      // Update SVG lines highlight
+      svgLines.forEach(line => {
+        const lineId = line.getAttribute('id');
+        const isHighlighted = lineId && concept.svgLines.includes(lineId);
+        line.classList.toggle('active', Boolean(isHighlighted));
+      });
+
+      // Pulse central nexus
+      if (nexusKicker) {
+        nexusKicker.textContent = `NEXO VIVO · ${concept.number}`;
+      }
+      if (centerNexus) {
+        centerNexus.classList.remove('is-pulsing');
+        void centerNexus.offsetWidth;
+        centerNexus.classList.add('is-pulsing');
+      }
+
+      // Update Card content with smooth 2.5D transition
+      if (panel) {
+        panel.setAttribute('aria-labelledby', `btn-concept-${concept.id}`);
+        window.clearTimeout(transitionTimer);
+        panel.classList.add('is-transitioning');
+
+        transitionTimer = window.setTimeout(() => {
+          if (cardBadge) cardBadge.textContent = concept.badge;
+          if (cardLinks) cardLinks.textContent = `Conecta: ${concept.connectionLabel}`;
+          if (cardStep) cardStep.textContent = `${concept.number} / 04`;
+          if (cardTitle) cardTitle.textContent = concept.title;
+          if (cardSubtitle) cardSubtitle.textContent = concept.subtitle;
+          if (cardExplanation) cardExplanation.textContent = concept.explanation;
+          if (cardRelation) cardRelation.textContent = concept.systemRelation;
+          if (cardAction) cardAction.textContent = concept.leaderAction;
+          panel.classList.remove('is-transitioning');
+        }, 110);
+      }
+    }
+
+    // Attach click and keyboard listeners (WAI-ARIA tablist navigation)
+    buttons.forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-id');
+        if (id) selectConcept(id);
+      });
+
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const id = btn.getAttribute('data-id');
+          if (id) selectConcept(id);
+        } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          e.stopPropagation();
+          const nextBtn = buttons[(idx + 1) % buttons.length];
+          const nextId = nextBtn?.getAttribute('data-id');
+          if (nextId) selectConcept(nextId, true);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          e.stopPropagation();
+          const prevBtn = buttons[(idx - 1 + buttons.length) % buttons.length];
+          const prevId = prevBtn?.getAttribute('data-id');
+          if (prevId) selectConcept(prevId, true);
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          const firstId = buttons[0]?.getAttribute('data-id');
+          if (firstId) selectConcept(firstId, true);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          const lastId = buttons[buttons.length - 1]?.getAttribute('data-id');
+          if (lastId) selectConcept(lastId, true);
+        }
+      });
+    });
+
+    // Also allow clicking synthesis columns at the bottom to explore that force
+    synthesisCols.forEach(col => {
+      col.addEventListener('click', () => {
+        const colId = col.getAttribute('data-concept-id');
+        if (colId) selectConcept(colId);
+      });
+    });
+
+    // Handle deep-link via query parameter (e.g. ?concept=mejora)
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedConcept = urlParams.get('concept');
+    if (requestedConcept && concepts.some(c => c.id === requestedConcept)) {
+      selectConcept(requestedConcept);
+    }
+  }
+
+  setupInteractiveSystem();
+  document.addEventListener('astro:page-load', setupInteractiveSystem);
+</script>

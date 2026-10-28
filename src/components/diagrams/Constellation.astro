@@ -1,0 +1,277 @@
+---
+const nodes = [
+  {
+    name: "PERSONAS",
+    note: "El conocimiento, el criterio y la energía que hacen avanzar al sistema.",
+    relation: "Se vincula con Liderazgo y Procesos: aporta el criterio humano para ejecutar el estándar, detectar anomalías y sostener la Mejora en el terreno.",
+    connectedTo: [1, 4, 5],
+    connectedLabel: "Liderazgo · Procesos · Mejora",
+    x: 18,
+    y: 22
+  },
+  {
+    name: "PROCESOS",
+    note: "La forma compartida de transformar intención en valor.",
+    relation: "Conecta a las Personas con los Resultados: estabiliza el flujo de trabajo para que cada desviación sea visible y corregible en la fuente.",
+    connectedTo: [0, 2, 3],
+    connectedLabel: "Personas · Estrategia · Resultados",
+    x: 78,
+    y: 22
+  },
+  {
+    name: "ESTRATEGIA",
+    note: "El rumbo que permite elegir qué hacer y, sobre todo, qué no hacer.",
+    relation: "Orienta a Procesos y Liderazgo: traduce la visión organizacional en prioridades operacionales claras para enfocar los esfuerzos del equipo.",
+    connectedTo: [1, 3, 5],
+    connectedLabel: "Liderazgo · Procesos · Resultados",
+    x: 90,
+    y: 54
+  },
+  {
+    name: "RESULTADOS",
+    note: "La evidencia que convierte una aspiración en aprendizaje concreto.",
+    relation: "Articula Procesos, Estrategia y Mejora: refleja el desempeño real del sistema y señala dónde iniciar el siguiente ciclo de aprendizaje.",
+    connectedTo: [1, 2, 4],
+    connectedLabel: "Procesos · Estrategia · Mejora",
+    x: 72,
+    y: 84
+  },
+  {
+    name: "MEJORA",
+    note: "La disciplina de cuestionar, experimentar y elevar el estándar.",
+    relation: "Conecta Resultados con Personas y Liderazgo: transforma cada brecha operacional en experimentación estructurada para evolucionar el sistema.",
+    connectedTo: [0, 3, 5],
+    connectedLabel: "Personas · Liderazgo · Resultados",
+    x: 28,
+    y: 84
+  },
+  {
+    name: "LIDERAZGO",
+    note: "La fuerza que conecta propósito, sistema y comportamiento.",
+    relation: "Activa a las Personas y sostiene la Mejora: traduce la Estrategia en comportamientos observables y elimina barreras en la operación diaria.",
+    connectedTo: [0, 2, 4],
+    connectedLabel: "Personas · Estrategia · Mejora",
+    x: 10,
+    y: 54
+  }
+];
+
+// Pares de conexiones orbitales entre nodos (sin duplicados)
+const orbitalLinks: { from: number; to: number; x1: number; y1: number; x2: number; y2: number }[] = [];
+nodes.forEach((node, i) => {
+  node.connectedTo.forEach((targetIdx) => {
+    if (i < targetIdx) {
+      orbitalLinks.push({
+        from: i,
+        to: targetIdx,
+        x1: node.x,
+        y1: node.y,
+        x2: nodes[targetIdx].x,
+        y2: nodes[targetIdx].y,
+      });
+    }
+  });
+});
+
+const defaultIndex = 5; // LIDERAZGO activo inicialmente
+const initialNode = nodes[defaultIndex];
+---
+
+<div class="constellation-explorer" id="constellation" aria-label="Sistema orbital interactivo de conceptos de liderazgo operacional">
+  <div class="constellation">
+    <div class="orbit orbit-one" aria-hidden="true"></div>
+    <div class="orbit orbit-two" aria-hidden="true"></div>
+    <div class="constellation-glow" aria-hidden="true"></div>
+
+    <svg class="constellation-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <!-- Conexiones relacionales entre nodos orbitales -->
+      {orbitalLinks.map((link) => {
+        const isInitialActive = link.from === defaultIndex || link.to === defaultIndex;
+        return (
+          <line
+            class={`orbital-link ${isInitialActive ? "active" : ""}`}
+            data-from={link.from}
+            data-to={link.to}
+            x1={link.x1}
+            y1={link.y1}
+            x2={link.x2}
+            y2={link.y2}
+            pathLength="1"
+          />
+        );
+      })}
+
+      <!-- Conexiones radiales hacia el núcleo OPEX -->
+      {nodes.map((node, i) => (
+        <line 
+          id={`constellation-line-${i}`}
+          class={`radial-link ${i === defaultIndex ? "active" : initialNode.connectedTo.includes(i) ? "is-secondary" : ""}`}
+          x1="50" 
+          y1="50" 
+          x2={node.x} 
+          y2={node.y} 
+          pathLength="1"
+        />
+      ))}
+      <circle cx="50" cy="50" r="1.4"></circle>
+    </svg>
+
+    <div class="core-mark" id="constellation-core" aria-hidden="true">
+      <span>OPEX</span>
+      <i></i>
+    </div>
+
+    {nodes.map((node, i) => {
+      const isInitialActive = i === defaultIndex;
+      const isInitialConnected = initialNode.connectedTo.includes(i);
+      return (
+        <button 
+          type="button"
+          class={`constellation-node node-${i + 1} ${isInitialActive ? "active" : ""} ${isInitialConnected ? "is-connected" : ""}`}
+          style={`left: ${node.x}%; top: ${node.y}%;`}
+          data-index={i}
+          data-name={node.name}
+          data-note={node.note}
+          data-relation={node.relation}
+          data-connected={node.connectedTo.join(",")}
+          data-connected-label={node.connectedLabel}
+          aria-pressed={isInitialActive ? "true" : "false"}
+          aria-controls="node-insight"
+          aria-label={`Explorar concepto ${node.name}`}
+        >
+          <i aria-hidden="true"></i>
+          <span>{node.name}</span>
+        </button>
+      );
+    })}
+
+    <span class="touch-hint" aria-hidden="true">SELECCIONA UN NODO PARA EXPLORAR EL SISTEMA</span>
+  </div>
+
+  <!-- Tarjeta contextual editorial conectada al sistema orbital -->
+  <article class="node-insight" id="node-insight" aria-live="polite" aria-label="Tarjeta contextual del concepto seleccionado">
+    <div class="node-insight-head">
+      <span class="insight-badge" id="insight-number">NODO 06 · CONCEPTO ACTIVO</span>
+      <span class="insight-links" id="insight-links">Conecta: {initialNode.connectedLabel}</span>
+    </div>
+
+    <h2 class="insight-title" id="insight-title">{initialNode.name}</h2>
+    <p class="insight-text" id="insight-text">{initialNode.note}</p>
+
+    <div class="insight-relation">
+      <span class="insight-relation-label">RELACIÓN CON EL SISTEMA Y APLICACIÓN</span>
+      <p id="insight-relation-text">{initialNode.relation}</p>
+    </div>
+  </article>
+</div>
+
+<script>
+  function initConstellation() {
+    const container = document.getElementById('constellation');
+    if (!container) return;
+
+    const nodeButtons = Array.from(container.querySelectorAll<HTMLButtonElement>('.constellation-node'));
+    const radialLines = container.querySelectorAll<SVGLineElement>('.constellation-lines .radial-link');
+    const orbitalLinks = container.querySelectorAll<SVGLineElement>('.constellation-lines .orbital-link');
+    const coreMark = document.getElementById('constellation-core');
+    const insightCard = document.getElementById('node-insight');
+    const insightNumber = document.getElementById('insight-number');
+    const insightLinks = document.getElementById('insight-links');
+    const insightTitle = document.getElementById('insight-title');
+    const insightText = document.getElementById('insight-text');
+    const insightRelationText = document.getElementById('insight-relation-text');
+
+    let transitionTimer: number | undefined;
+
+    function activateNode(btn: HTMLButtonElement) {
+      const index = parseInt(btn.getAttribute('data-index') || '0', 10);
+      const name = btn.getAttribute('data-name') || '';
+      const note = btn.getAttribute('data-note') || '';
+      const relation = btn.getAttribute('data-relation') || '';
+      const connectedLabel = btn.getAttribute('data-connected-label') || '';
+      const connectedIndices = (btn.getAttribute('data-connected') || '')
+        .split(',')
+        .map((n) => parseInt(n, 10))
+        .filter((n) => !Number.isNaN(n));
+
+      // Actualizar estado de botones (activo y conectados)
+      nodeButtons.forEach((b, idx) => {
+        const isActive = idx === index;
+        const isConnected = connectedIndices.includes(idx);
+        b.classList.toggle('active', isActive);
+        b.classList.toggle('is-connected', isConnected);
+        b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+
+      // Actualizar líneas radiales hacia el núcleo
+      radialLines.forEach((line, idx) => {
+        line.classList.toggle('active', idx === index);
+        line.classList.toggle('is-secondary', connectedIndices.includes(idx));
+      });
+
+      // Actualizar conexiones orbitales entre conceptos relacionados
+      orbitalLinks.forEach((link) => {
+        const from = parseInt(link.getAttribute('data-from') || '-1', 10);
+        const to = parseInt(link.getAttribute('data-to') || '-1', 10);
+        const isRelated = from === index || to === index;
+        link.classList.toggle('active', isRelated);
+      });
+
+      // Pulso discreto en el núcleo central
+      if (coreMark) {
+        coreMark.classList.remove('is-pulsing');
+        void coreMark.offsetWidth;
+        coreMark.classList.add('is-pulsing');
+      }
+
+      // Actualizar tarjeta contextual mediante transición fluida sin saltos
+      if (insightCard) {
+        window.clearTimeout(transitionTimer);
+        insightCard.classList.add('is-transitioning');
+
+        transitionTimer = window.setTimeout(() => {
+          if (insightNumber) {
+            insightNumber.textContent = `NODO ${String(index + 1).padStart(2, '0')} · CONCEPTO ACTIVO`;
+          }
+          if (insightLinks) {
+            insightLinks.textContent = `Conecta: ${connectedLabel}`;
+          }
+          if (insightTitle) {
+            insightTitle.textContent = name;
+          }
+          if (insightText) {
+            insightText.textContent = note;
+          }
+          if (insightRelationText) {
+            insightRelationText.textContent = relation;
+          }
+          insightCard.classList.remove('is-transitioning');
+        }, 110);
+      }
+    }
+
+    nodeButtons.forEach((btn, idx) => {
+      btn.addEventListener('click', () => activateNode(btn));
+
+      // Soporte de exploración por teclado entre nodos orbitales
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          e.stopPropagation();
+          const nextBtn = nodeButtons[(idx + 1) % nodeButtons.length];
+          nextBtn?.focus();
+          if (nextBtn) activateNode(nextBtn);
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          e.stopPropagation();
+          const prevBtn = nodeButtons[(idx - 1 + nodeButtons.length) % nodeButtons.length];
+          prevBtn?.focus();
+          if (prevBtn) activateNode(prevBtn);
+        }
+      });
+    });
+  }
+
+  initConstellation();
+  document.addEventListener('astro:page-load', initConstellation);
+</script>

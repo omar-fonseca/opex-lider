@@ -1,0 +1,55 @@
+---
+const searchItems = [
+  { href: "/", label: "00 · Cubierta y manifiesto inicial", category: "Página" },
+  { href: "/introduccion", label: "01 · Excelencia operacional e introducción", category: "Capítulo" },
+  { href: "/sistema", label: "02 · Sistema interactivo de 4 fuerzas", category: "Experiencia" },
+  { href: "/sistema?concept=personas", label: "Personas — Criterio, conocimiento y autonomía", category: "Concepto" },
+  { href: "/sistema?concept=procesos", label: "Procesos — Transformación repetible de valor", category: "Concepto" },
+  { href: "/sistema?concept=liderazgo", label: "Liderazgo — Conexión, propósito y eliminación de barreras", category: "Concepto" },
+  { href: "/sistema?concept=mejora", label: "Mejora continua — Cuestionamiento y ciclo PDCA", category: "Concepto" },
+];
+---
+
+<div class="search-overlay" id="search-modal" role="dialog" aria-modal="true" aria-label="Buscar en el libro" style="display: none;">
+  <button class="search-backdrop" id="search-backdrop" aria-label="Cerrar búsqueda"></button>
+
+  <div class="search-panel">
+    <div class="search-panel-head">
+      <span>Buscar en OPEX LÍDER</span>
+      <button type="button" id="search-close-btn" aria-label="Cerrar buscador">Cerrar [ESC]</button>
+    </div>
+
+    <label for="search-input">
+      <span class="search-glyph" aria-hidden="true"></span>
+      <input 
+        type="search" 
+        id="search-input" 
+        placeholder="Personas, procesos, mejora…" 
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </label>
+
+    <p class="search-caption" id="search-caption">Explora los conceptos del libro</p>
+
+    <div class="search-results" id="search-results" role="listbox">
+      {searchItems.map((item, index) => (
+        <a 
+          href={item.href} 
+          class="search-result-item" 
+          data-label={item.label.toLowerCase()} 
+          role="option"
+        >
+          <span>{String(index + 1).padStart(2, '0')}</span>
+          <div>
+            <strong>{item.label}</strong>
+            <small style="display: block; color: var(--muted-dark); font-size: 10px; font-family: 'DM Sans', sans-serif;">{item.category}</small>
+          </div>
+          <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12h14M14 7l5 5-5 5"></path>
+          </svg>
+        </a>
+      ))}
+    </div>
+  </div>
+</div>

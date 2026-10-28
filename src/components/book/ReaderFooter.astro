@@ -1,0 +1,77 @@
+---
+interface Props {
+  prevHref?: string | null;
+  prevTitle?: string | null;
+  nextHref?: string | null;
+  nextTitle?: string | null;
+  progressPercent: number;
+  currentPage?: number;
+  totalPages?: number;
+}
+
+const {
+  prevHref,
+  prevTitle,
+  nextHref,
+  nextTitle,
+  progressPercent,
+  currentPage = 1,
+  totalPages = 3,
+} = Astro.props;
+---
+
+<footer class="reader-footer" role="navigation" aria-label="Navegación entre páginas del libro">
+  <!-- Botón Anterior -->
+  {prevHref ? (
+    <a href={prevHref} class="footer-nav-link" aria-label={`Ir a la página anterior: ${prevTitle}`}>
+      <svg class="arrow-icon left" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 12h14M14 7l5 5-5 5"></path>
+      </svg>
+      <span>
+        <small>ANTERIOR</small>
+        {prevTitle}
+      </span>
+    </a>
+  ) : (
+    <div class="footer-nav-disabled" aria-hidden="true"></div>
+  )}
+
+  <!-- Indicador central de progreso -->
+  <div class="footer-progress-wrap">
+    <div class="footer-progress-meta">
+      <span id="footer-tour-status">Disponible {currentPage}/{totalPages}</span>
+      <span id="footer-editorial-status">Índice {progressPercent}%</span>
+    </div>
+    <div
+      class="footer-rule"
+      id="footer-progress-bar"
+      role="progressbar"
+      aria-label={`Avance sobre el índice general del libro: ${progressPercent}% (sección ${currentPage} de ${totalPages} disponibles)`}
+      aria-valuenow={progressPercent}
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <i id="footer-progress-fill" style={`width: ${progressPercent}%;`}></i>
+    </div>
+  </div>
+
+  <!-- Botón Siguiente -->
+  {nextHref ? (
+    <a href={nextHref} class="footer-nav-link" aria-label={`Ir a la página siguiente: ${nextTitle}`}>
+      <span>
+        <small>SIGUIENTE</small>
+        {nextTitle}
+      </span>
+      <svg class="arrow-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 12h14M14 7l5 5-5 5"></path>
+      </svg>
+    </a>
+  ) : (
+    <div class="footer-next-upcoming" aria-label="Próximos capítulos en preparación">
+      <span>
+        <small>PRÓXIMOS CAPÍTULOS</small>
+        En preparación editorial (03–08)
+      </span>
+    </div>
+  )}
+</footer>

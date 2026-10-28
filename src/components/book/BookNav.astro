@@ -1,0 +1,113 @@
+---
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+
+const chapters = [
+  { href: "/", title: "Cubierta", number: "00", available: true },
+  { href: "/introduccion", title: "Excelencia operacional", number: "01", available: true },
+  { href: "/sistema", title: "Sistema interactivo", number: "02", available: true },
+  { href: "#", title: "Liderar personas", number: "03", available: false },
+  { href: "#", title: "Liderar procesos", number: "04", available: false },
+  { href: "#", title: "Medir para decidir", number: "05", available: false },
+  { href: "#", title: "Control diario", number: "06", available: false },
+  { href: "#", title: "Resolver problemas", number: "07", available: false },
+  { href: "#", title: "Construir autonomía", number: "08", available: false },
+];
+
+const totalEditorialSections = chapters.length; // 9 secciones en el índice (00 a 08)
+const availableChapters = chapters.filter((ch) => ch.available);
+const currentAvailableIndex = Math.max(
+  0,
+  availableChapters.findIndex((ch) => ch.href === currentPath)
+);
+const currentSectionNumber = currentAvailableIndex + 1;
+const editorialProgressPercent = Math.round((currentSectionNumber / totalEditorialSections) * 100);
+const readingEstimate =
+  currentPath === "/"
+    ? "Cubierta · Exploración orbital"
+    : currentPath === "/introduccion"
+      ? "Lectura estimada: 8 min"
+      : "Exploración interactiva: 15 min";
+---
+
+<aside class="book-nav" id="book-nav" aria-label="Índice y navegación del libro">
+  <div class="brand-lockup">
+    <a href="/" class="brand-name" aria-label="OPEX LÍDER — Inicio">
+      OPEX <strong>LÍDER</strong>
+    </a>
+    <button
+      type="button"
+      class="nav-collapse-btn"
+      id="nav-close-btn"
+      aria-label="Ocultar índice del libro"
+      aria-expanded="true"
+      aria-controls="book-nav"
+      title="Ocultar índice"
+    >
+      <svg class="sidebar-glyph" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+        <line x1="9" y1="3" x2="9" y2="21"></line>
+        <path d="M15 9l-3 3 3 3"></path>
+      </svg>
+      <span>Ocultar índice</span>
+    </button>
+  </div>
+
+  <div class="index-label">
+    <span>Índice del libro</span>
+    <span>3 disp. · 6 próx.</span>
+  </div>
+
+  <nav aria-label="Capítulos de OPEX LÍDER">
+    {chapters.map((ch) => {
+      const isActive = currentPath === ch.href;
+      return ch.available ? (
+        <a 
+          href={ch.href} 
+          class={`chapter-link ${isActive ? 'active' : ''}`}
+          data-chapter-href={ch.href}
+          aria-current={isActive ? "page" : undefined}
+        >
+          <span class="chapter-number">{ch.number}</span>
+          <span class="chapter-title">{ch.title}</span>
+          <span class="chapter-indicators" aria-hidden="true">
+            <span class="chapter-bookmark-dot" title="Marcador guardado"></span>
+            {isActive && <span class="chapter-dot"></span>}
+          </span>
+        </a>
+      ) : (
+        <div class="chapter-link is-upcoming" aria-disabled="true">
+          <span class="chapter-number">{ch.number}</span>
+          <span class="chapter-title">{ch.title}</span>
+          <span class="chapter-badge">Próx.</span>
+        </div>
+      );
+    })}
+  </nav>
+
+  <div class="nav-progress" aria-label="Estado de avance de lectura">
+    <div class="progress-copy">
+      <span id="nav-progress-label">Avance editorial ({currentSectionNumber}/3 disp.)</span>
+      <strong id="nav-progress-value">{editorialProgressPercent}%</strong>
+    </div>
+    <div
+      class="progress-track"
+      id="nav-progress-bar"
+      role="progressbar"
+      aria-label="Avance sobre el índice general de OPEX LÍDER"
+      aria-valuenow={editorialProgressPercent}
+      aria-valuemin="0"
+      aria-valuemax="100"
+    >
+      <i id="nav-progress-fill" style={`width: ${editorialProgressPercent}%;`}></i>
+    </div>
+    <p id="nav-progress-meta">
+      {readingEstimate} · Edición en expansión (9 secciones)
+    </p>
+  </div>
+</aside>
+
+<button class="nav-scrim" id="nav-scrim" aria-label="Cerrar índice" tabindex="-1"></button>
