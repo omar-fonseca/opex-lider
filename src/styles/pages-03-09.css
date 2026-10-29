@@ -1420,17 +1420,10 @@ html[data-theme="light"] .system-expanded-dialog {
   }
 }
 
-
-/* =========================================================================
-   (Integrado desde feature/edu-ux-01-kanban)
-   ========================================================================= */
 /* ==========================================================================
    BLOQUE 1: CORRECCIÓN DE CONTRASTE ACCESIBLE — MODO CLARO (WCAG 2.2 AA)
    (Integrado desde feature/edu-ux-01-kanban)
    ========================================================================== */
-   (Integrado desde feature/exp-01-presentation-mode)
-   ========================================================================= */
-=================================================================== */
 
 html[data-theme="light"] .expanded-editorial-card {
   background: var(--surface-card, #ffffff);
