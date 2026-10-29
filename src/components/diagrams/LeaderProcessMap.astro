@@ -4,6 +4,22 @@
 ---
 
 <div class="interactive-workbench expandable-workbench" id="leader-process-workbench" data-expanded="false" data-focus-mode="false">
+  <!-- Cabecera de Modo Presentación Inmersivo (EXP-01 v2.0) -->
+  <header class="lp-presentation-header" id="lp-pres-header" aria-label="Controles superiores de presentación">
+    <div class="lp-pres-header-left">
+      <span class="lp-pres-kicker">Modo Presentación</span>
+      <span class="lp-pres-scene-badge" id="lp-pres-badge">01 · Líder articulador</span>
+    </div>
+    <div class="lp-pres-header-actions">
+      <button type="button" class="lp-pres-btn" id="lp-pres-fs-btn" title="Alternar pantalla completa (F)">
+        <span aria-hidden="true" id="lp-pres-fs-icon">⛶</span> <span id="lp-pres-fs-text">Pantalla completa</span>
+      </button>
+      <button type="button" class="lp-pres-btn lp-pres-btn-close" id="lp-pres-close-btn" title="Salir de la presentación (Esc)">
+        <span aria-hidden="true">✕</span> Salir
+      </button>
+    </div>
+  </header>
+
   <div class="expandable-stage" id="lp-stage">
     <div class="workbench-canvas expandable-canvas-wrap" id="lp-canvas-wrap">
       <div class="canvas-Topline">
@@ -19,6 +35,9 @@
           </button>
           <button type="button" class="focus-mode-toggle-btn" id="lp-focus-mode-btn" aria-pressed="false">
             <span aria-hidden="true">⤢</span> Modo Enfoque
+          </button>
+          <button type="button" class="lp-present-btn" id="lp-present-btn" aria-haspopup="dialog" aria-expanded="false" title="Iniciar Modo Presentación Inmersivo (para proyectar o explicar en reuniones)">
+            <span aria-hidden="true">🖥️</span> Presentar
           </button>
         </div>
       </div>
@@ -150,6 +169,32 @@
       </svg>
     </div>
 
+    <!-- Teleprompter explicativo para proyección (EXP-01 v2.0) -->
+    <aside class="lp-presentation-teleprompter" id="lp-pres-teleprompter" aria-label="Notas del presentador y síntesis didáctica">
+      <div class="lp-pres-prompt-header">
+        <span class="lp-pres-tag" id="lp-pres-tag">01 · ROL CENTRAL</span>
+        <span class="lp-pres-scene-badge" id="lp-pres-counter">Escena 1 de 5</span>
+      </div>
+      <div>
+        <h3 class="lp-pres-title" id="lp-pres-title">El líder como articulador del sistema</h3>
+        <p class="lp-pres-summary" id="lp-pres-summary">
+          El líder operacional no dirige por control remoto ni se limita a auditar indicadores al final del turno. Su función principal es habitar el proceso para traducir los objetivos de la organización en condiciones claras de trabajo.
+        </p>
+      </div>
+      <div class="lp-pres-detail-block">
+        <span id="lp-pres-rel-title">RELACIÓN CON EL PROCESO</span>
+        <p id="lp-pres-relation">
+          Conecta el propósito con la ejecución diaria: observa el flujo real, elimina fricciones entre etapas y asegura que cada persona comprenda qué se espera de su trabajo.
+        </p>
+      </div>
+      <div class="lp-pres-detail-block">
+        <span id="lp-pres-app-title">COMPORTAMIENTO OBSERVABLE EN TERRENO</span>
+        <p id="lp-pres-application">
+          Antes de pedir velocidad, verifica si el equipo cuenta con información clara, herramientas en buen estado y criterios para detener o escalar una anomalía.
+        </p>
+      </div>
+    </aside>
+
     <div class="expandable-scrim" id="lp-scrim" aria-hidden="true"></div>
 
     <!-- Tarjeta editorial expandible (FLIP) con esquema vectorial específico de cada elemento -->
@@ -234,6 +279,50 @@
       </div>
     </aside>
   </div>
+
+  <!-- Barra de control inferior (HUD) de la presentación (EXP-01 v2.0) -->
+  <footer class="lp-presentation-hud" id="lp-pres-hud" aria-label="Controles de navegación de la presentación">
+    <div class="lp-pres-hud-left">
+      <button type="button" class="lp-pres-btn" id="lp-pres-prev-btn" title="Escena anterior (Flecha Izq / PageUp)">
+        <span aria-hidden="true">←</span> Anterior
+      </button>
+      <button type="button" class="lp-pres-btn" id="lp-pres-play-btn" title="Pausar / Reanudar avance automático (P)">
+        <span aria-hidden="true" id="lp-pres-play-icon">▶</span> <span id="lp-pres-play-text">Auto</span>
+      </button>
+      <button type="button" class="lp-pres-btn" id="lp-pres-next-btn" title="Siguiente escena (Espacio / Flecha Der / PageDown)">
+        Siguiente <span aria-hidden="true">→</span>
+      </button>
+    </div>
+
+    <div class="lp-pres-hud-center" role="tablist" aria-label="Escenas de la presentación">
+      <button type="button" class="lp-pres-pill-btn is-active" data-pres-target="0" role="tab" aria-selected="true">
+        <span>01</span> <span class="pill-label">Líder</span>
+      </button>
+      <button type="button" class="lp-pres-pill-btn" data-pres-target="1" role="tab" aria-selected="false">
+        <span>02</span> <span class="pill-label">Personas</span>
+      </button>
+      <button type="button" class="lp-pres-pill-btn" data-pres-target="2" role="tab" aria-selected="false">
+        <span>03</span> <span class="pill-label">Actividades</span>
+      </button>
+      <button type="button" class="lp-pres-pill-btn" data-pres-target="3" role="tab" aria-selected="false">
+        <span>04</span> <span class="pill-label">Decisiones</span>
+      </button>
+      <button type="button" class="lp-pres-pill-btn" data-pres-target="4" role="tab" aria-selected="false">
+        <span>05</span> <span class="pill-label">Resultados</span>
+      </button>
+      <button type="button" class="lp-pres-pill-btn" id="lp-pres-overview-btn" role="tab" aria-selected="false" title="Vista completa del sistema (Home u O)">
+        <span>⬡</span> <span class="pill-label">Sistema Completo</span>
+      </button>
+    </div>
+
+    <div class="lp-pres-hud-right" aria-hidden="true">
+      <span>Atajos:</span>
+      <kbd>Espacio</kbd> avanzar
+      <kbd>←</kbd> retroceder
+      <kbd>O</kbd> sistema
+      <kbd>Esc</kbd> salir
+    </div>
+  </footer>
 </div>
 
 <script>
@@ -244,6 +333,10 @@
     makeCardDraggable,
     prefersReducedMotion,
   } from '../../lib/expandableCardEngine';
+  import {
+    createPresentationController,
+    type PresentationScene,
+  } from '../../lib/presentationEngine';
 
   function initLeaderProcessMap() {
     const root = document.getElementById('leader-process-workbench');
@@ -395,6 +488,55 @@
     const prevBtn = document.getElementById('lp-prev-btn');
     const nextBtn = document.getElementById('lp-next-btn');
 
+    // Elementos de Modo Presentación Inmersivo (EXP-01 v2.0)
+    const presentBtn = document.getElementById('lp-present-btn');
+    const presCloseBtn = document.getElementById('lp-pres-close-btn');
+    const presFsBtn = document.getElementById('lp-pres-fs-btn');
+    const presFsIcon = document.getElementById('lp-pres-fs-icon');
+    const presFsText = document.getElementById('lp-pres-fs-text');
+    const presBadge = document.getElementById('lp-pres-badge');
+    const presTag = document.getElementById('lp-pres-tag');
+    const presCounter = document.getElementById('lp-pres-counter');
+    const presTitle = document.getElementById('lp-pres-title');
+    const presSummary = document.getElementById('lp-pres-summary');
+    const presRelation = document.getElementById('lp-pres-relation');
+    const presApplication = document.getElementById('lp-pres-application');
+    const presPrevBtn = document.getElementById('lp-pres-prev-btn');
+    const presNextBtn = document.getElementById('lp-pres-next-btn');
+    const presPlayBtn = document.getElementById('lp-pres-play-btn');
+    const presPlayIcon = document.getElementById('lp-pres-play-icon');
+    const presPlayText = document.getElementById('lp-pres-play-text');
+    const presPills = root.querySelectorAll<HTMLButtonElement>('[data-pres-target]');
+    const presOverviewBtn = document.getElementById('lp-pres-overview-btn');
+
+    const presentationScenes: PresentationScene[] = keys.map((key, i) => {
+      const item = DATA[key];
+      return {
+        id: key,
+        number: `0${i + 1}`,
+        tag: item.tag,
+        title: item.title,
+        summary: item.summary,
+        relation: item.relation,
+        application: item.application,
+        cameraTransform: item.cameraTransform,
+        bannerCopy: item.bannerCopy,
+      };
+    });
+
+    const overviewContent = {
+      tag: 'VISTA SISTÉMICA · OPEX LÍDER',
+      title: 'El líder y la dinámica completa del proceso',
+      summary:
+        'La excelencia operacional no se logra gestionando cada componente por separado. El líder articula personas, actividades y decisiones de forma continua para que los resultados sostenibles emerjan naturalmente en el Gemba.',
+      relation:
+        'Presencia activa en terreno: conecta la estrategia de la organización con la realidad operativa diaria de los equipos.',
+      application:
+        'Observar el flujo integral de valor, identificar cuellos de botella y empoderar al equipo para solucionar variaciones antes de que impacten al cliente.',
+    };
+
+    let presController: ReturnType<typeof createPresentationController> | null = null;
+
     function getSvgNode(key: string): SVGGElement | null {
       return root?.querySelector<SVGGElement>(`[data-node-target="${key}"]`) ?? null;
     }
@@ -451,9 +593,10 @@
         const nodeKey = n.getAttribute('data-node-target') || '';
         const active = nodeKey === key;
         const related = connectedNodesSet.has(nodeKey);
+        const isPres = root.getAttribute('data-presentation-mode') === 'true';
         n.classList.toggle('is-active', active);
         n.classList.toggle('is-related-node', !active && related);
-        n.classList.toggle('is-dimmed-node', isExpanded && !active && !related);
+        n.classList.toggle('is-dimmed-node', (isExpanded || isPres) && !active && !related);
         n.setAttribute('aria-expanded', active && isExpanded ? 'true' : 'false');
       });
 
@@ -564,11 +707,24 @@
 
     svgNodes.forEach((node) => {
       node.addEventListener('click', () => {
+        if (presController?.isPresented()) {
+          const key = node.getAttribute('data-node-target');
+          const idx = keys.indexOf(key || '');
+          if (idx !== -1) presController.goToScene(idx);
+          return;
+        }
         const key = node.getAttribute('data-node-target');
         if (key) openNode(key, node, true);
       });
       node.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
+          if (presController?.isPresented()) {
+            e.preventDefault();
+            const key = node.getAttribute('data-node-target');
+            const idx = keys.indexOf(key || '');
+            if (idx !== -1) presController.goToScene(idx);
+            return;
+          }
           e.preventDefault();
           const key = node.getAttribute('data-node-target');
           if (key) openNode(key, node, true);
@@ -613,6 +769,124 @@
         e.stopPropagation();
         closeNode();
       }
+    });
+
+    // Instanciación y cableado del Modo Presentación Inmersivo (EXP-01 v2.0)
+    presController = createPresentationController({
+      containerEl: root,
+      scenes: presentationScenes,
+      autoPlayIntervalMs: 6500,
+      onEnter: () => {
+        if (isExpanded) {
+          closeNode();
+        }
+        presentBtn?.setAttribute('aria-expanded', 'true');
+      },
+      onExit: () => {
+        presentBtn?.setAttribute('aria-expanded', 'false');
+        if (cameraGroup) {
+          cameraGroup.style.transform = 'translate(0px, 0px) scale(1)';
+        }
+        highlightStageNode(keys[currentIndex]);
+      },
+      onSceneChange: (scene, idx, isOverviewMode) => {
+        presPills.forEach((p) => {
+          const target = parseInt(p.getAttribute('data-pres-target') || '-1', 10);
+          const active = !isOverviewMode && target === idx;
+          p.classList.toggle('is-active', active);
+          p.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        if (presOverviewBtn) {
+          presOverviewBtn.classList.toggle('is-active', isOverviewMode);
+          presOverviewBtn.setAttribute('aria-selected', isOverviewMode ? 'true' : 'false');
+        }
+
+        if (isOverviewMode) {
+          if (presBadge) presBadge.textContent = 'Sistema operacional completo';
+          if (presTag) presTag.textContent = overviewContent.tag;
+          if (presCounter) presCounter.textContent = 'Vista sistémica';
+          if (presTitle) presTitle.textContent = overviewContent.title;
+          if (presSummary) presSummary.textContent = overviewContent.summary;
+          if (presRelation) presRelation.textContent = overviewContent.relation;
+          if (presApplication) presApplication.textContent = overviewContent.application;
+
+          if (cameraGroup) {
+            cameraGroup.style.transform = 'translate(0px, 0px) scale(1)';
+          }
+
+          svgNodes.forEach((n) => {
+            n.classList.remove('is-dimmed-node');
+            n.classList.add('is-active');
+          });
+
+          edges.forEach((edge) => {
+            edge.style.stroke = 'var(--accent-strong)';
+            edge.style.strokeWidth = '2.2';
+            edge.style.opacity = '0.85';
+          });
+        } else if (scene) {
+          const key = scene.id;
+          currentIndex = idx;
+
+          if (presBadge) presBadge.textContent = `${scene.number} · ${scene.title.split(' ')[0]} ${scene.title.split(' ')[1] || ''}`;
+          if (presTag) presTag.textContent = scene.tag;
+          if (presCounter) presCounter.textContent = `Escena ${idx + 1} de ${keys.length}`;
+          if (presTitle) presTitle.textContent = scene.title;
+          if (presSummary) presSummary.textContent = scene.summary;
+          if (presRelation) presRelation.textContent = scene.relation || '';
+          if (presApplication) presApplication.textContent = scene.application || '';
+
+          if (cameraGroup && !prefersReducedMotion()) {
+            cameraGroup.style.transform = scene.cameraTransform || 'translate(0px, 0px) scale(1.1)';
+          }
+
+          highlightStageNode(key);
+        }
+      },
+    });
+
+    presentBtn?.addEventListener('click', () => {
+      presController?.enter(currentIndex);
+    });
+
+    presCloseBtn?.addEventListener('click', () => {
+      presController?.exit();
+    });
+
+    presFsBtn?.addEventListener('click', () => {
+      void presController?.toggleFullscreen();
+    });
+
+    presPrevBtn?.addEventListener('click', () => {
+      presController?.prev();
+    });
+
+    presNextBtn?.addEventListener('click', () => {
+      presController?.next();
+    });
+
+    presPlayBtn?.addEventListener('click', () => {
+      if (!presController) return;
+      const playing = presController.togglePlayPause();
+      if (presPlayIcon) presPlayIcon.textContent = playing ? '⏸' : '▶';
+      if (presPlayText) presPlayText.textContent = playing ? 'Pausar' : 'Auto';
+    });
+
+    presPills.forEach((p) => {
+      p.addEventListener('click', () => {
+        const target = parseInt(p.getAttribute('data-pres-target') || '0', 10);
+        presController?.goToScene(target);
+      });
+    });
+
+    presOverviewBtn?.addEventListener('click', () => {
+      presController?.showOverview();
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      const isFs = presController?.isFullscreen() ?? false;
+      if (presFsIcon) presFsIcon.textContent = isFs ? '⤓' : '⛶';
+      if (presFsText) presFsText.textContent = isFs ? 'Ventana' : 'Pantalla completa';
     });
   }
 
