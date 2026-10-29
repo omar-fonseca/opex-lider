@@ -1419,3 +1419,450 @@ html[data-theme="light"] .system-expanded-dialog {
     cursor: default;
   }
 }
+
+/* ==========================================================================
+   EXP-01 v2.0 — Modo Presentación Inmersivo (Página 03)
+   ========================================================================== */
+
+/* Botón de acceso a modo presentación en la barra de herramientas del escenario */
+.lp-present-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface-card);
+  border: 1px solid var(--accent-border);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 6px 13px;
+  font-family: "Manrope", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lp-present-btn:hover {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
+  color: var(--text-primary);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+
+.lp-present-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.lp-present-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-strong);
+}
+
+/* Estado del documento cuando la presentación está activa */
+html[data-presentation-active="true"] {
+  overflow: hidden !important;
+}
+
+/* Contenedor del escenario elevado a pantalla completa / modo presentación */
+.expandable-workbench[data-presentation-mode="true"] {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: clamp(14px, 2.5vh, 26px) clamp(16px, 3.5vw, 48px) !important;
+  background: var(--ink) !important;
+  background-image: var(--bg-radial) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  gap: clamp(10px, 2vh, 20px) !important;
+  overflow: hidden !important;
+  animation: presentationFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes presentationFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.lp-present-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-card);
+  border: 1.5px solid var(--accent-border);
+  color: var(--accent-text);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: "Manrope", sans-serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.lp-present-btn:hover {
+  background: var(--accent-subtle);
+  border-color: var(--accent-strong);
+  color: var(--text-primary);
+  box-shadow: 0 0 16px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+.lp-present-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Ocultar elementos de lectura normal mientras la presentación está activa */
+.expandable-workbench[data-presentation-mode="true"] .expandable-header,
+.expandable-workbench[data-presentation-mode="true"] .canvas-Topline,
+.expandable-workbench[data-presentation-mode="true"] .stage-selector-bar,
+.expandable-workbench[data-presentation-mode="true"] .expandable-scrim,
+.expandable-workbench[data-presentation-mode="true"] .expanded-editorial-card {
+  display: none !important;
+}
+
+/* Elementos exclusivos de la presentación: ocultos en modo lectura normal */
+.lp-presentation-header,
+.lp-presentation-teleprompter,
+.lp-presentation-hud {
+  display: none;
+}
+
+/* Elementos exclusivos revelados en modo presentación */
+.expandable-workbench[data-presentation-mode="true"] .lp-presentation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line-soft);
+  z-index: 10;
+}
+
+.lp-pres-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lp-pres-kicker {
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lp-pres-kicker::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
+.lp-pres-scene-badge {
+  font-family: "DM Sans", sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--surface-card);
+  border: 1px solid var(--accent-border);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.lp-pres-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lp-pres-btn {
+  appearance: none;
+  background: var(--surface-card);
+  border: 1px solid var(--line);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: "Manrope", sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.18s ease;
+}
+
+.lp-pres-btn:hover {
+  background: var(--button-hover-bg);
+  border-color: var(--accent-border);
+  color: var(--text-primary);
+}
+
+.lp-pres-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.lp-pres-btn-close {
+  background: var(--accent-subtle);
+  border-color: var(--accent-border);
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.lp-pres-btn-close:hover {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+/* Área central de proyección: Diagrama SVG + Teleprompter explicativo */
+.expandable-workbench[data-presentation-mode="true"] .expandable-stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.9fr);
+  gap: 24px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.expandable-workbench[data-presentation-mode="true"] .expandable-canvas-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 12, 22, 0.45);
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  box-shadow: inset 0 2px 24px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="light"] .expandable-workbench[data-presentation-mode="true"] .expandable-canvas-wrap {
+  background: rgba(226, 235, 246, 0.65);
+}
+
+.expandable-workbench[data-presentation-mode="true"] .interactive-svg {
+  width: 100%;
+  height: 100%;
+  max-height: calc(100vh - 190px);
+  object-fit: contain;
+}
+
+/* Teleprompter explicativo para proyección */
+.expandable-workbench[data-presentation-mode="true"] .lp-presentation-teleprompter {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 14px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--accent-border);
+  border-radius: 16px;
+  padding: clamp(16px, 2.8vh, 26px);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.42), 0 0 0 1px var(--line-soft);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  max-height: calc(100vh - 190px);
+  overflow-y: auto;
+}
+
+[data-theme="light"] .expandable-workbench[data-presentation-mode="true"] .lp-presentation-teleprompter {
+  background: rgba(246, 250, 255, 0.95);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+}
+
+.lp-pres-prompt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lp-pres-tag {
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.lp-pres-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(21px, 2.2vw, 28px);
+  line-height: 1.22;
+  color: var(--text-primary);
+  margin: 4px 0 6px;
+}
+
+.lp-pres-summary {
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(14px, 1.15vw, 16px);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.lp-pres-detail-block {
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent-border);
+  border-left: 4px solid var(--accent-strong);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lp-pres-detail-block span {
+  font-family: "DM Sans", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.lp-pres-detail-block p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+/* Barra de control inferior (HUD) */
+.expandable-workbench[data-presentation-mode="true"] .lp-presentation-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
+  z-index: 10;
+}
+
+.lp-pres-hud-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lp-pres-hud-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lp-pres-pill-btn {
+  appearance: none;
+  background: var(--surface-card);
+  border: 1px solid var(--line);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.18s ease;
+}
+
+.lp-pres-pill-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-border);
+}
+
+.lp-pres-pill-btn.is-active {
+  background: var(--accent-subtle);
+  border-color: var(--accent-strong);
+  color: var(--text-primary);
+  font-weight: 700;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.lp-pres-pill-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.lp-pres-hud-right {
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lp-pres-hud-right kbd {
+  background: var(--surface-card);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  color: var(--text-primary);
+}
+
+/* Adaptación responsive para pantallas medianas y móviles */
+@media (max-width: 960px) {
+  .expandable-workbench[data-presentation-mode="true"] .expandable-stage {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1.2fr) minmax(0, 0.9fr);
+    overflow-y: auto;
+  }
+
+  .expandable-workbench[data-presentation-mode="true"] .lp-presentation-teleprompter {
+    max-height: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .expandable-workbench[data-presentation-mode="true"] {
+    padding: 12px 14px !important;
+  }
+
+  .lp-pres-hud-right {
+    display: none;
+  }
+
+  .lp-pres-pill-btn span.pill-label {
+    display: none;
+  }
+}

@@ -554,16 +554,17 @@ const {
             openSearch();
           }
 
-          // Navegación con flechas cuando no se está escribiendo ni en un control o tarjeta interactiva del diagrama
+          // Navegación con flechas cuando no se está escribiendo ni en un control o tarjeta interactiva del diagrama ni en modo presentación
           const activeEl = document.activeElement as Element | null;
           const isCardExpanded = document.querySelector('[data-expanded="true"]') !== null;
+          const isPresentationActive = document.querySelector('[data-presentation-mode="true"]') !== null;
           const isInteractiveControl =
             activeEl?.getAttribute('role') === 'tab' ||
             activeEl?.getAttribute('role') === 'button' ||
             activeEl?.getAttribute('role') === 'radio' ||
             activeEl?.hasAttribute('data-interactive-node') ||
             Boolean(activeEl?.closest('.constellation, .system-immersive-shell, .expandable-workbench, .vm-expandable-workbench, #palette-menu-container, #palette-dropdown, #palette-picker'));
-          if (!isInputActive && !isCardExpanded && !isInteractiveControl && searchModal?.style.display !== 'grid') {
+          if (!isInputActive && !isCardExpanded && !isPresentationActive && !isInteractiveControl && searchModal?.style.display !== 'grid') {
             if (e.key === 'ArrowRight') {
               const nextLink = document.querySelector<HTMLAnchorElement>('.reader-footer a.footer-nav-link:last-child');
               if (nextLink) {
