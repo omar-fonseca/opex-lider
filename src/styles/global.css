@@ -1672,12 +1672,14 @@ button:hover .arrow-icon.left, a:hover .arrow-icon.left {
   font-size: clamp(32px, 3.8vw, 56px);
   font-weight: 500;
   line-height: 1.1;
+  text-wrap: balance;
 }
 
 .editorial-heading h1 em {
   color: var(--gold-light);
   font-style: italic;
   font-weight: 400;
+  text-wrap: balance;
 }
 
 .lead {

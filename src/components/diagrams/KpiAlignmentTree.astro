@@ -1,98 +1,227 @@
 ---
-// Página 08 — KPI: medir lo importante
-// Fase 5B: Árbol gráfico navegable y expandible (FLIP) — Propósito -> Objetivo -> Indicador -> Meta -> Resultado
+// Página 08 — KPI: medir lo importante (KPI-UX-01.1 - Consolidación visual)
+// Escenario unificado: Franja superior compacta con telemetría y simulador OTIF en vivo,
+// sobre un árbol SVG amplio de gran legibilidad y proyección, con soporte pleno de modo claro y oscuro.
 ---
 
 <div class="interactive-workbench expandable-workbench" id="kpi-tree-workbench" data-expanded="false">
+
+  <!-- Cabecera del banco de trabajo con kicker y estado de interacción -->
+  <div class="expandable-header">
+    <div class="canvas-Topline">
+      <div class="kpi-header-meta">
+        <span class="canvas-kicker">ESCENARIO DE ALINEACIÓN ESTRATÉGICA · MEDICIÓN OPERACIONAL</span>
+        <span class="canvas-hint" id="kpi-feedback-banner" role="status" aria-live="polite">
+          Explora la jerarquía del árbol o ajusta los pedidos conformes en el simulador superior para observar el impacto en tiempo real.
+        </span>
+      </div>
+      <div class="kpi-header-actions">
+        <button type="button" class="kpi-action-btn kpi-reset-btn" id="kpi-reset-btn" title="Restaurar el simulador al resultado inicial de la semana (183 de 200 pedidos, 91,5%)">
+          <span aria-hidden="true">↺</span> Reiniciar simulador
+        </button>
+        <button type="button" class="kpi-action-btn kpi-expand-btn" id="kpi-open-inspector-btn" aria-haspopup="dialog" title="Ampliar ficha técnica detallada del nodo seleccionado">
+          <span aria-hidden="true">↗</span> Ficha técnica [01–05]
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="expandable-stage" id="kpi-stage">
-    <div class="workbench-canvas expandable-canvas-wrap" id="kpi-canvas-wrap">
-      <div class="canvas-Topline">
-        <span class="canvas-kicker">ÁRBOL DE ALINEACIÓN DE MEDICIÓN (EJEMPLO ILUSTRATIVO)</span>
-        <span class="canvas-hint">Haz clic en cualquier eslabón del árbol para ampliar su función y relación</span>
+
+    <!-- ESCENARIO UNIFICADO: FRANJA SUPERIOR COMPACTA + ÁRBOL SVG AMPLIO -->
+    <div class="kpi-unified-stage">
+
+      <!-- 1. FRANJA SUPERIOR COMPACTA: Telemetría OTIF, Medidor interactivo y Control Deslizante -->
+      <div class="kpi-top-telemetry-bar" role="region" aria-label="Telemetría y simulador semanal OTIF">
+
+        <!-- Bloque de Métricas Operacionales Clave -->
+        <div class="kpi-telemetry-metrics">
+
+          <!-- Métrica 1: Resultado OTIF -->
+          <div class="kpi-telemetry-item">
+            <span class="kpi-t-label">RESULTADO SEMANAL</span>
+            <div class="kpi-t-val-row">
+              <strong class="kpi-t-val" id="otif-percent-display">91,5 %</strong>
+              <span class="kpi-t-status-badge is-near" id="otif-status-badge">Por debajo</span>
+            </div>
+            <span class="kpi-t-sub" id="otif-ratio-display">183 de 200 pedidos</span>
+          </div>
+
+          <div class="kpi-t-divider" aria-hidden="true"></div>
+
+          <!-- Métrica 2: Meta Operacional -->
+          <div class="kpi-telemetry-item">
+            <span class="kpi-t-label">META ACORDADA</span>
+            <div class="kpi-t-val-row">
+              <strong class="kpi-t-val kpi-val-target">≥ 96,0 %</strong>
+            </div>
+            <span class="kpi-t-sub">192 pedidos mínimos</span>
+          </div>
+
+          <div class="kpi-t-divider" aria-hidden="true"></div>
+
+          <!-- Métrica 3: Brecha de Desempeño -->
+          <div class="kpi-telemetry-item">
+            <span class="kpi-t-label">BRECHA DE DESVÍO</span>
+            <div class="kpi-t-val-row">
+              <strong class="kpi-t-val kpi-val-gap" id="otif-gap-display">−4,5 pp</strong>
+            </div>
+            <span class="kpi-t-sub" id="otif-needed-display">Faltan 9 conformes</span>
+          </div>
+
+          <div class="kpi-t-divider" aria-hidden="true"></div>
+
+          <!-- Medidor comparativo con barra de progreso y marcador de meta al 96% -->
+          <div class="kpi-telemetry-progress-block">
+            <div class="kpi-prog-head">
+              <span class="kpi-t-label">CUMPLIMIENTO VS META</span>
+              <span class="kpi-target-tag">Meta 96% (192)</span>
+            </div>
+            <div class="kpi-prog-track" aria-hidden="true">
+              <div class="kpi-prog-fill" id="otif-progress-bar" style="width: 91.5%;"></div>
+              <div class="kpi-prog-target-line" style="left: 96%;" title="Meta operacional: 96%"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bloque del Control Deslizante Integrado (Sin duplicar indicadores) -->
+        <div class="kpi-telemetry-slider-block">
+          <div class="kpi-slider-header">
+            <label for="otif-compliant-slider" class="kpi-slider-label">
+              Simular pedidos conformes:
+            </label>
+            <span class="kpi-slider-value-pill" id="slider-counter-display">183 / 200</span>
+          </div>
+          <div class="kpi-slider-controls">
+            <input
+              type="range"
+              id="otif-compliant-slider"
+              class="kpi-slider-input"
+              min="140"
+              max="200"
+              step="1"
+              value="183"
+              aria-label="Ajustar cantidad de pedidos conformes"
+              aria-valuemin="140"
+              aria-valuemax="200"
+              aria-valuenow="183"
+              aria-valuetext="183 pedidos conformes de 200 (91,5% OTIF)"
+            />
+            <div class="kpi-slider-presets">
+              <button type="button" class="kpi-preset-pill is-active" id="preset-initial" title="Fijar en el resultado inicial semanal (183 conformes, 91,5%)">
+                Inicial (183)
+              </button>
+              <button type="button" class="kpi-preset-pill" id="preset-target" title="Fijar exactamente en la meta (192 conformes, 96,0%)">
+                Meta (192)
+              </button>
+              <button type="button" class="kpi-preset-pill" id="preset-optimum" title="Fijar en excelencia 100% (200 conformes)">
+                100% (200)
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <div class="stage-selector-bar" role="tablist" aria-label="Nodos del árbol de medición KPI">
-        <button type="button" class="stage-pill-btn is-active" role="tab" aria-selected="true" data-kpi-node="proposito" data-interactive-node>
+      <!-- 2. Píldoras de Navegación de Nodos del Árbol (01 al 05) -->
+      <div class="stage-selector-bar kpi-node-pills-bar" role="tablist" aria-label="Niveles del árbol de medición KPI">
+        <button type="button" class="stage-pill-btn is-active" role="tab" aria-selected="true" data-kpi-node="proposito">
           <span class="stage-pill-num">01</span> Propósito
         </button>
-        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="objetivo" data-interactive-node>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="objetivo">
           <span class="stage-pill-num">02</span> Objetivo
         </button>
-        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="indicador" data-interactive-node>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="indicador">
           <span class="stage-pill-num">03</span> Indicador (KPI)
         </button>
-        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="meta" data-interactive-node>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="meta">
           <span class="stage-pill-num">04</span> Meta
         </button>
-        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="resultado" data-interactive-node>
+        <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-kpi-node="resultado">
           <span class="stage-pill-num">05</span> Resultado
         </button>
       </div>
 
-      <!-- Árbol SVG jerárquico: Propósito -> Objetivo -> Indicador -> Bifurcación comparativa (Meta vs Resultado = Brecha) -->
-      <svg class="interactive-svg" viewBox="0 0 820 390" role="img" aria-label="Árbol jerárquico navegable: Propósito, Objetivo, Indicador, Meta y Resultado con ejemplo ilustrativo">
-        <!-- Conectores del árbol -->
-        <g stroke="var(--accent-strong)" stroke-width="2.4" fill="none">
-          <line x1="410" y1="76" x2="410" y2="102" />
-          <line x1="410" y1="164" x2="410" y2="190" />
-          <path d="M 410 254 L 410 274 L 225 274 L 225 292" />
-          <path d="M 410 254 L 410 274 L 595 274 L 595 292" />
-        </g>
-        <!-- Conector de comparación entre Meta y Resultado -->
-        <line x1="365" y1="332" x2="455" y2="332" stroke="#fbbf24" stroke-width="2.2" stroke-dasharray="4 4" />
-        <text x="410" y="324" text-anchor="middle" fill="#fde68a" font-family="DM Sans, sans-serif" font-size="10" font-weight="700">BRECHA: -4.5 pts</text>
+      <!-- 3. ÁRBOL SVG PRINCIPAL DE GRAN TAMAÑO Y PROYECCIÓN -->
+      <div class="workbench-canvas expandable-canvas-wrap kpi-tree-canvas" id="kpi-canvas-wrap">
+        <svg class="interactive-svg kpi-hero-svg" viewBox="0 0 920 410" role="img" aria-label="Árbol jerárquico navegable: Propósito, Objetivo, Indicador, Meta y Resultado con ejemplo ilustrativo">
+          <!-- Conectores del árbol -->
+          <g class="kpi-connector-group" stroke="var(--accent-strong)" stroke-width="2.6" fill="none">
+            <line x1="460" y1="74" x2="460" y2="100" class="kpi-connector-line" />
+            <line x1="460" y1="162" x2="460" y2="188" class="kpi-connector-line" />
+            <path d="M 460 252 L 460 272 L 255 272 L 255 292" class="kpi-connector-line" />
+            <path d="M 460 252 L 460 272 L 665 272 L 665 292" class="kpi-connector-line" />
+          </g>
 
-        <!-- NODO 1: PROPÓSITO -->
-        <g class="svg-node-group is-active" data-kpi-target="proposito" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Nivel 1: Propósito">
-          <rect class="node-card-bg" x="170" y="16" width="480" height="60" rx="12" fill="rgba(16, 33, 64, 0.94)" stroke="var(--accent-strong)" stroke-width="2" />
-          <text x="194" y="38" fill="var(--accent-text)" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">01 · PROPÓSITO (¿PARA QUÉ EXISTE EL PROCESO?)</text>
-          <text x="630" y="38" text-anchor="end" fill="var(--accent-strong)" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢ AMPLIAR</text>
-          <text x="194" y="58" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="15.5" font-weight="700">Asegurar continuidad operativa y entregas confiables al cliente</text>
-        </g>
+          <!-- Conector de comparación horizontal entre Meta y Resultado con Brecha viva -->
+          <line x1="415" y1="334" x2="505" y2="334" id="svg-tree-gap-line" class="kpi-gap-line" stroke="#f59e0b" stroke-width="2.4" stroke-dasharray="4 4" />
+          <text x="460" y="324" text-anchor="middle" id="svg-tree-gap-text" class="kpi-gap-text" font-family="DM Sans, sans-serif" font-size="11.5" font-weight="800">BRECHA: −4,5 pp</text>
 
-        <!-- NODO 2: OBJETIVO -->
-        <g class="svg-node-group" data-kpi-target="objetivo" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Nivel 2: Objetivo">
-          <rect class="node-card-bg" x="170" y="102" width="480" height="62" rx="12" fill="rgba(14, 28, 54, 0.92)" stroke="rgba(148, 163, 184, 0.35)" stroke-width="1.5" />
-          <text x="194" y="124" fill="var(--accent-text)" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">02 · OBJETIVO (¿QUÉ CAMBIO BUSCAMOS LOGRAR?)</text>
-          <text x="630" y="124" text-anchor="end" fill="var(--accent-strong)" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢ AMPLIAR</text>
-          <text x="194" y="146" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="15.5" font-weight="700">Cumplir las entregas completas y en la ventana horaria acordada</text>
-        </g>
+          <!-- NODO 1: PROPÓSITO -->
+          <g class="svg-node-group is-active" data-kpi-target="proposito" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Nivel 1: Propósito. Seleccionar para examinar">
+            <rect class="node-card-bg kpi-svg-card" x="180" y="14" width="560" height="60" rx="12" />
+            <text x="206" y="36" class="kpi-svg-kicker" font-family="DM Sans, sans-serif" font-size="10" font-weight="800" letter-spacing="1.2">01 · PROPÓSITO (¿PARA QUÉ EXISTE EL PROCESO?)</text>
+            <text x="716" y="36" text-anchor="end" class="kpi-svg-action" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">⤢ AMPLIAR</text>
+            <text x="206" y="57" class="kpi-svg-title" font-family="Playfair Display, Georgia, serif" font-size="16.5" font-weight="700">Asegurar continuidad operativa y entregas confiables al cliente</text>
+          </g>
 
-        <!-- NODO 3: INDICADOR (KPI) -->
-        <g class="svg-node-group" data-kpi-target="indicador" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Nivel 3: Indicador KPI">
-          <rect class="node-card-bg" x="150" y="190" width="520" height="64" rx="12" fill="rgba(14, 28, 54, 0.92)" stroke="rgba(148, 165, 184, 0.35)" stroke-width="1.5" />
-          <text x="174" y="212" fill="var(--accent-text)" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">03 · INDICADOR / KPI (¿CÓMO LO MEDIMOS CON FÓRMULA CLARA?)</text>
-          <text x="650" y="212" text-anchor="end" fill="var(--accent-strong)" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢ AMPLIAR</text>
-          <text x="174" y="233" fill="#ffffff" font-family="Manrope, sans-serif" font-size="13.5" font-weight="700">Cumplimiento OTIF (%) = (Pedidos completos y a tiempo / Total pedidos) × 100</text>
-          <text x="174" y="247" fill="#94a3b8" font-family="DM Sans, sans-serif" font-size="10.5">Caso ilustrativo sobre 200 pedidos semanales programados</text>
-        </g>
+          <!-- NODO 2: OBJETIVO -->
+          <g class="svg-node-group" data-kpi-target="objetivo" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Nivel 2: Objetivo. Seleccionar para examinar">
+            <rect class="node-card-bg kpi-svg-card" x="180" y="100" width="560" height="62" rx="12" />
+            <text x="206" y="122" class="kpi-svg-kicker" font-family="DM Sans, sans-serif" font-size="10" font-weight="800" letter-spacing="1.2">02 · OBJETIVO (¿QUÉ CAMBIO BUSCAMOS LOGRAR?)</text>
+            <text x="716" y="122" text-anchor="end" class="kpi-svg-action" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">⤢ AMPLIAR</text>
+            <text x="206" y="145" class="kpi-svg-title" font-family="Playfair Display, Georgia, serif" font-size="16.5" font-weight="700">Cumplir las entregas completas y en la ventana horaria acordada</text>
+          </g>
 
-        <!-- NODO 4: META (Abajo Izquierda) -->
-        <g class="svg-node-group" data-kpi-target="meta" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Nivel 4: Meta">
-          <rect class="node-card-bg" x="85" y="292" width="280" height="80" rx="12" fill="rgba(14, 33, 50, 0.92)" stroke="rgba(52, 211, 153, 0.5)" stroke-width="1.6" />
-          <text x="105" y="314" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">04 · META (UMBRAL ESPERADO)</text>
-          <text x="348" y="314" text-anchor="end" fill="#6ee7b7" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢</text>
-          <text x="105" y="340" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="21" font-weight="700">≥ 96.0%</text>
-          <text x="195" y="339" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">(192 de 200 pedidos)</text>
-          <text x="105" y="360" fill="#94a3b8" font-family="DM Sans, sans-serif" font-size="10.5">Referencia de estabilidad del proceso</text>
-        </g>
+          <!-- NODO 3: INDICADOR (KPI) -->
+          <g class="svg-node-group" data-kpi-target="indicador" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Nivel 3: Indicador KPI. Seleccionar para examinar">
+            <rect class="node-card-bg kpi-svg-card" x="150" y="188" width="620" height="64" rx="12" />
+            <text x="176" y="210" class="kpi-svg-kicker" font-family="DM Sans, sans-serif" font-size="10" font-weight="800" letter-spacing="1.2">03 · INDICADOR / KPI (¿CÓMO LO MEDIMOS CON FÓRMULA CLARA?)</text>
+            <text x="746" y="210" text-anchor="end" class="kpi-svg-action" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">⤢ AMPLIAR</text>
+            <text x="176" y="232" class="kpi-svg-title kpi-svg-formula" font-family="Manrope, sans-serif" font-size="14.5" font-weight="800">Cumplimiento OTIF (%) = (Pedidos conformes / 200 total) × 100</text>
+            <text x="176" y="246" class="kpi-svg-sub" font-family="DM Sans, sans-serif" font-size="11">Caso operacional semanal sobre 200 pedidos programados</text>
+          </g>
 
-        <!-- NODO 5: RESULTADO (Abajo Derecha) -->
-        <g class="svg-node-group" data-kpi-target="resultado" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Ampliar Nivel 5: Resultado">
-          <rect class="node-card-bg" x="455" y="292" width="280" height="80" rx="12" fill="rgba(42, 28, 16, 0.92)" stroke="rgba(251, 191, 36, 0.55)" stroke-width="1.6" />
-          <text x="475" y="314" fill="#fde68a" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.2">05 · RESULTADO REAL (SEMANA)</text>
-          <text x="718" y="314" text-anchor="end" fill="#fde68a" font-family="DM Sans, sans-serif" font-size="9" font-weight="700">⤢</text>
-          <text x="475" y="340" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="21" font-weight="700">91.5%</text>
-          <text x="550" y="339" fill="#fde68a" font-family="Manrope, sans-serif" font-size="11.5">(183 de 200 pedidos)</text>
-          <text x="475" y="360" fill="#cbd5e1" font-family="DM Sans, sans-serif" font-size="10.5">9 pedidos con desvío (activa análisis)</text>
-        </g>
-      </svg>
+          <!-- NODO 4: META (Abajo Izquierda) -->
+          <g class="svg-node-group" data-kpi-target="meta" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Nivel 4: Meta. Seleccionar para examinar">
+            <rect class="node-card-bg kpi-meta-card" x="90" y="292" width="325" height="84" rx="12" />
+            <text x="112" y="314" class="kpi-meta-kicker" font-family="DM Sans, sans-serif" font-size="10" font-weight="800" letter-spacing="1.2">04 · META (UMBRAL ESPERADO)</text>
+            <text x="395" y="314" text-anchor="end" class="kpi-meta-action" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">⤢</text>
+            <text x="112" y="344" class="kpi-meta-val" font-family="Playfair Display, Georgia, serif" font-size="24" font-weight="800">≥ 96,0 %</text>
+            <text x="226" y="343" class="kpi-meta-sub" font-family="Manrope, sans-serif" font-size="12">(192 de 200 pedidos)</text>
+            <text x="112" y="364" class="kpi-meta-note" font-family="DM Sans, sans-serif" font-size="11">Referencia de estabilidad del proceso</text>
+          </g>
+
+          <!-- NODO 5: RESULTADO (Abajo Derecha - Actualizado en tiempo real por el simulador) -->
+          <g class="svg-node-group" data-kpi-target="resultado" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Nivel 5: Resultado semanal. Seleccionar para examinar">
+            <rect class="node-card-bg kpi-result-card" id="svg-result-rect" x="505" y="292" width="325" height="84" rx="12" />
+            <text x="527" y="314" class="kpi-result-kicker" id="svg-result-kicker" font-family="DM Sans, sans-serif" font-size="10" font-weight="800" letter-spacing="1.2">05 · RESULTADO REAL (SEMANA)</text>
+            <text x="810" y="314" text-anchor="end" class="kpi-result-action" font-family="DM Sans, sans-serif" font-size="9.5" font-weight="700">⤢</text>
+            <text x="527" y="344" class="kpi-result-val" id="svg-node-result-val" font-family="Playfair Display, Georgia, serif" font-size="24" font-weight="800">91,5 %</text>
+            <text x="625" y="343" class="kpi-result-sub" id="svg-node-result-sub" font-family="Manrope, sans-serif" font-size="12">(183 de 200 pedidos)</text>
+            <text x="527" y="364" class="kpi-result-note" id="svg-node-result-note" font-family="DM Sans, sans-serif" font-size="11">Faltan 9 pedidos para cerrar la brecha</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- 4. Cuadro de Contexto e Interpretación Operacional del Nodo Seleccionado -->
+      <div class="kpi-node-insight-bar" id="kpi-node-insight" role="region" aria-label="Interpretación operacional del nivel seleccionado">
+        <div class="kpi-insight-header">
+          <span class="kpi-insight-badge" id="insight-badge">01 · PROPÓSITO</span>
+          <span class="kpi-insight-guide">Guía de gestión operacional</span>
+        </div>
+        <p class="kpi-insight-text" id="insight-text">
+          El propósito asegura que la medición proteja la promesa de servicio hacia el cliente. El número no existe por sí mismo: existe para garantizar entregas confiables y predecibles.
+        </p>
+      </div>
+
     </div>
 
-    <!-- Velo de enfoque contextual -->
-    <div class="expandable-scrim" id="kpi-scrim" aria-hidden="true"></div>
+    <!-- Velo de enfoque contextual para la ficha técnica expandida -->
+    <div class="expandable-scrim" id="kpi-scrim" aria-hidden="true" title="Cerrar ficha ampliada"></div>
 
-    <!-- Tarjeta editorial expandible (FLIP) -->
+    <!-- FICHA TÉCNICA EXPANDIDA FLIP (NIVELES 01 A 05) -->
     <aside
       class="expanded-editorial-card"
       id="kpi-inspector"
@@ -103,72 +232,809 @@
       hidden
     >
       <div class="expanded-topbar">
-        <div class="inspector-badge-row" style="margin-bottom: 0;">
+        <div class="inspector-badge-row">
           <span class="inspector-tag" id="kpi-tag">NIVEL 01 · PROPÓSITO</span>
           <span class="inspector-step-indicator" id="kpi-step">Nodo 1 de 5</span>
         </div>
-        <button type="button" class="expanded-close-btn" id="kpi-close-btn" aria-label="Cerrar vista ampliada del nodo KPI">
-          <span aria-hidden="true">✕</span> Cerrar
+
+        <button
+          type="button"
+          class="expanded-close-btn"
+          id="kpi-close-btn"
+          aria-label="Cerrar ficha ampliada y regresar al árbol KPI"
+          title="Cerrar (Escape)"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          <span>Cerrar</span>
         </button>
       </div>
 
-      <div>
-        <h3 class="inspector-title" id="kpi-title">Propósito: la razón de ser antes del número</h3>
-        <p class="inspector-summary" id="kpi-summary">
-          Ningún indicador tiene sentido en el vacío. Antes de definir una fórmula, el líder y el equipo deben comprender qué valor aporta su proceso al cliente interno o externo. Medir sin propósito convierte los números en burocracia.
-        </p>
-      </div>
-
-      <div class="expanded-magnified-box">
-        <div class="expanded-magnified-header">
-          <span id="kpi-chain-label">POSICIÓN EN LA CADENA LÓGICA DE MEDICIÓN</span>
-          <span id="kpi-formula-badge">Caso: 200 pedidos semanales · Meta ≥ 96.0% vs. Real 91.5%</span>
+      <div class="expanded-body">
+        <div class="stage-selector-bar" role="tablist" aria-label="Navegar entre nodos en la ficha ampliada">
+          <button type="button" class="stage-pill-btn is-active" role="tab" aria-selected="true" data-modal-pill="proposito">
+            <span class="stage-pill-num">01</span> Propósito
+          </button>
+          <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-modal-pill="objetivo">
+            <span class="stage-pill-num">02</span> Objetivo
+          </button>
+          <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-modal-pill="indicador">
+            <span class="stage-pill-num">03</span> Indicador (KPI)
+          </button>
+          <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-modal-pill="meta">
+            <span class="stage-pill-num">04</span> Meta
+          </button>
+          <button type="button" class="stage-pill-btn" role="tab" aria-selected="false" data-modal-pill="resultado">
+            <span class="stage-pill-num">05</span> Resultado
+          </button>
         </div>
-        <div class="expanded-flow-strip" id="kpi-flow-strip">
-          <span class="expanded-flow-pill is-current" data-kpi-strip="proposito">01 · Propósito</span>
-          <span class="expanded-flow-arrow">→</span>
-          <span class="expanded-flow-pill" data-kpi-strip="objetivo">02 · Objetivo</span>
-          <span class="expanded-flow-arrow">→</span>
-          <span class="expanded-flow-pill" data-kpi-strip="indicador">03 · Indicador (KPI)</span>
-          <span class="expanded-flow-arrow">→</span>
-          <span class="expanded-flow-pill" data-kpi-strip="meta">04 · Meta (≥96%)</span>
-          <span class="expanded-flow-arrow">↔</span>
-          <span class="expanded-flow-pill" data-kpi-strip="resultado">05 · Resultado (91.5%)</span>
-        </div>
-      </div>
 
-      <div class="expanded-detail-cols">
-        <div class="inspector-detail-box">
-          <span>RELACIÓN CON LOS DEMÁS NIVELES</span>
-          <p id="kpi-relation">
-            Orienta al Objetivo y evita elegir indicadores que optimicen una tarea local a costa de perjudicar al cliente final.
+        <div>
+          <h3 class="expanded-title" id="kpi-title">Propósito: la razón de ser antes del número</h3>
+          <p class="expanded-summary" id="kpi-summary">
+            Ningún indicador tiene sentido en el vacío. Antes de definir una fórmula, el líder y el equipo deben responder con claridad: ¿qué promesa de valor hace este proceso a sus clientes y a la organización?
           </p>
         </div>
-        <div class="inspector-detail-box">
-          <span>EN EL EJEMPLO ILUSTRATIVO</span>
-          <p id="kpi-example">
-            El almacén o planta no existe para «mover cajas rápido», sino para garantizar que el usuario reciba su pedido completo, sin daños y cuando lo necesita.
-          </p>
-        </div>
-      </div>
 
-      <div class="expanded-footer-bar">
-        <button type="button" class="step-nav-btn" id="kpi-prev-btn">← Nivel anterior</button>
-        <button type="button" class="step-nav-btn" id="kpi-return-btn">Volver al árbol completo</button>
-        <button type="button" class="step-nav-btn" id="kpi-next-btn">Siguiente nivel →</button>
+        <div class="expanded-details-grid">
+          <div class="inspector-detail-box">
+            <span>RELACIÓN CON EL SIGUIENTE ESLABÓN</span>
+            <p id="kpi-relation">
+              El propósito no se mide directamente: se desglosa en objetivos concretos que puedan transformarse en señales observables de desempeño.
+            </p>
+          </div>
+          <div class="inspector-detail-box">
+            <span>EJEMPLO OPERATIVO ILUSTRATIVO</span>
+            <p id="kpi-example">
+              «Garantizar que cada cliente reciba exactamente lo contratado, en la fecha prometida y sin retrasos que interrumpan su operación diaria.»
+            </p>
+          </div>
+        </div>
+
+        <div class="expanded-footer-nav">
+          <button type="button" class="step-nav-btn" id="kpi-prev-btn" aria-label="Ver nodo anterior">
+            ← Nodo anterior
+          </button>
+          <button type="button" class="expanded-return-btn" id="kpi-return-btn">
+            Volver al árbol y dashboard
+          </button>
+          <button type="button" class="step-nav-btn" id="kpi-next-btn" aria-label="Ver siguiente nodo">
+            Siguiente nodo →
+          </button>
+        </div>
       </div>
     </aside>
+
   </div>
 </div>
 
+<style>
+  /* =========================================================================
+     ESTILOS DEL ESCENARIO CONSOLIDADO KPI (KPI-UX-01.1)
+     ========================================================================= */
+
+  .interactive-workbench[hidden],
+  .expanded-editorial-card[hidden],
+  .expandable-scrim[hidden] {
+    display: none !important;
+  }
+
+  .kpi-header-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .kpi-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .kpi-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    background: var(--surface-card, #0f172a);
+    border: 1px solid var(--line, #334155);
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  .kpi-action-btn:hover {
+    border-color: var(--accent-strong, #38bdf8);
+    color: var(--text-primary, #f8fafc);
+    transform: translateY(-1px);
+  }
+
+  .kpi-action-btn:focus-visible {
+    outline: 2px solid var(--accent-strong, #38bdf8);
+    outline-offset: 2px;
+  }
+
+  html[data-theme="light"] .kpi-action-btn {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  html[data-theme="light"] .kpi-action-btn:hover {
+    border-color: var(--accent-strong, #0284c7);
+    color: #0f172a;
+    background: #f1f5f9;
+  }
+
+  .kpi-expand-btn {
+    border-color: var(--accent-border, rgba(56, 189, 248, 0.4));
+    color: var(--accent-text, #38bdf8);
+  }
+
+  /* Contenedor unificado */
+  .kpi-unified-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  /* =========================================================================
+     1. FRANJA SUPERIOR COMPACTA (TELEMETRÍA + SIMULADOR INTEGRADO)
+     ========================================================================= */
+
+  .kpi-top-telemetry-bar {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 18px;
+    align-items: center;
+    background: var(--surface-card, #0c182e);
+    border: 1.5px solid var(--accent-border, rgba(56, 189, 248, 0.35));
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  html[data-theme="light"] .kpi-top-telemetry-bar {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Bloque de Métricas */
+  .kpi-telemetry-metrics {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .kpi-telemetry-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 105px;
+  }
+
+  .kpi-t-label {
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--text-muted, #64748b);
+    text-transform: uppercase;
+  }
+
+  .kpi-t-val-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .kpi-t-val {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--text-primary, #f8fafc);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  html[data-theme="light"] .kpi-t-val {
+    color: #0f172a;
+  }
+
+  .kpi-val-target {
+    color: #4ade80 !important;
+  }
+
+  html[data-theme="light"] .kpi-val-target {
+    color: #16a34a !important;
+  }
+
+  .kpi-val-gap {
+    color: #fde68a;
+  }
+
+  html[data-theme="light"] .kpi-val-gap {
+    color: #b45309;
+  }
+
+  .kpi-t-status-badge {
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .kpi-t-status-badge.is-near {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid #f59e0b;
+  }
+
+  html[data-theme="light"] .kpi-t-status-badge.is-near {
+    background: #fef3c7;
+    color: #b45309;
+    border-color: #d97706;
+  }
+
+  .kpi-t-status-badge.is-met {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border: 1px solid #22c55e;
+  }
+
+  html[data-theme="light"] .kpi-t-status-badge.is-met {
+    background: #dcfce7;
+    color: #15803d;
+    border-color: #16a34a;
+  }
+
+  .kpi-t-status-badge.is-critical {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid #ef4444;
+  }
+
+  html[data-theme="light"] .kpi-t-status-badge.is-critical {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #dc2626;
+  }
+
+  .kpi-t-sub {
+    font-size: 0.68rem;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  html[data-theme="light"] .kpi-t-sub {
+    color: #64748b;
+  }
+
+  .kpi-t-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--line, #334155);
+  }
+
+  html[data-theme="light"] .kpi-t-divider {
+    background: #e2e8f0;
+  }
+
+  /* Barra de progreso comparativa compacta */
+  .kpi-telemetry-progress-block {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 120px;
+  }
+
+  .kpi-prog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .kpi-target-tag {
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #4ade80;
+  }
+
+  html[data-theme="light"] .kpi-target-tag {
+    color: #16a34a;
+  }
+
+  .kpi-prog-track {
+    position: relative;
+    height: 10px;
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 5px;
+    overflow: visible;
+  }
+
+  html[data-theme="light"] .kpi-prog-track {
+    background: #e2e8f0;
+  }
+
+  .kpi-prog-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-primary, #0284c7), #38bdf8);
+    border-radius: 5px;
+    transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .kpi-prog-target-line {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 3px;
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    transform: translateX(-50%);
+    border-radius: 2px;
+  }
+
+  /* Bloque de Control Deslizante Integrado */
+  .kpi-telemetry-slider-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--surface-sunken, #080f1e);
+    border: 1px solid var(--line, #334155);
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+
+  html[data-theme="light"] .kpi-telemetry-slider-block {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  .kpi-slider-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .kpi-slider-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--text-primary, #f8fafc);
+  }
+
+  html[data-theme="light"] .kpi-slider-label {
+    color: #0f172a;
+  }
+
+  .kpi-slider-value-pill {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--accent-text, #38bdf8);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kpi-slider-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .kpi-slider-input {
+    width: 100%;
+    height: 7px;
+    border-radius: 4px;
+    background: rgba(148, 163, 184, 0.25);
+    outline: none;
+    cursor: pointer;
+    accent-color: var(--accent-strong, #38bdf8);
+  }
+
+  html[data-theme="light"] .kpi-slider-input {
+    background: #cbd5e1;
+    accent-color: var(--accent-strong, #0284c7);
+  }
+
+  .kpi-slider-presets {
+    display: flex;
+    gap: 6px;
+  }
+
+  .kpi-preset-pill {
+    flex: 1;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 5px;
+    background: var(--surface-card, #0f172a);
+    border: 1px solid var(--line, #334155);
+    color: var(--text-secondary, #94a3b8);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  html[data-theme="light"] .kpi-preset-pill {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  .kpi-preset-pill:hover {
+    border-color: var(--accent-strong, #38bdf8);
+    color: var(--text-primary, #f8fafc);
+  }
+
+  html[data-theme="light"] .kpi-preset-pill:hover {
+    border-color: var(--accent-strong, #0284c7);
+    color: #0f172a;
+    background: #f1f5f9;
+  }
+
+  .kpi-preset-pill.is-active {
+    background: var(--accent-subtle);
+    border-color: var(--accent-strong);
+    color: var(--accent-text);
+  }
+
+  /* Píldoras de Nodos del Árbol */
+  .kpi-node-pills-bar {
+    margin-bottom: 0;
+  }
+
+  /* =========================================================================
+     2. ÁRBOL SVG HERO (AMPLIO, LEGIBLE, APTO PARA PROYECCIÓN)
+     ========================================================================= */
+
+  .kpi-tree-canvas {
+    position: relative;
+    padding: 20px;
+    background: radial-gradient(circle at 50% 15%, rgba(30, 41, 59, 0.4), transparent 75%),
+                var(--surface-sunken, #080f1e);
+    border: 1.5px solid var(--line, #1e293b);
+    border-radius: 16px;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+  }
+
+  html[data-theme="light"] .kpi-tree-canvas {
+    background: radial-gradient(circle at 50% 15%, rgba(241, 245, 249, 0.6), transparent 75%),
+                #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+  }
+
+  .kpi-hero-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  /* Estilos generales de tarjetas SVG */
+  .kpi-svg-card {
+    fill: rgba(14, 28, 54, 0.94);
+    stroke: rgba(148, 163, 184, 0.35);
+    stroke-width: 1.5px;
+    transition: all 0.2s ease;
+  }
+
+  html[data-theme="light"] .kpi-svg-card {
+    fill: #ffffff;
+    stroke: #cbd5e1;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.05));
+  }
+
+  .svg-node-group:hover .kpi-svg-card {
+    stroke: var(--accent-strong, #38bdf8);
+    stroke-width: 2.2px;
+    filter: drop-shadow(0 6px 16px rgba(56, 189, 248, 0.2));
+  }
+
+  .svg-node-group.is-active .kpi-svg-card {
+    stroke: var(--accent-strong, #38bdf8);
+    stroke-width: 2.5px;
+    fill: rgba(16, 33, 64, 0.98);
+    filter: drop-shadow(0 8px 20px rgba(56, 189, 248, 0.25));
+  }
+
+  html[data-theme="light"] .svg-node-group.is-active .kpi-svg-card {
+    fill: #ffffff;
+    stroke: var(--accent-strong, #0284c7);
+    filter: drop-shadow(0 8px 20px rgba(2, 132, 199, 0.15));
+  }
+
+  /* Tipografía de tarjetas SVG con soporte claro/oscuro */
+  .kpi-svg-kicker {
+    fill: var(--accent-text, #38bdf8);
+  }
+
+  .kpi-svg-action {
+    fill: var(--accent-strong, #38bdf8);
+  }
+
+  .kpi-svg-title {
+    fill: #ffffff;
+  }
+
+  html[data-theme="light"] .kpi-svg-title {
+    fill: #0f172a;
+  }
+
+  .kpi-svg-sub {
+    fill: #94a3b8;
+  }
+
+  html[data-theme="light"] .kpi-svg-sub {
+    fill: #64748b;
+  }
+
+  /* Nodo 04: Meta */
+  .kpi-meta-card {
+    fill: rgba(14, 33, 50, 0.92);
+    stroke: rgba(52, 211, 153, 0.55);
+    stroke-width: 1.6px;
+    transition: all 0.2s ease;
+  }
+
+  html[data-theme="light"] .kpi-meta-card {
+    fill: #f0fdf4;
+    stroke: #22c55e;
+    filter: drop-shadow(0 4px 10px rgba(34, 197, 94, 0.08));
+  }
+
+  .kpi-meta-kicker {
+    fill: #6ee7b7;
+  }
+
+  html[data-theme="light"] .kpi-meta-kicker {
+    fill: #166534;
+  }
+
+  .kpi-meta-action {
+    fill: #6ee7b7;
+  }
+
+  html[data-theme="light"] .kpi-meta-action {
+    fill: #16a34a;
+  }
+
+  .kpi-meta-val {
+    fill: #ffffff;
+  }
+
+  html[data-theme="light"] .kpi-meta-val {
+    fill: #15803d;
+  }
+
+  .kpi-meta-sub {
+    fill: #cbd5e1;
+  }
+
+  html[data-theme="light"] .kpi-meta-sub {
+    fill: #334155;
+  }
+
+  .kpi-meta-note {
+    fill: #94a3b8;
+  }
+
+  html[data-theme="light"] .kpi-meta-note {
+    fill: #64748b;
+  }
+
+  /* Nodo 05: Resultado */
+  .kpi-result-card {
+    fill: rgba(42, 28, 16, 0.92);
+    stroke: rgba(251, 191, 36, 0.55);
+    stroke-width: 1.6px;
+    transition: all 0.2s ease;
+  }
+
+  html[data-theme="light"] .kpi-result-card {
+    fill: #fffbeb;
+    stroke: #d97706;
+    filter: drop-shadow(0 4px 10px rgba(217, 119, 6, 0.08));
+  }
+
+  .kpi-result-kicker {
+    fill: #fde68a;
+  }
+
+  html[data-theme="light"] .kpi-result-kicker {
+    fill: #92400e;
+  }
+
+  .kpi-result-action {
+    fill: #fde68a;
+  }
+
+  html[data-theme="light"] .kpi-result-action {
+    fill: #b45309;
+  }
+
+  .kpi-result-val {
+    fill: #ffffff;
+  }
+
+  html[data-theme="light"] .kpi-result-val {
+    fill: #b45309;
+  }
+
+  .kpi-result-sub {
+    fill: #fde68a;
+  }
+
+  html[data-theme="light"] .kpi-result-sub {
+    fill: #92400e;
+  }
+
+  .kpi-result-note {
+    fill: #cbd5e1;
+  }
+
+  html[data-theme="light"] .kpi-result-note {
+    fill: #64748b;
+  }
+
+  /* Conector horizontal y texto de brecha en el SVG */
+  .kpi-gap-text {
+    fill: #fde68a;
+  }
+
+  html[data-theme="light"] .kpi-gap-text {
+    fill: #92400e;
+  }
+
+  /* =========================================================================
+     3. CUADRO DE INTERPRETACIÓN OPERACIONAL
+     ========================================================================= */
+
+  .kpi-node-insight-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--surface-card, #0c182e);
+    border: 1px solid var(--accent-border, rgba(56, 189, 248, 0.35));
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  html[data-theme="light"] .kpi-node-insight-bar {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  }
+
+  .kpi-insight-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .kpi-insight-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--accent-text, #38bdf8);
+    text-transform: uppercase;
+  }
+
+  .kpi-insight-guide {
+    font-size: 0.65rem;
+    color: var(--text-muted, #64748b);
+  }
+
+  .kpi-insight-text {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--text-secondary, #cbd5e1);
+    margin: 0;
+  }
+
+  html[data-theme="light"] .kpi-insight-text {
+    color: #334155;
+  }
+
+  /* =========================================================================
+     ADAPTACIÓN RESPONSIVE
+     ========================================================================= */
+
+  @media (max-width: 900px) {
+    .kpi-top-telemetry-bar {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .kpi-telemetry-metrics {
+      flex-wrap: wrap;
+    }
+    .kpi-t-divider {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .svg-node-group,
+    .kpi-prog-fill,
+    .kpi-action-btn,
+    .kpi-preset-pill {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>
+
 <script>
-  import { animateFlipOpen, animateFlipClose, makeCardDraggable } from '../../lib/expandableCardEngine';
+  import { animateFlipOpen, animateFlipClose } from '../../lib/expandableCardEngine';
+  import {
+    TOTAL_WEEKLY_ORDERS,
+    TARGET_OTIF_PERCENT,
+    INITIAL_COMPLIANT_ORDERS,
+    calculateOtif,
+  } from '../../lib/otifEngine';
 
   function initKpiAlignmentTree() {
     const root = document.getElementById('kpi-tree-workbench');
-    if (!root || root.hasAttribute('data-initialized')) return;
-    root.setAttribute('data-initialized', 'true');
+    if (!root) return;
 
+    // Elementos de la Telemetría Superior Compacta
+    const otifPercentDisplay = document.getElementById('otif-percent-display');
+    const otifStatusBadge = document.getElementById('otif-status-badge');
+    const otifRatioDisplay = document.getElementById('otif-ratio-display');
+    const otifGapDisplay = document.getElementById('otif-gap-display');
+    const otifNeededDisplay = document.getElementById('otif-needed-display');
+    const otifProgressBar = document.getElementById('otif-progress-bar');
+
+    // Control deslizante y presets
+    const slider = document.getElementById('otif-compliant-slider') as HTMLInputElement | null;
+    const sliderCounterDisplay = document.getElementById('slider-counter-display');
+    const presetInitial = document.getElementById('preset-initial');
+    const presetTarget = document.getElementById('preset-target');
+    const presetOptimum = document.getElementById('preset-optimum');
+    const resetBtn = document.getElementById('kpi-reset-btn');
+
+    // Elementos reactivos en el Árbol SVG
+    const svgTreeGapLine = document.getElementById('svg-tree-gap-line');
+    const svgTreeGapText = document.getElementById('svg-tree-gap-text');
+    const svgNodeResultVal = document.getElementById('svg-node-result-val');
+    const svgNodeResultSub = document.getElementById('svg-node-result-sub');
+    const svgNodeResultNote = document.getElementById('svg-node-result-note');
+    const svgResultRect = document.getElementById('svg-result-rect');
+    const svgResultKicker = document.getElementById('svg-result-kicker');
+
+    // Cuadro de Interpretación del Nodo
+    const insightBadge = document.getElementById('insight-badge');
+    const insightText = document.getElementById('insight-text');
+    const feedbackBanner = document.getElementById('kpi-feedback-banner');
+
+    // Ficha Técnica Expandible (Modal FLIP)
+    const inspector = document.getElementById('kpi-inspector');
+    const openInspectorBtn = document.getElementById('kpi-open-inspector-btn');
+    const closeBtn = document.getElementById('kpi-close-btn');
+    const returnBtn = document.getElementById('kpi-return-btn');
+    const prevBtn = document.getElementById('kpi-prev-btn');
+    const nextBtn = document.getElementById('kpi-next-btn');
+    const scrim = document.getElementById('kpi-scrim');
+
+    const pills = Array.from(root.querySelectorAll<HTMLButtonElement>('.kpi-node-pills-bar .stage-pill-btn'));
+    const modalPills = Array.from(root.querySelectorAll<HTMLButtonElement>('.expanded-body .stage-pill-btn'));
+    const svgNodes = Array.from(root.querySelectorAll<SVGGElement>('.svg-node-group'));
+
+    const tagEl = document.getElementById('kpi-tag');
+    const stepEl = document.getElementById('kpi-step');
+    const titleEl = document.getElementById('kpi-title');
+    const summaryEl = document.getElementById('kpi-summary');
+    const relEl = document.getElementById('kpi-relation');
+    const exEl = document.getElementById('kpi-example');
+
+    // Datos editoriales y operativos de los 5 niveles
     const NODES: Record<string, {
       tag: string;
       step: string;
@@ -176,121 +1042,192 @@
       summary: string;
       relation: string;
       example: string;
+      insight: string;
     }> = {
       proposito: {
         tag: 'NIVEL 01 · PROPÓSITO',
         step: 'Nodo 1 de 5',
         title: 'Propósito: la razón de ser antes del número',
-        summary:
-          'Ningún indicador tiene sentido en el vacío. Antes de definir una fórmula, el líder y el equipo deben comprender qué valor aporta su proceso al cliente interno o externo. Medir sin propósito convierte los números en burocracia.',
-        relation:
-          'Orienta al Objetivo y evita elegir indicadores que optimicen una tarea local a costa de perjudicar al cliente final.',
-        example:
-          'El almacén o planta no existe para «mover cajas rápido», sino para garantizar que el usuario reciba su pedido completo, sin daños y cuando lo necesita.',
+        summary: 'Ningún indicador tiene sentido en el vacío. Antes de definir una fórmula, el líder y el equipo deben responder con claridad: ¿qué promesa de valor hace este proceso a sus clientes y a la organización?',
+        relation: 'El propósito no se mide directamente: se desglosa en objetivos concretos que puedan transformarse en señales observables de desempeño.',
+        example: '«Garantizar que cada cliente reciba exactamente lo contratado, en la fecha prometida y sin retrasos que interrumpan su operación diaria.»',
+        insight: 'El propósito asegura que la medición proteja la promesa de servicio hacia el cliente. El número no existe por sí mismo: existe para garantizar entregas confiables y predecibles.',
       },
       objetivo: {
         tag: 'NIVEL 02 · OBJETIVO',
         step: 'Nodo 2 de 5',
-        title: 'Objetivo: dirección concreta de mejora o estabilidad',
-        summary:
-          'Traduce el propósito general en una intención operativa clara. Expresa qué atributo del proceso (seguridad, calidad, flujo, entrega o costo) necesitamos sostener o transformar.',
-        relation:
-          'Conecta el Propósito con el Indicador: define qué fenómeno específico vamos a observar.',
-        example:
-          'Asegurar que los pedidos salgan completos en cantidad, sin errores de documentación y dentro de la ventana horaria pactada.',
+        title: 'Objetivo: el cambio observable que se busca',
+        summary: 'Traduce el propósito general en una dirección precisa de mejora o estabilidad. Define qué resultado operacional se espera alcanzar.',
+        relation: 'El objetivo declara la intención; el indicador establece el instrumento matemático que permitirá verificar si esa intención se cumple.',
+        example: '«Entregar completos y a tiempo los 200 pedidos semanales comprometidos con la red de distribución.»',
+        insight: 'El objetivo operacional fija la meta de entrega íntegra sobre el total de 200 pedidos semanales comprometidos con la red de clientes.',
       },
       indicador: {
         tag: 'NIVEL 03 · INDICADOR (KPI)',
         step: 'Nodo 3 de 5',
-        title: 'Indicador (KPI): la regla objetiva de observación',
-        summary:
-          'Un KPI (Key Performance Indicator) es una medida cuantitativa con definición, fórmula, unidad y frecuencia explícitas. Permite que dos turnos distintos midan exactamente lo mismo sin opiniones subjetivas.',
-        relation:
-          'Hace medible el Objetivo y sirve de base para fijar la Meta y registrar el Resultado.',
-        example:
-          'Porcentaje OTIF (On-Time In-Full): pedidos entregados completos y a tiempo divididos entre los 200 pedidos programados de la semana (dato ilustrativo).',
+        title: 'Indicador: la regla objetiva de cálculo',
+        summary: 'Fórmula cuantitativa que convierte el cumplimiento en una métrica repetible y auditable. Un buen KPI une calidad y puntualidad sin ambigüedades.',
+        relation: 'El indicador proporciona la escala de medición; la meta define sobre esa misma escala el valor numérico considerado satisfactorio.',
+        example: '«Cumplimiento OTIF (%) = (Pedidos conformes / Total pedidos) × 100 sobre los 200 pedidos de la semana.»',
+        insight: 'Fórmula OTIF: (Pedidos Conformes / 200) × 100. Combina en una sola regla matemática el producto completo (In-Full) y la puntualidad (On-Time).',
       },
       meta: {
         tag: 'NIVEL 04 · META',
         step: 'Nodo 4 de 5',
-        title: 'Meta: el umbral que define la condición normal',
-        summary:
-          'Un número aislado como «91.5%» no dice nada si no sabemos contra qué compararlo. La meta establece el nivel de desempeño requerido por el cliente o por la capacidad estándar del proceso.',
-        relation:
-          'Al contrastarse con el Resultado real, permite calcular de inmediato si existe una brecha (desviación) que requiera atención.',
-        example:
-          'Meta ilustrativa ≥ 96.0% (al menos 192 de los 200 pedidos semanales entregados sin ningún atraso ni faltante).',
+        title: 'Meta: el umbral de estabilidad acordado',
+        summary: 'Establece la frontera entre lo aceptable y lo inaceptable. No es un deseo ni un techo arbitrario: es el estándar de confiabilidad pactado.',
+        relation: 'La meta por sí sola es un estándar inerte; solo adquiere significado cuando se confronta periódicamente contra el resultado obtenido.',
+        example: '«Lograr un OTIF semanal ≥ 96,0% (equivalente a 192 de los 200 pedidos conformes).»',
+        insight: 'Meta fijada en 96,0 % (192 pedidos). Marca la cota mínima de estabilidad: por debajo de 96%, el proceso activa revisión de causa raíz.',
       },
       resultado: {
-        tag: 'NIVEL 05 · RESULTADO Y BRECHA',
+        tag: 'NIVEL 05 · RESULTADO',
         step: 'Nodo 5 de 5',
-        title: 'Resultado: evidencia real que activa el aprendizaje',
-        summary:
-          'Es el dato obtenido al ejecutar el proceso. Su función no es premiar o castigar sin contexto, sino revelar la brecha frente a la meta para enfocar la observación del líder en el terreno.',
-        relation:
-          'Cierra el árbol: un resultado de 91.5% frente a una meta de 96.0% muestra una brecha de -4.5 puntos (9 pedidos afectados) que debemos investigar en el proceso.',
-        example:
-          'En lugar de discutir percepciones, el equipo sabe con precisión que 9 pedidos sufrieron desvíos y pasa a verificar en qué etapa ocurrieron.',
+        title: 'Resultado: la realidad frente a la meta',
+        summary: 'Muestra lo que ocurrió en el período medido. La comparación directa entre meta y resultado revela la brecha de desempeño.',
+        relation: 'La brecha entre el 96,0% esperado y el resultado real es la señal de control: si es negativa, activa la reunión de análisis y contención.',
+        example: '«Semana actual: 91,5% (183 de 200 pedidos conformes). Brecha de −4,5 pp (faltan 9 pedidos conformes para cumplir la meta).»',
+        insight: 'Resultado en vivo. La brecha con la meta indica de inmediato los pedidos conformes adicionales necesarios para recuperar el estándar.',
       },
     };
 
     const keys = ['proposito', 'objetivo', 'indicador', 'meta', 'resultado'];
-    let idx = 0;
+    let activeKey = 'proposito';
+    let activeOriginEl: HTMLElement | SVGElement | null = null;
     let isExpanded = false;
-    let isClosing = false;
-    let activeOriginEl: Element | null = null;
 
-    const pills = root.querySelectorAll<HTMLButtonElement>('[data-kpi-node]');
-    const svgNodes = root.querySelectorAll<SVGGElement>('[data-kpi-target]');
-    const stripPills = root.querySelectorAll<HTMLElement>('[data-kpi-strip]');
-    const scrim = document.getElementById('kpi-scrim');
-    const inspector = document.getElementById('kpi-inspector');
-    const closeBtn = document.getElementById('kpi-close-btn');
-    const returnBtn = document.getElementById('kpi-return-btn');
-    const tagEl = document.getElementById('kpi-tag');
-    const stepEl = document.getElementById('kpi-step');
-    const titleEl = document.getElementById('kpi-title');
-    const summaryEl = document.getElementById('kpi-summary');
-    const relEl = document.getElementById('kpi-relation');
-    const exEl = document.getElementById('kpi-example');
-    const prevBtn = document.getElementById('kpi-prev-btn');
-    const nextBtn = document.getElementById('kpi-next-btn');
+    // =========================================================================
+    // ACTUALIZACIÓN DE TELEMETRÍA Y ÁRBOL SEGÚN SIMULADOR OTIF
+    // =========================================================================
 
-    if (inspector) {
-      const stageEl = root.querySelector<HTMLElement>('.expandable-stage') || root;
-      const handleEl = inspector.querySelector<HTMLElement>('.expanded-topbar') || inspector;
-      makeCardDraggable({
-        cardEl: inspector,
-        handleEl,
-        boundsEl: stageEl,
-        storageKey: 'opex-drag-page-08',
-      });
+    function updateSimulation(compliantCount: number) {
+      const data = calculateOtif(compliantCount);
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+
+      // 1. Franja de Telemetría Superior
+      if (otifPercentDisplay) otifPercentDisplay.textContent = data.formattedOtif;
+      if (otifRatioDisplay) otifRatioDisplay.textContent = `${data.compliantOrders} de ${TOTAL_WEEKLY_ORDERS} pedidos`;
+      if (otifGapDisplay) {
+        otifGapDisplay.textContent = data.formattedGap;
+        otifGapDisplay.style.color = data.isTargetMet ? (isLight ? '#16a34a' : '#4ade80') : (isLight ? '#b45309' : '#fde68a');
+      }
+
+      if (otifNeededDisplay) {
+        otifNeededDisplay.textContent = data.isTargetMet
+          ? '✓ Meta cumplida'
+          : `Faltan ${data.additionalOrdersNeeded} conformes`;
+      }
+
+      if (otifStatusBadge) {
+        otifStatusBadge.textContent = data.isTargetMet ? 'En meta' : (data.statusLevel === 'near' ? 'Por debajo' : 'Crítico');
+        otifStatusBadge.className = `kpi-t-status-badge is-${data.statusLevel}`;
+      }
+
+      if (otifProgressBar) {
+        otifProgressBar.style.width = `${Math.min(100, Math.max(0, data.otifPercent))}%`;
+        if (data.isTargetMet) {
+          otifProgressBar.style.background = 'linear-gradient(90deg, #16a34a, #4ade80)';
+        } else if (data.statusLevel === 'near') {
+          otifProgressBar.style.background = 'linear-gradient(90deg, #d97706, #fbbf24)';
+        } else {
+          otifProgressBar.style.background = 'linear-gradient(90deg, #dc2626, #f87171)';
+        }
+      }
+
+      // 2. Control deslizante
+      if (slider) {
+        slider.value = String(data.compliantOrders);
+        slider.setAttribute('aria-valuenow', String(data.compliantOrders));
+        slider.setAttribute('aria-valuetext', `${data.compliantOrders} pedidos conformes de 200 (${data.formattedOtif})`);
+      }
+      if (sliderCounterDisplay) {
+        sliderCounterDisplay.textContent = `${data.compliantOrders} / ${TOTAL_WEEKLY_ORDERS}`;
+      }
+
+      // Presets activos
+      presetInitial?.classList.toggle('is-active', data.compliantOrders === INITIAL_COMPLIANT_ORDERS);
+      presetTarget?.classList.toggle('is-active', data.compliantOrders === 192);
+      presetOptimum?.classList.toggle('is-active', data.compliantOrders === TOTAL_WEEKLY_ORDERS);
+
+      // 3. Sincronización en vivo en el Árbol SVG
+      if (svgTreeGapText) {
+        svgTreeGapText.textContent = `BRECHA: ${data.formattedGap}`;
+        svgTreeGapText.style.fill = data.isTargetMet ? (isLight ? '#15803d' : '#6ee7b7') : (isLight ? '#92400e' : '#fde68a');
+      }
+
+      if (svgTreeGapLine) {
+        svgTreeGapLine.style.stroke = data.isTargetMet ? '#22c55e' : (isLight ? '#d97706' : '#f59e0b');
+      }
+
+      if (svgNodeResultVal) svgNodeResultVal.textContent = data.formattedOtif;
+      if (svgNodeResultSub) svgNodeResultSub.textContent = `(${data.compliantOrders} de 200 pedidos)`;
+
+      if (svgNodeResultNote) {
+        if (data.isTargetMet) {
+          svgNodeResultNote.textContent = '✓ Proceso en meta (estabilidad asegurada)';
+          svgNodeResultNote.style.fill = isLight ? '#15803d' : '#6ee7b7';
+        } else {
+          svgNodeResultNote.textContent = `Faltan ${data.additionalOrdersNeeded} pedidos para cerrar la brecha`;
+          svgNodeResultNote.style.fill = isLight ? '#64748b' : '#cbd5e1';
+        }
+      }
+
+      if (svgResultRect) {
+        if (data.isTargetMet) {
+          svgResultRect.style.stroke = '#22c55e';
+          svgResultRect.style.fill = isLight ? '#f0fdf4' : 'rgba(14, 33, 50, 0.94)';
+        } else {
+          svgResultRect.style.stroke = isLight ? '#d97706' : 'rgba(251, 191, 36, 0.55)';
+          svgResultRect.style.fill = isLight ? '#fffbeb' : 'rgba(42, 28, 16, 0.92)';
+        }
+      }
+
+      if (exEl && activeKey === 'resultado') {
+        exEl.textContent = `Semana simulada: ${data.formattedOtif} (${data.compliantOrders} de 200 pedidos conformes). Brecha de ${data.formattedGap} (${data.additionalOrdersNeeded === 0 ? 'meta cumplida' : 'faltan ' + data.additionalOrdersNeeded + ' pedidos conformes'}).`;
+      }
     }
 
-    function getSvgNode(key: string): SVGGElement | null {
-      return root?.querySelector<SVGGElement>(`[data-kpi-target="${key}"]`) ?? null;
-    }
+    // =========================================================================
+    // SELECCIÓN DE NODOS DEL ÁRBOL
+    // =========================================================================
 
-    function populateContent(key: string) {
-      const i = keys.indexOf(key);
-      if (i === -1) return;
-      idx = i;
-      const item = NODES[key];
+    function selectNode(key: string) {
+      if (!NODES[key]) return;
+      activeKey = key;
+      const nodeData = NODES[key];
 
       pills.forEach((p) => {
-        const active = p.getAttribute('data-kpi-node') === key;
-        p.classList.toggle('is-active', active);
-        p.setAttribute('aria-selected', active ? 'true' : 'false');
+        const isSelected = p.getAttribute('data-kpi-node') === key;
+        p.classList.toggle('is-active', isSelected);
+        p.setAttribute('aria-selected', isSelected ? 'true' : 'false');
       });
 
       svgNodes.forEach((n) => {
-        const active = n.getAttribute('data-kpi-target') === key;
-        n.classList.toggle('is-active', active);
-        n.setAttribute('aria-expanded', active && isExpanded ? 'true' : 'false');
+        const isTarget = n.getAttribute('data-kpi-target') === key;
+        n.classList.toggle('is-active', isTarget);
+        n.setAttribute('aria-expanded', isTarget ? 'true' : 'false');
       });
 
-      stripPills.forEach((sp) => {
-        sp.classList.toggle('is-current', sp.getAttribute('data-kpi-strip') === key);
+      if (insightBadge) insightBadge.textContent = nodeData.tag;
+      if (insightText) insightText.textContent = nodeData.insight;
+
+      if (feedbackBanner) {
+        feedbackBanner.textContent = `Nodo activo: ${nodeData.title}. ${nodeData.insight}`;
+      }
+    }
+
+    // =========================================================================
+    // FICHA TÉCNICA EXPANDIBLE (FLIP)
+    // =========================================================================
+
+    function populateModalContent(key: string) {
+      const item = NODES[key];
+      if (!item) return;
+
+      modalPills.forEach((p) => {
+        const isMatch = p.getAttribute('data-modal-pill') === key;
+        p.classList.toggle('is-active', isMatch);
+        p.setAttribute('aria-selected', isMatch ? 'true' : 'false');
       });
 
       if (tagEl) tagEl.textContent = item.tag;
@@ -298,105 +1235,148 @@
       if (titleEl) titleEl.textContent = item.title;
       if (summaryEl) summaryEl.textContent = item.summary;
       if (relEl) relEl.textContent = item.relation;
-      if (exEl) exEl.textContent = item.example;
+      if (exEl) {
+        if (key === 'resultado' && slider) {
+          const currentData = calculateOtif(Number(slider.value));
+          exEl.textContent = `Semana actual: ${currentData.formattedOtif} (${currentData.compliantOrders} de 200 pedidos conformes). Brecha de ${currentData.formattedGap}.`;
+        } else {
+          exEl.textContent = item.example;
+        }
+      }
     }
 
-    function openNode(key: string, originEl?: Element | null) {
+    function openInspector(key: string, originEl?: Element | null) {
       if (!inspector) return;
-      isClosing = false;
-      const resolvedOrigin = (originEl || getSvgNode(key)) as HTMLElement | SVGElement | null;
-      activeOriginEl = resolvedOrigin;
+      selectNode(key);
+      populateModalContent(key);
 
-      const wasAlreadyExpanded = isExpanded;
-      isExpanded = true;
+      const targetOrigin = (originEl || root.querySelector(`[data-kpi-target="${key}"]`) || openInspectorBtn) as HTMLElement;
+      activeOriginEl = targetOrigin;
 
-      populateContent(key);
       root.setAttribute('data-expanded', 'true');
       inspector.hidden = false;
       inspector.setAttribute('aria-hidden', 'false');
       scrim?.setAttribute('aria-hidden', 'false');
 
-      animateFlipOpen(resolvedOrigin, inspector, { durationOpen: wasAlreadyExpanded ? 260 : 360 });
-      if (!wasAlreadyExpanded) {
-        setTimeout(() => {
-          closeBtn?.focus({ preventScroll: true });
-        }, 60);
-      }
+      isExpanded = true;
+      animateFlipOpen(targetOrigin, inspector, { durationOpen: 320 });
+      setTimeout(() => closeBtn?.focus({ preventScroll: true }), 60);
     }
 
-    function closeNode() {
-      if (!isExpanded || isClosing || !inspector) return;
-      isClosing = true;
-
-      const originToReturn = (activeOriginEl || getSvgNode(keys[idx])) as HTMLElement | SVGElement | null;
-
-      animateFlipClose(originToReturn, inspector, { durationClose: 280 }, () => {
-        isExpanded = false;
-        isClosing = false;
+    function closeInspector() {
+      if (!inspector || !isExpanded) return;
+      animateFlipClose(activeOriginEl, inspector, { durationClose: 260 }, () => {
         root.setAttribute('data-expanded', 'false');
         inspector.hidden = true;
         inspector.setAttribute('aria-hidden', 'true');
         scrim?.setAttribute('aria-hidden', 'true');
+        isExpanded = false;
 
-        svgNodes.forEach((n) => n.setAttribute('aria-expanded', 'false'));
-
-        if (originToReturn && 'focus' in originToReturn && typeof (originToReturn as HTMLElement).focus === 'function') {
-          (originToReturn as HTMLElement).focus({ preventScroll: true });
+        if (activeOriginEl && typeof activeOriginEl.focus === 'function') {
+          activeOriginEl.focus({ preventScroll: true });
+        } else {
+          openInspectorBtn?.focus({ preventScroll: true });
         }
       });
     }
 
+    // =========================================================================
+    // LISTENERS DE INTERACCIÓN
+    // =========================================================================
+
+    slider?.addEventListener('input', (e) => {
+      const val = Number((e.target as HTMLInputElement).value);
+      updateSimulation(val);
+      selectNode('resultado');
+    });
+
+    presetInitial?.addEventListener('click', () => {
+      updateSimulation(INITIAL_COMPLIANT_ORDERS);
+      selectNode('resultado');
+    });
+
+    presetTarget?.addEventListener('click', () => {
+      updateSimulation(192);
+      selectNode('meta');
+    });
+
+    presetOptimum?.addEventListener('click', () => {
+      updateSimulation(TOTAL_WEEKLY_ORDERS);
+      selectNode('resultado');
+    });
+
+    resetBtn?.addEventListener('click', () => {
+      updateSimulation(INITIAL_COMPLIANT_ORDERS);
+      selectNode('proposito');
+    });
+
     pills.forEach((p) => {
       p.addEventListener('click', () => {
         const k = p.getAttribute('data-kpi-node');
-        if (k) openNode(k, getSvgNode(k) || p);
+        if (k) selectNode(k);
       });
     });
 
     svgNodes.forEach((n) => {
       n.addEventListener('click', () => {
         const k = n.getAttribute('data-kpi-target');
-        if (k) openNode(k, n);
+        if (k) selectNode(k);
       });
       n.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           const k = n.getAttribute('data-kpi-target');
-          if (k) openNode(k, n);
+          if (k) selectNode(k);
         }
       });
     });
 
-    closeBtn?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      closeNode();
+    modalPills.forEach((p) => {
+      p.addEventListener('click', () => {
+        const k = p.getAttribute('data-modal-pill');
+        if (k) {
+          selectNode(k);
+          populateModalContent(k);
+        }
+      });
     });
 
-    returnBtn?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      closeNode();
+    openInspectorBtn?.addEventListener('click', () => {
+      openInspector(activeKey, openInspectorBtn);
     });
 
-    scrim?.addEventListener('click', () => {
-      closeNode();
-    });
+    closeBtn?.addEventListener('click', closeInspector);
+    returnBtn?.addEventListener('click', closeInspector);
+    scrim?.addEventListener('click', closeInspector);
 
     prevBtn?.addEventListener('click', () => {
-      const nextKey = keys[(idx - 1 + keys.length) % keys.length];
-      openNode(nextKey, getSvgNode(nextKey));
+      const currentIdx = keys.indexOf(activeKey);
+      const nextKey = keys[(currentIdx - 1 + keys.length) % keys.length];
+      openInspector(nextKey, prevBtn);
     });
 
     nextBtn?.addEventListener('click', () => {
-      const nextKey = keys[(idx + 1) % keys.length];
-      openNode(nextKey, getSvgNode(nextKey));
+      const currentIdx = keys.indexOf(activeKey);
+      const nextKey = keys[(currentIdx + 1) % keys.length];
+      openInspector(nextKey, nextBtn);
     });
 
-    document.addEventListener('keydown', (e) => {
+    window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && isExpanded) {
         e.preventDefault();
-        closeNode();
+        closeInspector();
       }
     });
+
+    // Re-render en cambio de tema (claro/oscuro)
+    const observer = new MutationObserver(() => {
+      if (slider) updateSimulation(Number(slider.value));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    // Render inicial
+    updateSimulation(INITIAL_COMPLIANT_ORDERS);
+    selectNode('proposito');
   }
 
   initKpiAlignmentTree();
