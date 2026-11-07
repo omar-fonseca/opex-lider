@@ -1,0 +1,41 @@
+name: OPEX LÍDER — CI Quality & Security Gate
+
+on:
+  push:
+    branches:
+      - integration/v1-interactive-book
+      - main
+      - 'feature/**'
+  pull_request:
+    branches:
+      - integration/v1-interactive-book
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-build:
+    name: Build, Security Audit & Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (>=22.23.4)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies reproducibly
+        run: npm ci
+
+      - name: Security audit (high/critical gate)
+        run: npm audit --audit-level=high
+
+      - name: Build static book (dist/)
+        run: npm run build
+
+      - name: Run unit, route integrity and CSP hash tests
+        run: npm test

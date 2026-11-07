@@ -1,7 +1,7 @@
 # OPEX LÍDER — Estado Oficial del Proyecto (`PROJECT_STATE.md`)
 
-**Última actualización:** 2026-11-04 (Directiva `GOV-01`)
-**Estado:** Línea base integrada y verificada (`INT-01`)
+**Última actualización:** 2026-11-07 (Directiva `RELEASE-01 / Fase 2`)
+**Estado:** Release Candidate verificada con CI y cabeceras Cloudflare (`RELEASE-01`)
 
 ---
 
@@ -11,9 +11,9 @@
 | :--- | :--- |
 | **Repositorio remoto** | `omar-fonseca/opex-lider` (`https://github.com/omar-fonseca/opex-lider.git`) |
 | **Rama integrada vigente** | `integration/v1-interactive-book` |
-| **Commit base integrado (Hito `INT-01`)** | `d8b5dec` (`d8b5dec2b4eab92b2e5fdf433ee1026761a67cc7`) |
+| **Commit Kanban 2.8D integrado (`EDU-UX-02`)** | `fa3e035` (`fa3e035df8a5658055e2a1cb3b1a3403189270f1`) |
 | **Worktree oficial de referencia** | `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration` |
-| **Último hito validado** | `INT-01` — Integración de `UI-01/01.1`, `EDU-UX-01 (Hito A.2)`, `KPI-UX-01/01.1` y `EXP-01 v2.0` sobre la edición de 10 páginas (`00–09`) |
+| **Último hito validado** | `RELEASE-01 / Fase 2` — Integración de `EDU-UX-02` (Kanban 2.8D), correcciones de estabilidad en `KpiAlignmentTree.astro` y `BaseLayout.astro`, suite de pruebas `node:test`, pipeline CI en `.github/workflows/ci.yml` y cabeceras `public/_headers` con CSP por hash SHA-256 |
 
 > [!IMPORTANT]
 > No utilizar `refine_ui_ux_v2` (`966083d`) ni ramas de funcionalidades aisladas ya fusionadas como punto de partida para nuevos desarrollos. Todo trabajo de integración parte de `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration` en la rama `integration/v1-interactive-book`.
@@ -61,7 +61,7 @@
 | **04 · Anatomía de un proceso** | `/anatomia-proceso` | `ProcessAnatomyFlow.astro` | Flujo interactivo de 5 etapas (*Entrada, Actividades, Transformación, Salida, Retroalimentación*) con aproximación de cámara SVG, pulso viajero y tarjeta FLIP con subdiagrama vectorial. |
 | **05 · Gestión visual** | `/gestion-visual` | `VisualManagementBoard.astro` | Tablero físico realista de piso (bastidor 2.5D) con 5 zonas clicables (`Z1–Z5`), pulso horario, matriz SQDC, semáforos y tarjeta técnica FLIP desplazable (`#vm-inspector`). |
 | **06 · Kanban: concepto y señal** | `/kanban-concepto` | `KanbanPullSystem.astro` | Circuito cerrado de señal Pull de 4 momentos (*Consumo real, Señal Kanban, Producción sincronizada, Físico vs. Flujo*) con tarjeta explicativa FLIP (`#kb-inspector`). |
-| **07 · Tablero Kanban y flujo** | `/kanban-flujo` | `KanbanWipSimulator.astro` | **Modernizado (`EDU-UX-01 Hito A.2`):** Tablero físico digital 2.5D para pedido de `1.000 barras (20 lotes de 50)`, notas adhesivas táctiles por tipo de trabajo, control estricto de límite **WIP `2 / 2 MÁX`** con alerta interactiva, bandeja flotante de trazabilidad (`📁 Archivo`), inspector de lote y diagnóstico técnico `[M1–M4]`. |
+| **07 · Tablero Kanban y flujo** | `/kanban-flujo` | `KanbanWipSimulator.astro` | **Modernizado (`EDU-UX-02`):** Tablero físico digital 2.8D para pedido de `1.000 barras (20 lotes de 50)`, notas adhesivas físicas con textura de papel y chincheta, vuelo espacial parabólico FLIP entre columnas, control estricto **WIP `2 / 2 MÁX`**, inspector expandible FLIP de lote, bandeja flotante de archivo (`📁 Archivo`) y rigor metodológico de 4 tarjetas. |
 | **08 · KPI: medir lo importante** | `/kpi-concepto` | `KpiAlignmentTree.astro` | **Modernizado (`KPI-UX-01.1`):** Franja superior compacta de telemetría con **simulador interactivo OTIF en tiempo real** (*slider* `140–200` pedidos y *presets* `183`, `192`, `200`), sincronizado en vivo con el **Árbol SVG Hero** de 5 niveles y su ficha técnica `[01–05]`. |
 | **09 · KPI en la gestión diaria** | `/kpi-gestion-diaria` | `DailyKpiRoutineFlow.astro` | Flujo de 5 pasos de rutina diaria (*Observar KPI, Detectar desvío, Verificar en Gemba, Coordinar acción, Seguimiento*) separando plano del tablero y plano del terreno, con tarjeta FLIP (`#dk-inspector`) y síntesis de cierre de la edición. |
 
