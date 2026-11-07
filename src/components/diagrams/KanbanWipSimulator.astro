@@ -1,7 +1,7 @@
 ---
-// Página 07 — Tablero Kanban físico digital (EDU-UX-01 - Hito A.2)
-// Refinamiento del tablero: notas adhesivas 2.5D, FLIP nativo, bandeja de trazabilidad flotante,
-// corrección de alerta WIP 0/2 y preservación del modelo de 1.000 barras y diagnósticos M1–M4.
+// Página 07 — Tablero Kanban físico digital en 2.8D (EDU-UX-02)
+// Notas adhesivas físicas digitales (Amarillo, Rosado, Cian), animaciones espaciales FLIP,
+// narrativa operacional rigurosa y trazabilidad real de los 20 lotes (1.000 barras).
 ---
 
 <div class="expandable-workbench" id="kanban-wip-workbench" data-expanded="false">
@@ -9,16 +9,16 @@
   <div class="expandable-header">
     <div class="canvas-Topline">
       <div class="kb-header-meta">
-        <span class="canvas-kicker">TABLERO FÍSICO DIGITAL · APRENDIZAJE VISUAL KANBAN</span>
+        <span class="canvas-kicker">TABLERO FÍSICO DIGITAL 2.8D · FLUJO PULL Y POLÍTICA WIP</span>
         <span class="canvas-hint" id="wip-feedback-banner" role="status" aria-live="polite">
-          Haz clic en una nota para inspeccionar su trayectoria, o pulsa «Iniciar lote (Jalar)» para avanzar el flujo.
+          Haz clic en cualquier nota adhesiva para inspeccionar su orden y trayectoria, o pulsa «Iniciar lote (Jalar)» para avanzar el flujo.
         </span>
       </div>
       <div class="kb-header-actions">
         <button type="button" class="kb-action-btn kb-reset-btn" id="kb-reset-btn" title="Restaurar el pedido al estado inicial (50 barras listas, 950 pendientes)">
           <span aria-hidden="true">↺</span> Reiniciar pedido
         </button>
-        <button type="button" class="kb-action-btn kb-history-btn" id="kb-open-tray-btn" aria-haspopup="dialog" title="Consultar la bandeja de trabajos terminados">
+        <button type="button" class="kb-action-btn kb-history-btn" id="kb-open-tray-btn" aria-haspopup="dialog" title="Consultar el archivo de lotes terminados con trazabilidad completa">
           <span aria-hidden="true">📁</span> Archivo (<span id="tray-count-badge">1</span>)
         </button>
         <button type="button" class="kb-action-btn kb-tech-btn" id="wip-open-detail-btn" aria-haspopup="dialog" title="Abrir análisis técnico profundo del flujo (M1–M4)">
@@ -29,7 +29,7 @@
   </div>
 
   <div class="expandable-stage">
-    <!-- Lienzo del Tablero Físico en 2.5D -->
+    <!-- Lienzo del Tablero Físico en 2.8D -->
     <div class="expandable-canvas-wrap kb-physical-board-wrap" id="kb-physical-board-wrap">
 
       <!-- Barra superior de telemetría del pedido del cliente: 1.000 barras en 20 lotes de 50 -->
@@ -37,11 +37,11 @@
         <div class="kb-telemetry-item">
           <span class="kb-telemetry-label">PEDIDO CLIENTE</span>
           <strong class="kb-telemetry-val">1.000 barras</strong>
-          <span class="kb-telemetry-sub">20 lotes de 50</span>
+          <span class="kb-telemetry-sub">20 lotes de 50 barras</span>
         </div>
         <div class="kb-telemetry-divider" aria-hidden="true"></div>
         <div class="kb-telemetry-item">
-          <span class="kb-telemetry-label">POR INICIAR (COLA)</span>
+          <span class="kb-telemetry-label">POR INICIAR (PENDIENTE)</span>
           <strong class="kb-telemetry-val" id="telemetry-pending-bars">950 barras</strong>
           <span class="kb-telemetry-sub" id="telemetry-pending-lots">19 lotes pendientes</span>
         </div>
@@ -53,7 +53,7 @@
         </div>
         <div class="kb-telemetry-divider" aria-hidden="true"></div>
         <div class="kb-telemetry-item">
-          <span class="kb-telemetry-label">COMPLETADAS</span>
+          <span class="kb-telemetry-label">TERMINADAS</span>
           <strong class="kb-telemetry-val kb-val-success" id="telemetry-done-bars">50 barras</strong>
           <span class="kb-telemetry-sub" id="telemetry-done-lots">1 lote entregado</span>
         </div>
@@ -63,9 +63,9 @@
       <div class="kb-wip-alert-toast" id="kb-wip-alert-toast" role="alert" hidden aria-hidden="true">
         <div class="kb-alert-icon-wrap" aria-hidden="true">⛔</div>
         <div class="kb-alert-body">
-          <strong class="kb-alert-headline">TOPE WIP ALCANZADO (2 / 2 LOTES MÁX)</strong>
+          <strong class="kb-alert-headline">RESTRICCIÓN DE CAPACIDAD: TOPE WIP ALCANZADO (2 / 2 LOTES MÁX)</strong>
           <p class="kb-alert-text" id="kb-alert-text">
-            El sistema impide ingresar más trabajo para evitar sobreproducción y congestión. Regla de oro de Kanban: <em>«Deja de empezar y empieza a terminar»</em>. Completa un lote en proceso para liberar cupo.
+            La política explícita de esta celda impide iniciar un 3.er lote cuando las 2 estaciones están ocupadas (100 barras en curso). Regla operativa Kanban: <em>«Deja de empezar y empieza a terminar»</em>. Pulsa <strong>«Terminar lote»</strong> en la columna central para liberar 1 cupo Pull.
           </p>
         </div>
         <button type="button" class="kb-alert-dismiss" id="kb-alert-dismiss" aria-label="Cerrar advertencia de límite WIP" title="Cerrar advertencia">✕</button>
@@ -81,10 +81,13 @@
               <span class="kb-col-pill">01</span>
               <h3 class="kb-col-title">Pendiente</h3>
             </div>
-            <span class="kb-col-counter" id="col-pending-counter">19 por iniciar</span>
+            <span class="kb-col-counter" id="col-pending-counter">19 por iniciar (950 barras)</span>
           </div>
+          <p class="kb-col-policy-cue">
+            Cola de órdenes liberadas. Esperan señal <em>Pull</em> (cupo libre en WIP) antes de ingresar a planta.
+          </p>
           <div class="kb-card-slot kb-slot-pending" id="slot-pending" aria-label="Ranura de lotes pendientes">
-            <!-- Nota adhesiva visible al frente de la cola -->
+            <!-- Notas adhesivas visibles al frente de la cola -->
           </div>
           <div class="kb-col-footer-action">
             <button type="button" class="kb-step-btn kb-btn-primary" id="btn-start-lot" title="Jalar el siguiente lote hacia En Proceso">
@@ -102,6 +105,9 @@
             </div>
             <span class="kb-wip-tag" id="col-wip-tag">WIP: 0 / 2 MÁX</span>
           </div>
+          <p class="kb-col-policy-cue">
+            Política explícita de esta celda: <strong>máx. 2 lotes activos</strong> (2 estaciones CNC) para evitar colas ocultas.
+          </p>
           <div class="kb-cards-stack-slot" id="slot-process" aria-label="Ranura de trabajos en proceso">
             <!-- 2 Ranuras fijas para notas en proceso o espacios disponibles -->
           </div>
@@ -121,6 +127,9 @@
             </div>
             <span class="kb-col-counter" id="col-done-counter">1 completado (50 barras)</span>
           </div>
+          <p class="kb-col-policy-cue">
+            Lotes liberados con calidad conforme. Cada salida libera 1 cupo WIP y se archiva con trazabilidad total.
+          </p>
           <div class="kb-card-slot kb-slot-done" id="slot-done" aria-label="Ranura de última orden terminada">
             <!-- Última nota terminada con sello conforme -->
           </div>
@@ -133,26 +142,31 @@
 
       </div>
 
-      <!-- Leyenda de colores con significado por TIPO DE TRABAJO -->
-      <div class="kb-color-legend" aria-label="Significado de los colores de las notas adhesivas según tipo de trabajo">
-        <span class="kb-legend-title">TIPO DE TRABAJO (COLOR DE LA NOTA):</span>
-        <div class="kb-legend-item">
-          <span class="kb-swatch kb-swatch-yellow" aria-hidden="true"></span>
-          <span>Mecanizado estándar (50 barras)</span>
+      <!-- Leyenda de colores físicos (Amarillo, Rosado, Cian) y rigor metodológico Kanban -->
+      <div class="kb-board-footer-meta">
+        <div class="kb-color-legend" aria-label="Significado de los tres colores de papel de las notas adhesivas">
+          <span class="kb-legend-title">CÓDIGO CROMÁTICO DE LA NOTA FÍSICA:</span>
+          <div class="kb-legend-item">
+            <span class="kb-swatch kb-swatch-yellow" aria-hidden="true"></span>
+            <span><strong>Amarillo:</strong> Mecanizado estándar (50 barras)</span>
+          </div>
+          <div class="kb-legend-item">
+            <span class="kb-swatch kb-swatch-pink" aria-hidden="true"></span>
+            <span><strong>Rosado:</strong> Prioridad alta / Urgente (50 barras)</span>
+          </div>
+          <div class="kb-legend-item">
+            <span class="kb-swatch kb-swatch-cyan" aria-hidden="true"></span>
+            <span><strong>Cian:</strong> Tratamiento e inspección (50 barras)</span>
+          </div>
         </div>
-        <div class="kb-legend-item">
-          <span class="kb-swatch kb-swatch-orange" aria-hidden="true"></span>
-          <span>Prioridad alta / Cliente urgente (50 barras)</span>
-        </div>
-        <div class="kb-legend-item">
-          <span class="kb-swatch kb-swatch-green" aria-hidden="true"></span>
-          <span>Tratamiento térmico / Inspección especial (50 barras)</span>
-        </div>
+        <p class="kb-methodology-note">
+          <strong>Nota metodológica:</strong> Un tablero Kanban real modela las etapas específicas de cada proceso (no consta universalmente de 3 columnas) y el límite <strong>WIP = 2</strong> es una política explícita configurada para la capacidad de esta celda, no una constante fija.
+        </p>
       </div>
 
     </div>
 
-    <!-- Velo azulado semitransparente (scrim) para modales flotantes -->
+    <!-- Velo semitransparente con desenfoque suave para inspección flotante -->
     <div class="kb-floating-scrim" id="kb-floating-scrim" aria-hidden="true" hidden></div>
 
     <!-- BANDEJA DE TRAZABILIDAD (DRAWER FLOTANTE DE HISTORIAL) -->
@@ -168,14 +182,14 @@
       <div class="kb-tray-header">
         <div>
           <span class="inspector-tag">REGISTRO DE SALIDAS Y TRAZABILIDAD</span>
-          <h3 class="kb-tray-title" id="tray-drawer-title">Bandeja de Trabajos Terminados</h3>
+          <h3 class="kb-tray-title" id="tray-drawer-title">Archivo de Lotes Terminados</h3>
         </div>
-        <button type="button" class="expanded-close-btn" id="kb-tray-close-btn" aria-label="Cerrar bandeja de terminados" title="Cerrar (Escape)">
+        <button type="button" class="expanded-close-btn" id="kb-tray-close-btn" aria-label="Cerrar archivo de terminados" title="Cerrar (Escape)">
           ✕ Cerrar
         </button>
       </div>
       <p class="kb-tray-desc">
-        Ninguna orden se pierde: cada nota adhesiva completada conserva su código, tipo de trabajo y sello de calidad conforme.
+        Trazabilidad completa: cada lote conserva su identificador, color de tarjeta física, tarea ejecutada y sello de liberación. Haz clic en cualquier lote archivado para inspeccionar su ficha.
       </p>
       <div class="kb-tray-summary-bar">
         <span>Total entregado: <strong id="tray-sum-bars">50</strong> barras</span>
@@ -186,19 +200,20 @@
       </div>
     </aside>
 
-    <!-- INSPECTOR DETALLADO DE NOTA ADHESIVA (TRAYECTORIA Y DETALLE) -->
+    <!-- INSPECTOR DETALLADO DE NOTA ADHESIVA (APERTURA ESPACIAL FLIP + IDENTIDAD CROMÁTICA) -->
     <aside
       class="kb-note-inspector"
       id="kb-note-inspector"
       role="dialog"
       aria-modal="true"
       aria-labelledby="note-inspector-title"
+      data-note-color="yellow"
       hidden
       aria-hidden="true"
     >
       <div class="kb-note-inspector-header">
         <div>
-          <span class="inspector-tag" id="note-insp-tag">NOTA KANBAN · LOT-02</span>
+          <span class="inspector-tag" id="note-insp-tag">TARJETA KANBAN · LOT-02</span>
           <h3 class="kb-tray-title" id="note-inspector-title">Detalle de la Orden de Producción</h3>
         </div>
         <button type="button" class="expanded-close-btn" id="kb-note-close-btn" aria-label="Cerrar detalle de la nota" title="Cerrar (Escape)">
@@ -207,8 +222,19 @@
       </div>
 
       <div class="kb-note-inspector-body">
-        <div class="kb-note-card-preview" id="note-insp-preview">
-          <!-- Vista previa de la nota -->
+        <div class="kb-note-preview-row">
+          <div class="kb-note-card-preview" id="note-insp-preview">
+            <!-- Vista previa táctil de la nota física -->
+          </div>
+          <div class="kb-note-operational-context">
+            <span class="kb-context-kicker" id="note-insp-color-label">PAPEL AMARILLO · MECANIZADO ESTÁNDAR</span>
+            <p class="kb-context-spec" id="note-insp-spec-desc">
+              Corte cilíndrico de barras Ø50 mm en torno CNC bajo tolerancia ±0.02 mm.
+            </p>
+            <div class="kb-context-meaning" id="note-insp-stage-meaning">
+              <!-- Explicación contextual de su estado actual -->
+            </div>
+          </div>
         </div>
 
         <div class="kb-note-spec-grid">
@@ -217,21 +243,21 @@
             <strong id="note-insp-qty">50 barras de acero</strong>
           </div>
           <div class="inspector-detail-box">
-            <span>TIPO DE TRABAJO</span>
-            <strong id="note-insp-type">Mecanizado estándar</strong>
+            <span>FAMILIA / SEÑAL DE COLOR</span>
+            <strong id="note-insp-type">Mecanizado estándar (Amarillo)</strong>
           </div>
           <div class="inspector-detail-box">
-            <span>ESTADO ACTUAL</span>
+            <span>ESTADO EN EL FLUJO</span>
             <strong id="note-insp-status">En cola (Pendiente)</strong>
           </div>
           <div class="inspector-detail-box">
-            <span>CRITERIO DE CALIDAD</span>
-            <strong>Tolerancia ±0.02 mm · Inspección 100%</strong>
+            <span>ESTÁNDAR TÉCNICO Y CICLO</span>
+            <strong id="note-insp-cycle">Tolerancia ±0.02 mm · 45 min/lote</strong>
           </div>
         </div>
 
         <div class="kb-trajectory-box">
-          <span class="kb-trajectory-label">TRAYECTORIA DEL LOTE EN EL FLUJO:</span>
+          <span class="kb-trajectory-label">TRAYECTORIA Y TRAZABILIDAD DEL LOTE EN EL PROCESO:</span>
           <div class="kb-trajectory-steps" id="note-insp-trajectory">
             <!-- Pasos de trayectoria -->
           </div>
@@ -240,10 +266,10 @@
         <div class="expanded-leader-box">
           <div class="leader-box-header">
             <span class="leader-box-icon" aria-hidden="true">💡</span>
-            <span class="leader-box-title">REGLA OPEX DE LA TARJETA FÍSICA</span>
+            <span class="leader-box-title">FUNCIÓN DE LA TARJETA KANBAN EN PLANTA</span>
           </div>
           <p class="leader-box-quote">
-            «La nota adhesiva Kanban no es un recordatorio pasivo: es la orden física de fabricación. Nadie produce sin tarjeta, y nadie acumula más tarjetas que el límite autorizado. La tarjeta viaja con el lote hasta la entrega.»
+            «En la nota adhesiva física sólo escribimos lo esencial para leer el flujo a tres metros de distancia (lote, tarea corta, cantidad y estado). Al acercarnos a inspeccionar la orden, verificamos su especificación técnica, la política WIP de la estación y su historial completo.»
           </p>
         </div>
       </div>
@@ -303,7 +329,7 @@
             <span class="status-badge is-ok" id="wip-magnified-badge">Flujo balanceado</span>
           </div>
           <div class="expanded-magnified-copy" id="wip-magnified-copy">
-            <strong>3 órdenes en curso (Límite total: 4):</strong> Preparación (2/2 MÁX) · Ejecución (1/2 MÁX, 1 cupo libre) · Completado (1 entregada).
+            <strong>Capacidad balanceada:</strong> 1 lote completado (50 barras) · hasta 2 lotes en proceso (100 barras) · cola sincronizada por jalón.
           </div>
         </div>
 
@@ -318,13 +344,13 @@
           <div class="inspector-detail-box">
             <span>¿QUÉ OCURRE EN EL FLUJO?</span>
             <p id="wip-flow-note">
-              Preparación tiene 2 órdenes activas (en su límite de 2) y Ejecución tiene 1 orden activa (con 1 cupo libre para recibir trabajo).
+              Pendiente mantiene la cola ordenada; En proceso respeta estrictamente el tope configurado de 2 lotes simultáneos.
             </p>
           </div>
           <div class="inspector-detail-box">
             <span>ACCIÓN DEL LÍDER</span>
             <p id="wip-leader-note">
-              Supervisar que nadie inicie una tercera orden en Preparación hasta que Ejecución termine su tarea y jale la siguiente.
+              Supervisar que nadie inicie un tercer lote en la celda hasta que una estación termine su orden y libere un cupo Pull.
             </p>
           </div>
         </div>
@@ -346,60 +372,65 @@
   </div>
 </div>
 
-<style>
+<style is:global>
   /* =========================================================================
-     ESTILOS DEL TABLERO FÍSICO DIGITAL 2.5D (EDU-UX-01 - Hito A.2)
+     ESTILOS DEL TABLERO FÍSICO DIGITAL 2.8D (EDU-UX-02)
+     Acotados estrictamente a #kanban-wip-workbench para aplicar tanto al HTML
+     estático como a las notas adhesivas creadas dinámicamente en el DOM.
      ========================================================================= */
 
-  /* REGLA CRUCIAL DE OCULTAMIENTO: [hidden] debe tener display: none !important */
-  .kb-wip-alert-toast[hidden],
-  .kb-floating-scrim[hidden],
-  .kb-tray-drawer[hidden],
-  .kb-note-inspector[hidden],
-  .expanded-editorial-card[hidden],
-  .expandable-scrim[hidden] {
+  #kanban-wip-workbench .kb-wip-alert-toast[hidden],
+  #kanban-wip-workbench .kb-floating-scrim[hidden],
+  #kanban-wip-workbench .kb-tray-drawer[hidden],
+  #kanban-wip-workbench .kb-note-inspector[hidden],
+  #kanban-wip-workbench .expanded-editorial-card[hidden],
+  #kanban-wip-workbench .expandable-scrim[hidden] {
     display: none !important;
   }
 
-  .kb-physical-board-wrap {
+  #kanban-wip-workbench .kb-physical-board-wrap {
     position: relative;
     padding: 24px;
-    background: radial-gradient(circle at 50% 10%, rgba(30, 41, 59, 0.45), transparent 70%),
-                var(--surface-sunken, #080f1e);
+    background:
+      radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.08), transparent 65%),
+      linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(9, 15, 29, 0.99) 100%);
     border: 1px solid var(--line, #1e293b);
     border-radius: 16px;
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
-    min-height: 520px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      inset 0 2px 10px rgba(0, 0, 0, 0.45);
+    min-height: 560px;
   }
 
-  html[data-theme="light"] .kb-physical-board-wrap {
-    background: radial-gradient(circle at 50% 10%, rgba(226, 232, 240, 0.6), transparent 70%),
-                #f8fafc;
+  html[data-theme="light"] #kanban-wip-workbench .kb-physical-board-wrap {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.07), transparent 65%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
     border-color: #cbd5e1;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+    box-shadow: inset 0 2px 6px rgba(15, 23, 42, 0.04);
   }
 
   /* Acciones de la cabecera */
-  .kb-header-meta {
+  #kanban-wip-workbench .kb-header-meta {
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
 
-  .kb-header-actions {
+  #kanban-wip-workbench .kb-header-actions {
     display: flex;
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
   }
 
-  .kb-action-btn {
+  #kanban-wip-workbench .kb-action-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     font-size: 0.78rem;
     font-weight: 700;
-    padding: 6px 12px;
+    padding: 7px 12px;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -408,172 +439,172 @@
     color: var(--text-secondary, #94a3b8);
   }
 
-  .kb-action-btn:hover {
+  #kanban-wip-workbench .kb-action-btn:hover {
     border-color: var(--accent-strong, #38bdf8);
     color: var(--text-primary, #f8fafc);
     transform: translateY(-1px);
   }
 
-  .kb-action-btn:focus-visible {
+  #kanban-wip-workbench .kb-action-btn:focus-visible {
     outline: 2px solid var(--accent-strong, #38bdf8);
     outline-offset: 2px;
   }
 
-  html[data-theme="light"] .kb-action-btn {
+  html[data-theme="light"] #kanban-wip-workbench .kb-action-btn {
     background: #ffffff;
     border-color: #cbd5e1;
-    color: #475569;
+    color: #334155;
   }
 
-  html[data-theme="light"] .kb-action-btn:hover {
+  html[data-theme="light"] #kanban-wip-workbench .kb-action-btn:hover {
     border-color: var(--accent-strong, #0284c7);
     color: #0f172a;
     background: #f1f5f9;
   }
 
-  .kb-history-btn {
-    border-color: var(--accent-border, rgba(56, 189, 248, 0.4));
+  #kanban-wip-workbench .kb-history-btn {
+    border-color: var(--accent-border, rgba(56, 189, 248, 0.45));
     color: var(--accent-text, #38bdf8);
   }
 
   /* Telemetría superior del pedido */
-  .kb-order-telemetry {
+  #kanban-wip-workbench .kb-order-telemetry {
     display: grid;
     grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
     align-items: center;
-    background: rgba(15, 23, 42, 0.75);
+    background: rgba(15, 23, 42, 0.82);
     border: 1px solid var(--line, #334155);
     border-radius: 12px;
     padding: 12px 18px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     backdrop-filter: blur(8px);
   }
 
-  html[data-theme="light"] .kb-order-telemetry {
+  html[data-theme="light"] #kanban-wip-workbench .kb-order-telemetry {
     background: #ffffff;
     border-color: #cbd5e1;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 10px -2px rgba(15, 23, 42, 0.06);
   }
 
-  .kb-telemetry-item {
+  #kanban-wip-workbench .kb-telemetry-item {
     display: flex;
     flex-direction: column;
     gap: 2px;
   }
 
-  .kb-telemetry-label {
+  #kanban-wip-workbench .kb-telemetry-label {
     font-size: 0.65rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     color: var(--text-muted, #64748b);
   }
 
-  html[data-theme="light"] .kb-telemetry-label {
-    color: #64748b;
+  html[data-theme="light"] #kanban-wip-workbench .kb-telemetry-label {
+    color: #475569;
   }
 
-  .kb-telemetry-val {
+  #kanban-wip-workbench .kb-telemetry-val {
     font-size: 1.15rem;
     font-weight: 800;
     color: var(--text-primary, #f8fafc);
     font-variant-numeric: tabular-nums;
   }
 
-  html[data-theme="light"] .kb-telemetry-val {
+  html[data-theme="light"] #kanban-wip-workbench .kb-telemetry-val {
     color: #0f172a;
   }
 
-  .kb-val-success {
+  #kanban-wip-workbench .kb-val-success {
     color: #4ade80 !important;
   }
 
-  html[data-theme="light"] .kb-val-success {
-    color: #16a34a !important;
+  html[data-theme="light"] #kanban-wip-workbench .kb-val-success {
+    color: #15803d !important;
   }
 
-  .kb-telemetry-sub {
-    font-size: 0.72rem;
+  #kanban-wip-workbench .kb-telemetry-sub {
+    font-size: 0.73rem;
     color: var(--text-secondary, #94a3b8);
   }
 
-  html[data-theme="light"] .kb-telemetry-sub {
+  html[data-theme="light"] #kanban-wip-workbench .kb-telemetry-sub {
     color: #475569;
   }
 
-  .kb-wip-sub-badge {
+  #kanban-wip-workbench .kb-wip-sub-badge {
     color: var(--accent-text, #38bdf8);
-    font-weight: 700;
+    font-weight: 800;
   }
 
-  .kb-telemetry-divider {
+  #kanban-wip-workbench .kb-telemetry-divider {
     width: 1px;
-    height: 32px;
+    height: 34px;
     background: var(--line, #334155);
-    margin: 0 12px;
+    margin: 0 14px;
   }
 
-  html[data-theme="light"] .kb-telemetry-divider {
+  html[data-theme="light"] #kanban-wip-workbench .kb-telemetry-divider {
     background: #e2e8f0;
   }
 
-  /* Alerta visual de límite WIP (Toast interactivo) */
-  .kb-wip-alert-toast {
+  /* Alerta visual de límite WIP */
+  #kanban-wip-workbench .kb-wip-alert-toast {
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    background: rgba(127, 29, 29, 0.95);
+    background: linear-gradient(135deg, rgba(127, 29, 29, 0.96), rgba(69, 10, 10, 0.96));
     border: 1.5px solid #ef4444;
     border-radius: 12px;
-    padding: 12px 16px;
+    padding: 13px 16px;
     color: #fee2e2;
-    margin-bottom: 20px;
-    box-shadow: 0 12px 30px rgba(239, 68, 68, 0.25);
-    animation: toastSlideDown 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-bottom: 18px;
+    box-shadow: 0 14px 32px rgba(239, 68, 68, 0.28);
+    animation: kbToastSlideDown 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  html[data-theme="light"] .kb-wip-alert-toast {
+  html[data-theme="light"] #kanban-wip-workbench .kb-wip-alert-toast {
     background: #fef2f2;
     border-color: #dc2626;
     color: #991b1b;
-    box-shadow: 0 12px 24px rgba(220, 38, 38, 0.12);
+    box-shadow: 0 12px 24px rgba(220, 38, 38, 0.14);
   }
 
-  .kb-alert-icon-wrap {
+  #kanban-wip-workbench .kb-alert-icon-wrap {
     font-size: 1.4rem;
     line-height: 1;
     flex-shrink: 0;
   }
 
-  .kb-alert-body {
+  #kanban-wip-workbench .kb-alert-body {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 4px;
   }
 
-  .kb-alert-headline {
-    font-size: 0.85rem;
+  #kanban-wip-workbench .kb-alert-headline {
+    font-size: 0.84rem;
     font-weight: 800;
     letter-spacing: 0.04em;
     color: #fecaca;
   }
 
-  html[data-theme="light"] .kb-alert-headline {
+  html[data-theme="light"] #kanban-wip-workbench .kb-alert-headline {
     color: #991b1b;
   }
 
-  .kb-alert-text {
+  #kanban-wip-workbench .kb-alert-text {
     font-size: 0.82rem;
-    line-height: 1.4;
+    line-height: 1.45;
     margin: 0;
     color: #fee2e2;
   }
 
-  html[data-theme="light"] .kb-alert-text {
+  html[data-theme="light"] #kanban-wip-workbench .kb-alert-text {
     color: #7f1d1d;
   }
 
-  .kb-alert-dismiss {
+  #kanban-wip-workbench .kb-alert-dismiss {
     background: transparent;
     border: none;
     color: #fca5a5;
@@ -584,24 +615,19 @@
     transition: all 0.15s ease;
   }
 
-  .kb-alert-dismiss:hover {
+  #kanban-wip-workbench .kb-alert-dismiss:hover {
     background: rgba(255, 255, 255, 0.15);
     color: #ffffff;
   }
 
-  html[data-theme="light"] .kb-alert-dismiss {
+  html[data-theme="light"] #kanban-wip-workbench .kb-alert-dismiss {
     color: #991b1b;
   }
 
-  html[data-theme="light"] .kb-alert-dismiss:hover {
-    background: #fee2e2;
-    color: #7f1d1d;
-  }
-
-  @keyframes toastSlideDown {
+  @keyframes kbToastSlideDown {
     from {
       opacity: 0;
-      transform: translateY(-12px);
+      transform: translateY(-10px);
     }
     to {
       opacity: 1;
@@ -610,61 +636,82 @@
   }
 
   /* Superficie del Tablero y Columnas */
-  .kb-board-surface {
+  #kanban-wip-workbench .kb-board-surface {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 20px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
-  .kb-column {
+  #kanban-wip-workbench .kb-column {
     display: flex;
     flex-direction: column;
-    background: var(--surface-card, #0c182e);
+    background:
+      linear-gradient(180deg, rgba(30, 41, 59, 0.55) 0%, rgba(15, 23, 42, 0.85) 100%);
     border: 1.5px solid var(--line, #1e293b);
     border-radius: 14px;
     padding: 16px;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
-    min-height: 380px;
+    box-shadow:
+      0 12px 26px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    min-height: 430px;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
-  html[data-theme="light"] .kb-column {
+  html[data-theme="light"] #kanban-wip-workbench .kb-column {
     background: #ffffff;
     border-color: #cbd5e1;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
   }
 
-  .kb-column-wip {
-    border-color: var(--accent-border, rgba(56, 189, 248, 0.4));
-    background: linear-gradient(180deg, rgba(56, 189, 248, 0.04) 0%, var(--surface-card, #0c182e) 100%);
+  #kanban-wip-workbench .kb-column-wip {
+    border-color: var(--accent-border, rgba(56, 189, 248, 0.45));
+    background:
+      linear-gradient(180deg, rgba(56, 189, 248, 0.07) 0%, rgba(15, 23, 42, 0.88) 100%);
   }
 
-  html[data-theme="light"] .kb-column-wip {
-    background: linear-gradient(180deg, rgba(2, 132, 199, 0.04) 0%, #ffffff 100%);
+  html[data-theme="light"] #kanban-wip-workbench .kb-column-wip {
+    background: linear-gradient(180deg, rgba(2, 132, 199, 0.05) 0%, #ffffff 100%);
     border-color: var(--accent-strong, #0284c7);
   }
 
-  .kb-column-header {
+  #kanban-wip-workbench .kb-column-wip.is-wip-full {
+    border-color: rgba(239, 68, 68, 0.65);
+    box-shadow: 0 12px 28px rgba(239, 68, 68, 0.14);
+  }
+
+  #kanban-wip-workbench .kb-column-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: 12px;
+    gap: 8px;
+    padding-bottom: 10px;
     border-bottom: 1px solid var(--line, #1e293b);
-    margin-bottom: 16px;
+    margin-bottom: 8px;
   }
 
-  html[data-theme="light"] .kb-column-header {
+  html[data-theme="light"] #kanban-wip-workbench .kb-column-header {
     border-bottom-color: #e2e8f0;
   }
 
-  .kb-col-title-wrap {
+  #kanban-wip-workbench .kb-col-policy-cue {
+    font-size: 0.73rem;
+    line-height: 1.38;
+    color: var(--text-secondary, #94a3b8);
+    margin: 0 0 12px 0;
+  }
+
+  html[data-theme="light"] #kanban-wip-workbench .kb-col-policy-cue {
+    color: #475569;
+  }
+
+  #kanban-wip-workbench .kb-col-title-wrap {
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
-  .kb-col-pill {
+  #kanban-wip-workbench .kb-col-pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -678,53 +725,54 @@
     color: var(--text-secondary, #94a3b8);
   }
 
-  html[data-theme="light"] .kb-col-pill {
+  html[data-theme="light"] #kanban-wip-workbench .kb-col-pill {
     background: #f1f5f9;
     border-color: #cbd5e1;
     color: #475569;
   }
 
-  .kb-col-title {
-    font-size: 0.95rem;
+  #kanban-wip-workbench .kb-col-title {
+    font-size: 0.96rem;
     font-weight: 800;
     color: var(--text-primary, #f8fafc);
     margin: 0;
   }
 
-  html[data-theme="light"] .kb-col-title {
+  html[data-theme="light"] #kanban-wip-workbench .kb-col-title {
     color: #0f172a;
   }
 
-  .kb-col-counter {
+  #kanban-wip-workbench .kb-col-counter {
     font-size: 0.72rem;
     font-weight: 700;
-    color: var(--text-muted, #64748b);
+    color: var(--text-secondary, #94a3b8);
   }
 
-  html[data-theme="light"] .kb-col-counter {
-    color: #64748b;
+  html[data-theme="light"] #kanban-wip-workbench .kb-col-counter {
+    color: #475569;
   }
 
-  .kb-wip-tag {
+  #kanban-wip-workbench .kb-wip-tag {
     font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: 0.04em;
-    padding: 3px 8px;
+    padding: 3px 9px;
     border-radius: 6px;
     background: var(--accent-subtle, rgba(56, 189, 248, 0.15));
-    border: 1px solid var(--accent-border, rgba(56, 189, 248, 0.4));
+    border: 1px solid var(--accent-border, rgba(56, 189, 248, 0.45));
     color: var(--accent-text, #38bdf8);
+    transition: all 0.2s ease;
   }
 
-  html[data-theme="light"] .kb-wip-tag {
+  html[data-theme="light"] #kanban-wip-workbench .kb-wip-tag {
     background: #e0f2fe;
     border-color: #0284c7;
     color: #0369a1;
   }
 
   /* Ranuras de tarjetas y notas adhesivas */
-  .kb-card-slot,
-  .kb-cards-stack-slot {
+  #kanban-wip-workbench .kb-card-slot,
+  #kanban-wip-workbench .kb-cards-stack-slot {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -732,228 +780,256 @@
     padding: 8px 4px;
   }
 
-  .kb-cards-stack-slot {
-    min-height: 220px;
+  #kanban-wip-workbench .kb-cards-stack-slot {
+    min-height: 250px;
   }
 
   /* Placeholder de cupo libre en En Proceso */
-  .kb-empty-wip-slot {
-    border: 2px dashed rgba(148, 163, 184, 0.25);
+  #kanban-wip-workbench .kb-empty-wip-slot {
+    border: 2px dashed rgba(148, 163, 184, 0.28);
     border-radius: 10px;
-    padding: 16px;
+    padding: 16px 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 4px;
-    min-height: 80px;
-    color: var(--text-muted, #64748b);
-    font-size: 0.75rem;
+    min-height: 96px;
+    color: var(--text-secondary, #94a3b8);
+    background: rgba(15, 23, 42, 0.35);
+    font-size: 0.76rem;
     font-weight: 700;
     text-align: center;
     transition: all 0.2s ease;
   }
 
-  html[data-theme="light"] .kb-empty-wip-slot {
+  #kanban-wip-workbench .kb-empty-wip-slot small {
+    font-size: 0.69rem;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+
+  html[data-theme="light"] #kanban-wip-workbench .kb-empty-wip-slot {
     border-color: #cbd5e1;
-    color: #94a3b8;
-    background: rgba(241, 245, 249, 0.5);
+    color: #64748b;
+    background: rgba(241, 245, 249, 0.75);
   }
 
   /* =========================================================================
-     NOTAS ADHESIVAS FÍSICAS EN 2.5D (ESTILO POST-IT CON CINTA Y PAPEL TÁCTIL)
+     NOTAS ADHESIVAS FÍSICAS EN 2.8D (AMARILLO, ROSADO, CIAN)
+     Materialidad de papelería física: franja adhesiva superior, esquina
+     inferior con curvatura de sombra 2.8D y tipografía de alto contraste.
      ========================================================================= */
 
-  .kb-sticky-note {
+  #kanban-wip-workbench .kb-sticky-note {
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 14px 14px 12px 14px;
-    border-radius: 4px;
+    gap: 8px;
+    width: 100%;
+    min-height: 112px;
+    padding: 16px 15px 12px 15px;
+    border-radius: 3px 3px 8px 3px;
     cursor: pointer;
     font-family: inherit;
     text-align: left;
-    border: none;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-bottom: 2.5px solid rgba(0, 0, 0, 0.22);
+    border-right: 1.5px solid rgba(0, 0, 0, 0.16);
     outline: none;
     user-select: none;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15),
-                0 10px 20px -3px rgba(0, 0, 0, 0.25),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow:
+      0 3px 5px rgba(0, 0, 0, 0.18),
+      6px 12px 20px -4px rgba(0, 0, 0, 0.36),
+      inset 0 15px 0 rgba(255, 255, 255, 0.32),
+      inset -8px -8px 14px rgba(0, 0, 0, 0.05);
+    transition:
+      transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.22s cubic-bezier(0.22, 1, 0.36, 1);
     transform-origin: center top;
   }
 
-  /* Cinta adhesiva semitransparente superior */
-  .kb-sticky-note::before {
+  /* Franja adhesiva física superior (cinta mate translúcida) */
+  #kanban-wip-workbench .kb-sticky-note::before {
     content: '';
     position: absolute;
-    top: -7px;
+    top: -6px;
     left: 50%;
     transform: translateX(-50%);
-    width: 48px;
-    height: 14px;
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.65);
+    width: 56px;
+    height: 12px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.48));
+    border: 1px solid rgba(255, 255, 255, 0.68);
     border-radius: 2px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-    backdrop-filter: blur(2px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
     z-index: 2;
+    pointer-events: none;
   }
 
-  html[data-theme="light"] .kb-sticky-note::before {
-    background: rgba(255, 255, 255, 0.65);
-    border-color: rgba(203, 213, 225, 0.8);
+  /* Pliegue sutil de esquina inferior derecha (efecto 2.8D de papel levantado) */
+  #kanban-wip-workbench .kb-sticky-note::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.1) 50%);
+    border-top-left-radius: 4px;
+    pointer-events: none;
   }
 
-  /* Efecto de elevación táctil en hover y foco accesible */
-  .kb-sticky-note:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35),
-                0 6px 10px rgba(0, 0, 0, 0.2);
-    z-index: 10;
+  /* Elevación táctil 2.8D en hover y foco de teclado */
+  #kanban-wip-workbench .kb-sticky-note:hover {
+    transform: translateY(-5px) rotate(0deg) scale(1.025) !important;
+    box-shadow:
+      0 16px 30px -4px rgba(0, 0, 0, 0.44),
+      0 6px 12px rgba(0, 0, 0, 0.24),
+      inset 0 14px 0 rgba(255, 255, 255, 0.34);
+    z-index: 12;
   }
 
-  .kb-sticky-note:focus-visible {
-    outline: 2.5px solid var(--accent-strong, #38bdf8);
+  #kanban-wip-workbench .kb-sticky-note:focus-visible {
+    outline: 3px solid var(--accent-strong, #38bdf8);
     outline-offset: 3px;
-    transform: translateY(-4px) scale(1.02);
-    z-index: 10;
+    transform: translateY(-4px) rotate(0deg) scale(1.02) !important;
+    z-index: 12;
   }
 
-  /* Clase durante animación FLIP nativa */
-  .kb-sticky-note.is-flipping {
+  #kanban-wip-workbench .kb-sticky-note.is-flipping {
     z-index: 50 !important;
     pointer-events: none;
   }
 
-  /* VARIANTES DE COLOR SEGÚN TIPO DE TRABAJO (MANTIENEN SU COLOR EN CUALQUIER COLUMNA) */
-  .kb-note-yellow {
-    background: #fef08a; /* Amarillo Post-it clásico */
-    color: #713f12;
-    border-left: 3px solid #eab308;
+  /* 1. NOTA AMARILLA (Mecanizado estándar) */
+  #kanban-wip-workbench .kb-note-yellow {
+    background: linear-gradient(165deg, #fef9c3 0%, #fef08a 46%, #fde047 100%);
+    color: #3b1d06;
+    border-left: 4px solid #eab308;
   }
 
-  .kb-note-orange {
-    background: #fed7aa; /* Naranja cálido (Urgente/Prioridad) */
-    color: #7c2d12;
-    border-left: 3px solid #f97316;
+  /* 2. NOTA ROSADA (Prioridad alta / Urgente) */
+  #kanban-wip-workbench .kb-note-pink {
+    background: linear-gradient(165deg, #fce7f3 0%, #fbcfe8 46%, #f9a8d4 100%);
+    color: #4a0922;
+    border-left: 4px solid #ec4899;
   }
 
-  .kb-note-green {
-    background: #bbf7d0; /* Verde menta (Calidad/Especial) */
-    color: #14532d;
-    border-left: 3px solid #22c55e;
+  /* 3. NOTA CIAN (Tratamiento térmico e inspección) */
+  #kanban-wip-workbench .kb-note-cyan {
+    background: linear-gradient(165deg, #cffafe 0%, #a5f3fc 46%, #67e8f9 100%);
+    color: #062c3b;
+    border-left: 4px solid #06b6d4;
   }
 
-  /* Cabecera interna de la nota */
-  .kb-note-head {
+  /* Cabecera interna de la nota: Identificador del lote + Estado actual */
+  #kanban-wip-workbench .kb-note-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    gap: 6px;
   }
 
-  .kb-note-id {
-    font-size: 0.72rem;
+  #kanban-wip-workbench .kb-note-id {
+    font-size: 0.78rem;
     font-weight: 900;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    opacity: 0.9;
+    color: inherit;
   }
 
-  .kb-note-type-badge {
-    font-size: 0.62rem;
-    font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 4px;
-    background: rgba(0, 0, 0, 0.08);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-  }
-
-  /* Cuerpo de la nota */
-  .kb-note-title {
-    font-size: 0.85rem;
-    font-weight: 800;
-    line-height: 1.25;
-    margin: 0 0 6px 0;
-  }
-
-  .kb-note-desc {
-    font-size: 0.75rem;
-    line-height: 1.3;
-    margin: 0 0 10px 0;
-    opacity: 0.88;
-  }
-
-  /* Pie de la nota */
-  .kb-note-foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.68rem;
-    font-weight: 700;
-    border-top: 1px dashed rgba(0, 0, 0, 0.15);
-    padding-top: 6px;
-  }
-
-  .kb-note-qty {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-weight: 800;
-  }
-
-  .kb-note-status-stamp {
+  #kanban-wip-workbench .kb-note-status-stamp {
     font-size: 0.62rem;
     font-weight: 900;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 2px 5px;
-    border-radius: 3px;
-    background: rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.05em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.11);
+    color: inherit;
+    border: 1px solid rgba(0, 0, 0, 0.12);
   }
 
-  .kb-stamp-done {
-    background: rgba(20, 83, 45, 0.2);
-    color: #14532d;
-    border: 1px solid rgba(20, 83, 45, 0.4);
+  #kanban-wip-workbench .kb-stamp-process {
+    background: rgba(15, 23, 42, 0.16);
+    border-color: rgba(15, 23, 42, 0.28);
   }
 
-  /* Cola apilada en Pendiente */
-  .kb-stack-cue {
+  #kanban-wip-workbench .kb-stamp-done {
+    background: rgba(20, 83, 45, 0.18);
+    color: #0f3f22;
+    border-color: rgba(20, 83, 45, 0.42);
+  }
+
+  /* Tarea corta (esencial, clara y legible a distancia) */
+  #kanban-wip-workbench .kb-note-title {
+    font-size: 0.92rem;
+    font-weight: 800;
+    line-height: 1.28;
+    margin: 2px 0 4px 0;
+    color: inherit;
+  }
+
+  /* Pie de la nota: Cantidad (50 barras) + indicador de inspección */
+  #kanban-wip-workbench .kb-note-foot {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    font-size: 0.74rem;
+    font-weight: 800;
+    border-top: 1px dashed rgba(0, 0, 0, 0.2);
+    padding-top: 7px;
+    color: inherit;
+  }
+
+  #kanban-wip-workbench .kb-note-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 900;
+  }
+
+  #kanban-wip-workbench .kb-note-inspect-cue {
+    font-size: 0.65rem;
+    font-weight: 800;
+    opacity: 0.78;
+    letter-spacing: 0.02em;
+  }
+
+  /* Cola apilada en Pendiente */
+  #kanban-wip-workbench .kb-stack-cue {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
     background: var(--surface-sunken, #080f1e);
     border: 1px solid var(--line, #334155);
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 0.72rem;
     color: var(--text-secondary, #94a3b8);
-    margin-top: 6px;
+    margin-top: 2px;
   }
 
-  html[data-theme="light"] .kb-stack-cue {
+  html[data-theme="light"] #kanban-wip-workbench .kb-stack-cue {
     background: #f1f5f9;
     border-color: #cbd5e1;
-    color: #475569;
+    color: #334155;
   }
 
   /* Botones de acción al pie de cada columna */
-  .kb-col-footer-action {
+  #kanban-wip-workbench .kb-col-footer-action {
     margin-top: auto;
     padding-top: 14px;
     border-top: 1px solid var(--line, #1e293b);
   }
 
-  html[data-theme="light"] .kb-col-footer-action {
+  html[data-theme="light"] #kanban-wip-workbench .kb-col-footer-action {
     border-top-color: #e2e8f0;
   }
 
-  .kb-step-btn {
+  #kanban-wip-workbench .kb-step-btn {
     width: 100%;
     display: inline-flex;
     align-items: center;
@@ -968,166 +1044,178 @@
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .kb-btn-primary {
-    background: var(--accent-primary, #0284c7);
+  #kanban-wip-workbench .kb-step-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  #kanban-wip-workbench .kb-btn-primary {
+    background: var(--accent-strong, #0284c7);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28);
   }
 
-  .kb-btn-primary:hover {
-    filter: brightness(1.12);
+  #kanban-wip-workbench .kb-btn-primary:hover:not(:disabled) {
+    filter: brightness(1.1);
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(2, 132, 199, 0.4);
   }
 
-  .kb-btn-finish {
+  #kanban-wip-workbench .kb-btn-finish {
     background: #16a34a;
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
   }
 
-  .kb-btn-finish:hover {
-    filter: brightness(1.12);
+  #kanban-wip-workbench .kb-btn-finish:hover:not(:disabled) {
+    filter: brightness(1.1);
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4);
   }
 
-  .kb-btn-tray {
+  #kanban-wip-workbench .kb-btn-tray {
     background: var(--surface-sunken, #080f1e);
     border: 1px solid var(--line, #334155);
     color: var(--text-primary, #f8fafc);
   }
 
-  html[data-theme="light"] .kb-btn-tray {
+  html[data-theme="light"] #kanban-wip-workbench .kb-btn-tray {
     background: #f1f5f9;
     border-color: #cbd5e1;
     color: #0f172a;
   }
 
-  .kb-btn-tray:hover {
+  #kanban-wip-workbench .kb-btn-tray:hover {
     border-color: var(--accent-strong, #38bdf8);
     color: var(--accent-text, #38bdf8);
   }
 
-  /* Leyenda de colores inferior */
-  .kb-color-legend {
+  /* Pie del tablero: Leyenda de colores y Nota metodológica */
+  #kanban-wip-workbench .kb-board-footer-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid var(--line, #334155);
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+
+  html[data-theme="light"] #kanban-wip-workbench .kb-board-footer-meta {
+    background: #ffffff;
+    border-color: #cbd5e1;
+  }
+
+  #kanban-wip-workbench .kb-color-legend {
     display: flex;
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid var(--line, #334155);
-    border-radius: 10px;
-    padding: 10px 16px;
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     color: var(--text-secondary, #94a3b8);
   }
 
-  html[data-theme="light"] .kb-color-legend {
-    background: #ffffff;
-    border-color: #cbd5e1;
-    color: #475569;
+  html[data-theme="light"] #kanban-wip-workbench .kb-color-legend {
+    color: #334155;
   }
 
-  .kb-legend-title {
+  #kanban-wip-workbench .kb-legend-title {
     font-weight: 800;
     color: var(--text-primary, #f8fafc);
     letter-spacing: 0.05em;
+    font-size: 0.7rem;
   }
 
-  html[data-theme="light"] .kb-legend-title {
+  html[data-theme="light"] #kanban-wip-workbench .kb-legend-title {
     color: #0f172a;
   }
 
-  .kb-legend-item {
-    display: flex;
+  #kanban-wip-workbench .kb-legend-item {
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
   }
 
-  .kb-swatch {
-    width: 14px;
-    height: 14px;
+  #kanban-wip-workbench .kb-swatch {
+    width: 15px;
+    height: 15px;
     border-radius: 3px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    flex-shrink: 0;
   }
 
-  .kb-swatch-yellow {
+  #kanban-wip-workbench .kb-swatch-yellow {
     background: #fef08a;
-    border: 1px solid #eab308;
+    border: 1.5px solid #eab308;
   }
 
-  .kb-swatch-orange {
-    background: #fed7aa;
-    border: 1px solid #f97316;
+  #kanban-wip-workbench .kb-swatch-pink {
+    background: #fbcfe8;
+    border: 1.5px solid #ec4899;
   }
 
-  .kb-swatch-green {
-    background: #bbf7d0;
-    border: 1px solid #22c55e;
+  #kanban-wip-workbench .kb-swatch-cyan {
+    background: #a5f3fc;
+    border: 1.5px solid #06b6d4;
+  }
+
+  #kanban-wip-workbench .kb-methodology-note {
+    margin: 0;
+    padding-top: 8px;
+    border-top: 1px dashed var(--line, #334155);
+    font-size: 0.73rem;
+    line-height: 1.45;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  html[data-theme="light"] #kanban-wip-workbench .kb-methodology-note {
+    border-top-color: #cbd5e1;
+    color: #475569;
   }
 
   /* =========================================================================
-     VELO FLOTANTE (SCRIM) Y BANDEJAS FLOTANTES (TRAY Y NOTA DETALLE)
+     VELO FLOTANTE (SCRIM CON BLUR SUAVE) Y BANDEJAS DE INSPECCIÓN
      ========================================================================= */
 
-  .kb-floating-scrim {
+  #kanban-wip-workbench .kb-floating-scrim {
     position: absolute;
     inset: 0;
-    background: rgba(8, 18, 38, 0.7);
-    backdrop-filter: blur(5px);
+    background: rgba(6, 13, 28, 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     z-index: 35;
     border-radius: 16px;
-    animation: fadeInScrim 0.2s ease-out;
   }
 
-  html[data-theme="light"] .kb-floating-scrim {
+  html[data-theme="light"] #kanban-wip-workbench .kb-floating-scrim {
     background: rgba(15, 23, 42, 0.45);
   }
 
-  @keyframes fadeInScrim {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  /* Bandeja de Trazabilidad (Drawer lateral/flotante) */
-  .kb-tray-drawer {
+  /* Bandeja de Trazabilidad (Drawer de Archivo) */
+  #kanban-wip-workbench .kb-tray-drawer {
     position: absolute;
     top: 16px;
     right: 16px;
     bottom: 16px;
-    width: min(440px, calc(100% - 32px));
+    width: min(460px, calc(100% - 32px));
     background: var(--surface-card, #0c182e);
-    border: 1.5px solid var(--accent-border, rgba(56, 189, 248, 0.4));
+    border: 1.5px solid var(--accent-border, rgba(56, 189, 248, 0.45));
     border-radius: 14px;
     padding: 20px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
     z-index: 40;
     display: flex;
     flex-direction: column;
     gap: 12px;
     overflow-y: auto;
-    animation: drawerSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  html[data-theme="light"] .kb-tray-drawer {
+  html[data-theme="light"] #kanban-wip-workbench .kb-tray-drawer {
     background: #ffffff;
     border-color: var(--accent-strong, #0284c7);
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 24px 50px rgba(15, 23, 42, 0.18);
   }
 
-  @keyframes drawerSlideIn {
-    from {
-      opacity: 0;
-      transform: translateX(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  .kb-tray-header {
+  #kanban-wip-workbench .kb-tray-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -1136,33 +1224,33 @@
     padding-bottom: 12px;
   }
 
-  html[data-theme="light"] .kb-tray-header {
+  html[data-theme="light"] #kanban-wip-workbench .kb-tray-header {
     border-bottom-color: #e2e8f0;
   }
 
-  .kb-tray-title {
-    font-size: 1.15rem;
+  #kanban-wip-workbench .kb-tray-title {
+    font-size: 1.12rem;
     font-weight: 800;
     color: var(--text-primary, #f8fafc);
     margin: 4px 0 0 0;
   }
 
-  html[data-theme="light"] .kb-tray-title {
+  html[data-theme="light"] #kanban-wip-workbench .kb-tray-title {
     color: #0f172a;
   }
 
-  .kb-tray-desc {
-    font-size: 0.8rem;
+  #kanban-wip-workbench .kb-tray-desc {
+    font-size: 0.79rem;
     color: var(--text-secondary, #94a3b8);
-    line-height: 1.4;
+    line-height: 1.42;
     margin: 0;
   }
 
-  html[data-theme="light"] .kb-tray-desc {
+  html[data-theme="light"] #kanban-wip-workbench .kb-tray-desc {
     color: #475569;
   }
 
-  .kb-tray-summary-bar {
+  #kanban-wip-workbench .kb-tray-summary-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1174,13 +1262,13 @@
     color: var(--text-secondary, #94a3b8);
   }
 
-  html[data-theme="light"] .kb-tray-summary-bar {
+  html[data-theme="light"] #kanban-wip-workbench .kb-tray-summary-bar {
     background: #f8fafc;
     border-color: #cbd5e1;
     color: #334155;
   }
 
-  .kb-tray-list {
+  #kanban-wip-workbench .kb-tray-list {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -1189,202 +1277,275 @@
     padding-right: 4px;
   }
 
-  .kb-tray-item {
+  #kanban-wip-workbench .kb-tray-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px;
-    border-radius: 8px;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 12px 14px;
+    border-radius: 10px;
     background: var(--surface-sunken, #080f1e);
     border: 1px solid var(--line, #334155);
-    transition: transform 0.15s ease;
+    transition: all 0.16s ease;
   }
 
-  html[data-theme="light"] .kb-tray-item {
+  #kanban-wip-workbench .kb-tray-item:hover {
+    border-color: var(--accent-strong, #38bdf8);
+    transform: translateY(-1px);
+  }
+
+  html[data-theme="light"] #kanban-wip-workbench .kb-tray-item {
     background: #f8fafc;
     border-color: #cbd5e1;
   }
 
-  .kb-tray-item-left {
+  #kanban-wip-workbench .kb-tray-item-left {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
   }
 
-  .kb-tray-item-id {
+  #kanban-wip-workbench .kb-tray-item-id {
     font-size: 0.82rem;
     font-weight: 800;
-    color: #4ade80;
+    color: var(--text-primary, #f8fafc);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
   }
 
-  html[data-theme="light"] .kb-tray-item-id {
-    color: #16a34a;
+  html[data-theme="light"] #kanban-wip-workbench .kb-tray-item-id {
+    color: #0f172a;
   }
 
-  .kb-tray-item-meta {
+  #kanban-wip-workbench .kb-tray-item-meta {
     font-size: 0.72rem;
     color: var(--text-secondary, #94a3b8);
   }
 
-  html[data-theme="light"] .kb-tray-item-meta {
-    color: #64748b;
+  html[data-theme="light"] #kanban-wip-workbench .kb-tray-item-meta {
+    color: #475569;
   }
 
-  .kb-tray-item-qty {
-    font-size: 0.85rem;
+  #kanban-wip-workbench .kb-tray-item-qty {
+    font-size: 0.82rem;
     font-weight: 800;
-    color: var(--text-primary, #f8fafc);
+    color: #4ade80;
+    white-space: nowrap;
   }
 
-  html[data-theme="light"] .kb-tray-item-qty {
-    color: #0f172a;
+  html[data-theme="light"] #kanban-wip-workbench .kb-tray-item-qty {
+    color: #15803d;
   }
 
   /* =========================================================================
-     INSPECTOR DETALLADO DE NOTA ADHESIVA (TRAYECTORIA)
+     INSPECTOR DETALLADO DE NOTA ADHESIVA (CON IDENTIDAD CROMÁTICA DEL LOTE)
      ========================================================================= */
 
-  .kb-note-inspector {
+  #kanban-wip-workbench .kb-note-inspector {
     position: absolute;
-    top: 20px;
+    top: 18px;
     left: 50%;
     transform: translateX(-50%);
-    width: min(560px, calc(100% - 32px));
-    max-height: calc(100% - 40px);
+    width: min(640px, calc(100% - 32px));
+    max-height: calc(100% - 36px);
     background: var(--surface-card, #0c182e);
-    border: 1.5px solid var(--accent-border, rgba(56, 189, 248, 0.4));
+    border: 2px solid #eab308;
+    border-top-width: 6px;
     border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
+    padding: 22px 24px;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7);
     z-index: 45;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
     overflow-y: auto;
-    animation: modalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: center center;
   }
 
-  html[data-theme="light"] .kb-note-inspector {
+  #kanban-wip-workbench .kb-note-inspector[data-note-color="yellow"] {
+    border-color: #eab308;
+  }
+
+  #kanban-wip-workbench .kb-note-inspector[data-note-color="pink"] {
+    border-color: #ec4899;
+  }
+
+  #kanban-wip-workbench .kb-note-inspector[data-note-color="cyan"] {
+    border-color: #06b6d4;
+  }
+
+  html[data-theme="light"] #kanban-wip-workbench .kb-note-inspector {
     background: #ffffff;
-    border-color: var(--accent-strong, #0284c7);
-    box-shadow: 0 24px 50px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 24px 55px rgba(15, 23, 42, 0.2);
   }
 
-  @keyframes modalPopIn {
-    from {
-      opacity: 0;
-      transform: translateX(-50%) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(-50%) scale(1);
-    }
-  }
-
-  .kb-note-inspector-header {
+  #kanban-wip-workbench .kb-note-inspector-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
     border-bottom: 1px solid var(--line, #1e293b);
-    padding-bottom: 12px;
+    padding-bottom: 10px;
   }
 
-  html[data-theme="light"] .kb-note-inspector-header {
+  html[data-theme="light"] #kanban-wip-workbench .kb-note-inspector-header {
     border-bottom-color: #e2e8f0;
   }
 
-  .kb-note-inspector-body {
+  #kanban-wip-workbench .kb-note-inspector-body {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
   }
 
-  .kb-note-card-preview {
-    display: flex;
-    justify-content: center;
-    padding: 12px 0;
-  }
-
-  .kb-note-spec-grid {
+  #kanban-wip-workbench .kb-note-preview-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .kb-trajectory-box {
+    grid-template-columns: 220px 1fr;
+    gap: 16px;
+    align-items: stretch;
     background: var(--surface-sunken, #080f1e);
     border: 1px solid var(--line, #334155);
     border-radius: 12px;
-    padding: 14px 16px;
+    padding: 14px;
   }
 
-  html[data-theme="light"] .kb-trajectory-box {
+  html[data-theme="light"] #kanban-wip-workbench .kb-note-preview-row {
     background: #f8fafc;
     border-color: #cbd5e1;
   }
 
-  .kb-trajectory-label {
+  #kanban-wip-workbench .kb-note-card-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #kanban-wip-workbench .kb-note-operational-context {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  #kanban-wip-workbench .kb-context-kicker {
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-text, #38bdf8);
+  }
+
+  html[data-theme="light"] #kanban-wip-workbench .kb-context-kicker {
+    color: #0284c7;
+  }
+
+  #kanban-wip-workbench .kb-context-spec {
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text-primary, #f8fafc);
+    margin: 0;
+  }
+
+  html[data-theme="light"] #kanban-wip-workbench .kb-context-spec {
+    color: #0f172a;
+  }
+
+  #kanban-wip-workbench .kb-context-meaning {
+    font-size: 0.76rem;
+    line-height: 1.42;
+    color: var(--text-secondary, #94a3b8);
+    padding-top: 6px;
+    border-top: 1px dashed var(--line, #334155);
+  }
+
+  html[data-theme="light"] #kanban-wip-workbench .kb-context-meaning {
+    color: #475569;
+    border-top-color: #cbd5e1;
+  }
+
+  #kanban-wip-workbench .kb-note-spec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  #kanban-wip-workbench .kb-trajectory-box {
+    background: var(--surface-sunken, #080f1e);
+    border: 1px solid var(--line, #334155);
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+
+  html[data-theme="light"] #kanban-wip-workbench .kb-trajectory-box {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  #kanban-wip-workbench .kb-trajectory-label {
     display: block;
     font-size: 0.68rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     color: var(--text-muted, #64748b);
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
 
-  html[data-theme="light"] .kb-trajectory-label {
+  html[data-theme="light"] #kanban-wip-workbench .kb-trajectory-label {
     color: #475569;
   }
 
-  .kb-trajectory-steps {
+  #kanban-wip-workbench .kb-trajectory-steps {
     display: flex;
     flex-direction: column;
     gap: 8px;
   }
 
-  .kb-traj-step {
+  #kanban-wip-workbench .kb-traj-step {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 0.82rem;
+    gap: 10px;
+    font-size: 0.8rem;
     color: var(--text-secondary, #94a3b8);
   }
 
-  html[data-theme="light"] .kb-traj-step {
+  html[data-theme="light"] #kanban-wip-workbench .kb-traj-step {
     color: #334155;
   }
 
-  .kb-traj-step.is-done {
+  #kanban-wip-workbench .kb-traj-step.is-done {
     color: #4ade80;
     font-weight: 700;
   }
 
-  html[data-theme="light"] .kb-traj-step.is-done {
-    color: #16a34a;
+  html[data-theme="light"] #kanban-wip-workbench .kb-traj-step.is-done {
+    color: #15803d;
   }
 
-  .kb-traj-step.is-current {
+  #kanban-wip-workbench .kb-traj-step.is-current {
     color: var(--accent-text, #38bdf8);
     font-weight: 800;
   }
 
-  html[data-theme="light"] .kb-traj-step.is-current {
+  html[data-theme="light"] #kanban-wip-workbench .kb-traj-step.is-current {
     color: #0284c7;
   }
 
-  .kb-traj-icon {
+  #kanban-wip-workbench .kb-traj-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(148, 163, 184, 0.16);
     font-size: 0.72rem;
+    flex-shrink: 0;
   }
 
   /* =========================================================================
@@ -1392,50 +1553,63 @@
      ========================================================================= */
 
   @media (prefers-reduced-motion: reduce) {
-    .kb-sticky-note,
-    .kb-action-btn,
-    .kb-step-btn,
-    .kb-tray-drawer,
-    .kb-note-inspector,
-    .kb-wip-alert-toast {
+    #kanban-wip-workbench .kb-sticky-note,
+    #kanban-wip-workbench .kb-action-btn,
+    #kanban-wip-workbench .kb-step-btn,
+    #kanban-wip-workbench .kb-tray-drawer,
+    #kanban-wip-workbench .kb-note-inspector,
+    #kanban-wip-workbench .kb-wip-alert-toast {
       animation: none !important;
       transition: none !important;
     }
   }
 
   @media (max-width: 900px) {
-    .kb-board-surface {
+    #kanban-wip-workbench .kb-board-surface {
       grid-template-columns: 1fr;
     }
-    .kb-order-telemetry {
+    #kanban-wip-workbench .kb-order-telemetry {
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
-    .kb-telemetry-divider {
+    #kanban-wip-workbench .kb-telemetry-divider {
       display: none;
     }
-    .kb-note-inspector {
+    #kanban-wip-workbench .kb-note-preview-row {
+      grid-template-columns: 1fr;
+    }
+    #kanban-wip-workbench .kb-note-spec-grid {
+      grid-template-columns: 1fr;
+    }
+    #kanban-wip-workbench .kb-note-inspector {
       width: calc(100% - 24px);
     }
-    .kb-tray-drawer {
+    #kanban-wip-workbench .kb-tray-drawer {
       width: calc(100% - 24px);
     }
   }
 </style>
 
 <script>
-  // Motor interactivo del Tablero Kanban Físico Digital (EDU-UX-01 - Hito A.2)
-  // Control de notas adhesivas 2.5D, FLIP nativo, límites WIP, telemetría y modales accesibles
+  import { animateFlipOpen, animateFlipClose } from '../../lib/expandableCardEngine';
+
+  // Motor interactivo del Tablero Kanban Físico Digital 2.8D (EDU-UX-02)
+  // Tres colores de nota física (Amarillo, Rosado, Cian), trazabilidad real y apertura FLIP
 
   interface KanbanLot {
     id: string;             // ej. 'LOT-01'
     lotNumber: number;      // 1 a 20
     bars: number;           // 50
     workType: 'standard' | 'urgent' | 'quality';
-    workTypeName: string;   // 'Mecanizado estándar' | 'Prioridad alta' | 'Tratamiento e inspección'
-    colorClass: 'kb-note-yellow' | 'kb-note-orange' | 'kb-note-green';
-    taskTitle: string;
-    taskDesc: string;
+    workTypeName: string;   // 'Mecanizado estándar' | 'Prioridad alta / Urgente' | 'Tratamiento e inspección'
+    colorKey: 'yellow' | 'pink' | 'cyan';
+    colorLabel: string;     // 'Amarilla' | 'Rosada' | 'Cian'
+    paperLabel: string;     // 'Amarillo' | 'Rosado' | 'Cian'
+    colorClass: 'kb-note-yellow' | 'kb-note-pink' | 'kb-note-cyan';
+    shortTask: string;      // Tarea corta visible en la cara de la nota adhesiva
+    taskTitle: string;      // Título completo para el inspector
+    taskDesc: string;       // Especificación técnica extendida
+    cycleSpec: string;      // Tolerancia y tiempo de ciclo
     status: 'pending' | 'process' | 'done';
     completedTimestamp?: string;
   }
@@ -1444,28 +1618,43 @@
   const BARS_PER_LOT = 50;
   const WIP_LIMIT = 2;
 
-  // Catálogo representativo de tipos de trabajo (ciclo de las 20 notas)
+  // Catálogo de 3 familias operacionales y sus 3 colores de papel físico (Amarillo, Rosado, Cian)
   const WORK_TYPES = [
     {
       type: 'standard' as const,
       name: 'Mecanizado estándar',
+      colorKey: 'yellow' as const,
+      colorLabel: 'Amarilla',
+      paperLabel: 'Amarillo',
       colorClass: 'kb-note-yellow' as const,
+      shortTask: 'Torneado y rectificado CNC',
       taskTitle: 'Torneado y rectificado de precisión',
-      taskDesc: 'Corte cilíndrico de barras 50 mm bajo tolerancia ±0.02 mm.',
+      taskDesc: 'Cilindrado y refrentado de barras de acero Ø50 mm en torno CNC bajo control estadístico.',
+      cycleSpec: 'Tolerancia ±0.02 mm · Ciclo 45 min',
     },
     {
       type: 'urgent' as const,
       name: 'Prioridad alta / Urgente',
-      colorClass: 'kb-note-orange' as const,
+      colorKey: 'pink' as const,
+      colorLabel: 'Rosada',
+      paperLabel: 'Rosado',
+      colorClass: 'kb-note-pink' as const,
+      shortTask: 'Fresado CNC y taladrado ejes',
       taskTitle: 'Fresado CNC y taladrado de ejes',
-      taskDesc: 'Orden prioritaria para ensamblaje crítico de cliente.',
+      taskDesc: 'Mecanizado de chaveteros y perforación axial para orden prioritaria de línea de ensamble.',
+      cycleSpec: 'Tolerancia ±0.015 mm · Ciclo 50 min',
     },
     {
       type: 'quality' as const,
       name: 'Tratamiento e inspección',
-      colorClass: 'kb-note-green' as const,
+      colorKey: 'cyan' as const,
+      colorLabel: 'Cian',
+      paperLabel: 'Cian',
+      colorClass: 'kb-note-cyan' as const,
+      shortTask: 'Temple e inspección Rockwell',
       taskTitle: 'Tratamiento térmico y temple superficial',
-      taskDesc: 'Control de dureza Rockwell C y calibración óptica final.',
+      taskDesc: 'Inducción térmica superficial, ensayo de dureza Rockwell C (58–62 HRC) y liberación óptica.',
+      cycleSpec: 'Dureza 60 HRC · Inspección 100%',
     },
   ];
 
@@ -1478,11 +1667,16 @@
       bars: BARS_PER_LOT,
       workType: typeDef.type,
       workTypeName: typeDef.name,
+      colorKey: typeDef.colorKey,
+      colorLabel: typeDef.colorLabel,
+      paperLabel: typeDef.paperLabel,
       colorClass: typeDef.colorClass,
+      shortTask: typeDef.shortTask,
       taskTitle: `Lote ${padNum} · ${typeDef.taskTitle}`,
       taskDesc: typeDef.taskDesc,
+      cycleSpec: typeDef.cycleSpec,
       status: initialStatus,
-      completedTimestamp: initialStatus === 'done' ? 'Turno mañana · 08:30 (Conforme)' : undefined,
+      completedTimestamp: initialStatus === 'done' ? 'Turno mañana · 08:30 (Liberado conforme)' : undefined,
     };
   }
 
@@ -1502,20 +1696,20 @@
       tag: 'MOMENTO 01 · FLUJO BALANCEADO',
       step: 'Estado 1 de 4',
       title: 'El trabajo en curso (WIP) bajo control',
-      summary: 'Cada etapa del proceso tiene un número máximo de actividades permitidas al mismo tiempo (límite WIP = 2). Cuando el equipo respeta ese tope, cada orden avanza sin colas ocultas ni cambios constantes de prioridad.',
-      flowNote: 'Pendiente tiene la cola organizada; En proceso mantiene estrictamente el cupo máximo de 2 lotes para evitar saturación.',
-      leaderNote: 'Supervisar que ningún operador inicie un tercer lote hasta que el anterior haya sido completado y entregado.',
+      summary: 'Cada etapa del proceso tiene un número máximo de actividades permitidas al mismo tiempo (política explícita WIP = 2 en esta celda). Cuando el equipo respeta ese tope, cada orden avanza sin colas ocultas ni cambios constantes de prioridad.',
+      flowNote: 'Pendiente mantiene la cola priorizada; En proceso conserva un máximo de 2 lotes activos para proteger las estaciones CNC.',
+      leaderNote: 'Supervisar que ningún operador inicie un tercer lote hasta que una estación complete su lote actual y libere el cupo.',
       badgeText: 'Flujo balanceado',
       badgeClass: 'is-ok',
-      magnifiedHtml: '<strong>Capacidad balanceada:</strong> 1 lote completado (50 barras) · 2 lotes en proceso (100 barras) · 17 lotes en espera.',
+      magnifiedHtml: '<strong>Capacidad balanceada:</strong> 1 lote completado (50 barras) · hasta 2 lotes en proceso (100 barras) · cola sincronizada.',
     },
     avance: {
       tag: 'MOMENTO 02 · AVANCE POR JALÓN (PULL)',
       step: 'Estado 2 de 4',
       title: 'El jalón (Pull): sólo se produce si hay capacidad libre',
       summary: 'El trabajo no se empuja por presión ni estimaciones teóricas: se jala hacia adelante únicamente cuando la estación receptora tiene un espacio disponible dentro de su límite WIP.',
-      flowNote: 'Al terminar una orden, se abre una tarjeta de autorización (señal Kanban) que habilita jalar el siguiente lote de la cola.',
-      leaderNote: 'Proteger la disciplina del jalón: si un puesto se detiene, el puesto anterior no debe seguir acumulando inventario.',
+      flowNote: 'Al terminar una orden, se abre una señal Kanban de autorización que habilita jalar el siguiente lote de 50 barras de la cola.',
+      leaderNote: 'Proteger la disciplina del jalón: si un puesto se detiene, el puesto anterior no debe seguir acumulando material semielaborado.',
       badgeText: 'Avance controlado',
       badgeClass: 'is-ok',
       magnifiedHtml: '<strong>Señal Pull activa:</strong> La finalización de un lote libera exactamente 1 cupo WIP para jalar la orden siguiente.',
@@ -1523,30 +1717,31 @@
     restriccion: {
       tag: 'MOMENTO 03 · DETECCIÓN DE RESTRICCIÓN Y TOPE WIP',
       step: 'Estado 3 de 4',
-      title: 'Cuando el WIP se llena, la restricción se vuelve visible',
-      summary: 'Si una etapa del proceso se congestiona y alcanza 2/2 lotes, el tablero bloquea el ingreso de nuevo trabajo. La regla de oro: «Deja de empezar y empieza a terminar».',
-      flowNote: 'Al intentar ingresar un tercer lote con WIP 2/2, el sistema dispara una alerta roja que prohíbe sobrecargar la línea.',
-      leaderNote: 'Acudir de inmediato al cuello de botella y colaborar para desbloquear la tarea en lugar de iniciar trabajo secundario.',
+      title: 'Cuando el WIP llega a 2/2, la restricción se vuelve visible',
+      summary: 'Si la etapa En proceso alcanza 2/2 lotes, el tablero bloquea el ingreso de nuevo trabajo. La regla operativa de Kanban: «Deja de empezar y empieza a terminar».',
+      flowNote: 'Al intentar ingresar un tercer lote con WIP 2/2, el sistema dispara la alerta de restricción que impide sobrecargar la celda.',
+      leaderNote: 'Acudir de inmediato a la estación bloqueada para resolver el impedimento técnico en lugar de abrir órdenes adicionales.',
       badgeText: 'Tope alcanzado (2/2)',
       badgeClass: 'is-warning',
-      magnifiedHtml: '<strong>Restricción activa:</strong> Capacidad WIP completa (2/2). Nadie introduce trabajo nuevo hasta desbloquear el proceso.',
+      magnifiedHtml: '<strong>Restricción activa:</strong> Capacidad WIP completa (2/2). Nadie introduce trabajo nuevo hasta terminar un lote activo.',
     },
     desbloqueo: {
       tag: 'MOMENTO 04 · DESBLOQUEO Y TRAZABILIDAD TOTAL',
       step: 'Estado 4 de 4',
-      title: 'Desbloqueo del flujo y entrega conforme',
-      summary: 'Al completar el lote atascado, la pieza pasa a Terminado con su sello de calidad y se archiva en la bandeja de trazabilidad sin perder ningún dato.',
-      flowNote: 'El lote terminado pasa al archivo de salidas, el contador de completadas sube y el WIP se libera inmediatamente a 1/2.',
-      leaderNote: 'Revisar la causa raíz del bloqueo durante la reunión diaria de 10 minutos para evitar que se repita en el siguiente turno.',
+      title: 'Desbloqueo del flujo y archivo con trazabilidad',
+      summary: 'Al completar un lote activo, la nota pasa a Terminado conservando su identificador, color y tarea, y queda registrada en el Archivo histórico.',
+      flowNote: 'El lote terminado se incorpora al archivo de salidas, el contador de barras completadas sube y el WIP baja de 2/2 a 1/2.',
+      leaderNote: 'Revisar la causa del bloqueo durante la reunión operativa frente al tablero para prevenir recurrencias en el turno siguiente.',
       badgeText: 'Flujo restablecido',
       badgeClass: 'is-ok',
-      magnifiedHtml: '<strong>Entrega asegurada:</strong> Orden entregada al cliente y cupo liberado para mantener el ritmo constante.',
+      magnifiedHtml: '<strong>Entrega asegurada:</strong> Lote liberado con calidad conforme y cupo WIP disponible para sostener el ritmo.',
     },
   };
 
   function initKanbanPhysicalBoard() {
     const root = document.getElementById('kanban-wip-workbench');
-    if (!root) return;
+    if (!root || root.getAttribute('data-kb-initialized') === 'true') return;
+    root.setAttribute('data-kb-initialized', 'true');
 
     // Elementos de telemetría y contadores
     const pendingBarsEl = document.getElementById('telemetry-pending-bars');
@@ -1557,6 +1752,7 @@
     const doneLotsEl = document.getElementById('telemetry-done-lots');
 
     const colPendingCounter = document.getElementById('col-pending-counter');
+    const colProcessEl = document.getElementById('kb-col-process');
     const colWipTag = document.getElementById('col-wip-tag');
     const colDoneCounter = document.getElementById('col-done-counter');
     const feedbackBanner = document.getElementById('wip-feedback-banner');
@@ -1595,9 +1791,13 @@
     const noteInspTag = document.getElementById('note-insp-tag');
     const noteInspectorTitle = document.getElementById('note-inspector-title');
     const noteInspPreview = document.getElementById('note-insp-preview');
+    const noteInspColorLabel = document.getElementById('note-insp-color-label');
+    const noteInspSpecDesc = document.getElementById('note-insp-spec-desc');
+    const noteInspStageMeaning = document.getElementById('note-insp-stage-meaning');
     const noteInspQty = document.getElementById('note-insp-qty');
     const noteInspType = document.getElementById('note-insp-type');
     const noteInspStatus = document.getElementById('note-insp-status');
+    const noteInspCycle = document.getElementById('note-insp-cycle');
     const noteInspTrajectory = document.getElementById('note-insp-trajectory');
 
     // Diagnóstico técnico M1-M4 (FLIP inspector editorial)
@@ -1623,23 +1823,19 @@
     let techCurrentIdx = 0;
 
     // Estado interno del pedido de 1.000 barras (20 lotes de 50)
-    // Estado inicial: 1 lote terminado (Lote 01), 19 lotes pendientes (Lote 02 al 20), 0 en proceso.
-    let completedLots: KanbanLot[] = [ createLot(1, 'done') ];
+    // Estado inicial: 1 lote terminado (LOT-01, Amarillo), 19 lotes pendientes (LOT-02..LOT-20), 0 en proceso.
+    let completedLots: KanbanLot[] = [createLot(1, 'done')];
     let processLots: KanbanLot[] = [];
-    let nextLotNumber = 2; // El siguiente en cola es el Lote 02
+    let nextLotNumber = 2; // El siguiente en cola es LOT-02 (Rosado), seguido de LOT-03 (Cian)
 
     let lastActiveTrigger: HTMLElement | null = null;
     let alertTimer: number | null = null;
-
-    // =========================================================================
-    // UTILIDADES DE ANIMACIÓN FLIP NATIVA EN 2.5D
-    // =========================================================================
 
     function prefersReducedMotion(): boolean {
       return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     }
 
-    // Ejecuta animación FLIP de una nota entre ranuras
+    // Ejecuta animación FLIP espacial de una nota adhesiva al desplazarse entre columnas
     function animateNoteFlip(element: HTMLElement, firstRect: DOMRect, rotationDeg: number) {
       if (prefersReducedMotion()) return;
       const lastRect = element.getBoundingClientRect();
@@ -1649,12 +1845,12 @@
       if (deltaX === 0 && deltaY === 0) return;
 
       element.classList.add('is-flipping');
-      element.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.05) rotate(${rotationDeg + 2}deg)`;
+      element.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.04) rotate(${rotationDeg + 2}deg)`;
       element.style.transition = 'none';
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          element.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease';
+          element.style.transition = 'transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.42s ease';
           element.style.transform = `translate3d(0, 0, 0) scale(1) rotate(${rotationDeg}deg)`;
 
           const cleanup = () => {
@@ -1669,7 +1865,7 @@
     }
 
     // =========================================================================
-    // CREACIÓN Y RENDERIZADO DE LAS NOTAS ADHESIVAS TÁCTILES
+    // CREACIÓN DE LA NOTA ADHESIVA FÍSICA 2.8D (INFORMACIÓN ESENCIAL ÚNICAMENTE)
     // =========================================================================
 
     function createNoteElement(lot: KanbanLot, rotationDeg: number): HTMLButtonElement {
@@ -1678,34 +1874,45 @@
       btn.className = `kb-sticky-note ${lot.colorClass}`;
       btn.id = `note-${lot.id}`;
       btn.setAttribute('data-lot-id', lot.id);
+      btn.setAttribute('data-note-color', lot.colorKey);
       btn.setAttribute('aria-haspopup', 'dialog');
-      btn.setAttribute('aria-label', `${lot.id}: ${lot.taskTitle}, ${lot.bars} barras. Estado: ${lot.status}. Pulsa para ver trayectoria.`);
+
+      const statusText =
+        lot.status === 'done'
+          ? '✓ TERMINADO'
+          : lot.status === 'process'
+            ? 'EN PROCESO'
+            : 'EN COLA';
+
+      const statusStampClass =
+        lot.status === 'done'
+          ? 'kb-stamp-done'
+          : lot.status === 'process'
+            ? 'kb-stamp-process'
+            : '';
+
+      btn.setAttribute(
+        'aria-label',
+        `${lot.id} (${lot.colorLabel}): ${lot.shortTask}, ${lot.bars} barras. Estado: ${statusText}. Pulsa para inspeccionar orden y trayectoria.`
+      );
       btn.style.transform = `rotate(${rotationDeg}deg)`;
 
-      const statusStampText = lot.status === 'done'
-        ? '✓ CONFORME'
-        : lot.status === 'process'
-        ? 'EN PROCESO'
-        : 'EN COLA';
-
-      const statusStampClass = lot.status === 'done' ? 'kb-stamp-done' : '';
-
+      // Cara de la nota: únicamente los 4 datos esenciales (ID, tarea corta, cantidad, estado)
       btn.innerHTML = `
         <div class="kb-note-head">
           <span class="kb-note-id">${lot.id}</span>
-          <span class="kb-note-type-badge">${lot.workTypeName}</span>
+          <span class="kb-note-status-stamp ${statusStampClass}">${statusText}</span>
         </div>
-        <h4 class="kb-note-title">${lot.taskTitle}</h4>
-        <p class="kb-note-desc">${lot.taskDesc}</p>
+        <h4 class="kb-note-title">${lot.shortTask}</h4>
         <div class="kb-note-foot">
-          <span class="kb-note-qty"><span aria-hidden="true">📦</span> ${lot.bars} barras</span>
-          <span class="kb-note-status-stamp ${statusStampClass}">${statusStampText}</span>
+          <span class="kb-note-qty">${lot.bars} barras</span>
+          <span class="kb-note-inspect-cue" aria-hidden="true">Ficha ↗</span>
         </div>
       `;
 
       btn.addEventListener('click', () => {
         lastActiveTrigger = btn;
-        openNoteInspector(lot);
+        openNoteInspector(lot, btn);
       });
 
       return btn;
@@ -1722,18 +1929,25 @@
       const doneBars = completedLots.length * BARS_PER_LOT;
 
       // Actualizar Telemetría Superior
-      if (pendingBarsEl) pendingBarsEl.textContent = `${pendingBars.toLocaleString()} barras`;
-      if (pendingLotsEl) pendingLotsEl.textContent = `${pendingLotsCount} lotes pendientes`;
+      if (pendingBarsEl) pendingBarsEl.textContent = `${pendingBars.toLocaleString('es-CO')} barras`;
+      if (pendingLotsEl) pendingLotsEl.textContent = `${pendingLotsCount} lote${pendingLotsCount === 1 ? '' : 's'} pendiente${pendingLotsCount === 1 ? '' : 's'}`;
       if (wipBarsEl) wipBarsEl.textContent = `${wipBars} barras`;
       if (wipBadgeEl) {
         wipBadgeEl.textContent = `${processLots.length} / ${WIP_LIMIT} lotes MÁX`;
         wipBadgeEl.style.color = processLots.length >= WIP_LIMIT ? '#ef4444' : 'var(--accent-text)';
       }
-      if (doneBarsEl) doneBarsEl.textContent = `${doneBars.toLocaleString()} barras`;
-      if (doneLotsEl) doneLotsEl.textContent = `${completedLots.length} lote${completedLots.length === 1 ? '' : 's'} entregado${completedLots.length === 1 ? '' : 's'}`;
+      if (doneBarsEl) doneBarsEl.textContent = `${doneBars.toLocaleString('es-CO')} barras`;
+      if (doneLotsEl) {
+        doneLotsEl.textContent = `${completedLots.length} lote${completedLots.length === 1 ? '' : 's'} entregado${completedLots.length === 1 ? '' : 's'}`;
+      }
 
       // Actualizar Encabezados de Columna
-      if (colPendingCounter) colPendingCounter.textContent = `${pendingLotsCount} por iniciar`;
+      if (colPendingCounter) {
+        colPendingCounter.textContent = `${pendingLotsCount} por iniciar (${pendingBars} barras)`;
+      }
+      if (colProcessEl) {
+        colProcessEl.classList.toggle('is-wip-full', processLots.length >= WIP_LIMIT);
+      }
       if (colWipTag) {
         colWipTag.textContent = `WIP: ${processLots.length} / ${WIP_LIMIT} MÁX`;
         if (processLots.length >= WIP_LIMIT) {
@@ -1751,63 +1965,78 @@
       // Actualizar Botones y Badges de Archivo
       if (trayCountBadge) trayCountBadge.textContent = String(completedLots.length);
       if (trayBtnCount) trayBtnCount.textContent = String(completedLots.length);
-      if (traySumBars) traySumBars.textContent = doneBars.toLocaleString();
+      if (traySumBars) traySumBars.textContent = doneBars.toLocaleString('es-CO');
       if (traySumLots) traySumLots.textContent = String(completedLots.length);
 
-      // COLUMNA 1: PENDIENTE
+      // COLUMNA 1: PENDIENTE (muestra los 2 primeros lotes físicos de la cola + indicador del resto)
       if (slotPending) {
         slotPending.innerHTML = '';
         if (nextLotNumber <= TOTAL_LOTS) {
-          const nextLot = createLot(nextLotNumber, 'pending');
-          const noteBtn = createNoteElement(nextLot, -1.2);
-          slotPending.appendChild(noteBtn);
+          const visibleQueueCount = Math.min(2, TOTAL_LOTS - nextLotNumber + 1);
+          for (let offset = 0; offset < visibleQueueCount; offset++) {
+            const lotNum = nextLotNumber + offset;
+            const pendingLot = createLot(lotNum, 'pending');
+            const tilt = offset === 0 ? -1.1 : 1.2;
+            const noteBtn = createNoteElement(pendingLot, tilt);
+            slotPending.appendChild(noteBtn);
+          }
 
-          if (pendingLotsCount > 1) {
+          const remainingBehind = pendingLotsCount - visibleQueueCount;
+          if (remainingBehind > 0) {
+            const firstHiddenNum = nextLotNumber + visibleQueueCount;
+            const padFirst = firstHiddenNum < 10 ? `0${firstHiddenNum}` : `${firstHiddenNum}`;
             const stackCue = document.createElement('div');
             stackCue.className = 'kb-stack-cue';
             stackCue.innerHTML = `
-              <span>En cola detrás: <strong>LOT-${nextLotNumber + 1 < 10 ? '0' + (nextLotNumber + 1) : nextLotNumber + 1}</strong> al <strong>LOT-20</strong></span>
-              <span>(${pendingLotsCount - 1} lotes)</span>
+              <span>En cola detrás: <strong>LOT-${padFirst}</strong> al <strong>LOT-20</strong></span>
+              <span>+${remainingBehind} lotes (${remainingBehind * BARS_PER_LOT} barras)</span>
             `;
             slotPending.appendChild(stackCue);
           }
         } else {
           const emptyCue = document.createElement('div');
           emptyCue.className = 'kb-empty-wip-slot';
-          emptyCue.textContent = '✓ Toda la cola ha sido iniciada';
+          emptyCue.innerHTML = `
+            <span>✓ Toda la cola ha sido jalada</span>
+            <small>0 lotes pendientes por iniciar</small>
+          `;
           slotPending.appendChild(emptyCue);
         }
       }
 
-      // COLUMNA 2: EN PROCESO (WIP)
+      // COLUMNA 2: EN PROCESO (WIP con límite máximo de 2 ranuras)
       if (slotProcess) {
         slotProcess.innerHTML = '';
         processLots.forEach((lot, i) => {
-          const rot = i === 0 ? 1.0 : -1.5;
+          const rot = i === 0 ? 0.9 : -1.3;
           const noteBtn = createNoteElement(lot, rot);
           slotProcess.appendChild(noteBtn);
         });
 
-        // Ranuras libres
+        // Ranuras libres hasta completar WIP_LIMIT = 2
         const freeSlots = WIP_LIMIT - processLots.length;
         for (let i = 0; i < freeSlots; i++) {
+          const stationIdx = processLots.length + i + 1;
           const emptySlot = document.createElement('div');
           emptySlot.className = 'kb-empty-wip-slot';
           emptySlot.innerHTML = `
-            <span>Cupo disponible ${processLots.length + i + 1} de ${WIP_LIMIT}</span>
-            <small>Listo para jalar lote</small>
+            <span>Estación CNC 0${stationIdx} · Cupo WIP disponible (${stationIdx} de ${WIP_LIMIT})</span>
+            <small>Señal Pull activa: listo para jalar 1 lote de 50 barras</small>
           `;
           slotProcess.appendChild(emptySlot);
         }
       }
 
-      // COLUMNA 3: TERMINADO
+      // COLUMNA 3: TERMINADO (muestra hasta los 2 últimos lotes completados; todos viven en Archivo)
       if (slotDone) {
         slotDone.innerHTML = '';
         if (completedLots.length > 0) {
-          const lastDoneLot = completedLots[completedLots.length - 1];
-          const noteBtn = createNoteElement(lastDoneLot, 0.8);
-          slotDone.appendChild(noteBtn);
+          const recentDone = completedLots.slice(-2).reverse();
+          recentDone.forEach((lot, idx) => {
+            const rot = idx === 0 ? 0.8 : -1.0;
+            const noteBtn = createNoteElement(lot, rot);
+            slotDone.appendChild(noteBtn);
+          });
         }
       }
 
@@ -1830,13 +2059,14 @@
       alertToast.setAttribute('aria-hidden', 'false');
 
       if (feedbackBanner) {
-        feedbackBanner.textContent = '⛔ Límite WIP alcanzado (2 / 2 lotes). Completa un lote en proceso antes de jalar el siguiente.';
+        feedbackBanner.textContent =
+          '⛔ Límite WIP alcanzado (2 / 2 lotes). La política de la celda bloquea un 3.er lote: termina primero un lote activo.';
       }
 
       if (alertTimer) window.clearTimeout(alertTimer);
       alertTimer = window.setTimeout(() => {
         hideWipAlert();
-      }, 7000);
+      }, 8000);
     }
 
     function hideWipAlert() {
@@ -1850,7 +2080,7 @@
     }
 
     function startNextLot() {
-      // 1. Comprobar si se excede el límite WIP
+      // 1. Comprobar si se excede el límite WIP = 2
       if (processLots.length >= WIP_LIMIT) {
         showWipAlert();
         return;
@@ -1860,31 +2090,32 @@
 
       if (nextLotNumber > TOTAL_LOTS) {
         if (feedbackBanner) {
-          feedbackBanner.textContent = 'Todo el pedido de 1.000 barras ya ha sido procesado o iniciado.';
+          feedbackBanner.textContent = 'Todo el pedido de 1.000 barras ya ha sido iniciado.';
         }
         return;
       }
 
-      // Guardar posición origen para FLIP si existe el botón
-      const sourceNoteEl = slotPending?.querySelector(`#note-LOT-${nextLotNumber < 10 ? '0' + nextLotNumber : nextLotNumber}`) as HTMLElement | null;
+      // Guardar posición origen de la nota frontal para FLIP
+      const padNext = nextLotNumber < 10 ? `0${nextLotNumber}` : `${nextLotNumber}`;
+      const sourceNoteEl = slotPending?.querySelector(`#note-LOT-${padNext}`) as HTMLElement | null;
       const firstRect = sourceNoteEl ? sourceNoteEl.getBoundingClientRect() : null;
 
-      // Crear nuevo lote en proceso manteniendo estrictamente su identificador y color
+      // Crear el lote en proceso preservando su identificador, color de papel y tarea
       const newLot = createLot(nextLotNumber, 'process');
       processLots.push(newLot);
       nextLotNumber++;
 
+      const remainingPending = TOTAL_LOTS - completedLots.length - processLots.length;
       if (feedbackBanner) {
-        feedbackBanner.textContent = `Capacidad aprovechada: ${newLot.id} ingresa a En Proceso. Quedan ${TOTAL_LOTS - completedLots.length - processLots.length} lotes pendientes.`;
+        feedbackBanner.textContent = `Señal Pull ejecutada: ${newLot.id} (Nota ${newLot.colorLabel}) ingresa a En Proceso (${processLots.length}/${WIP_LIMIT} WIP). Quedan ${remainingPending} lotes en cola.`;
       }
 
       renderBoardState();
 
-      // Aplicar animación FLIP nativa hacia su nueva posición
       if (firstRect) {
         const destEl = slotProcess?.querySelector(`#note-${newLot.id}`) as HTMLElement | null;
         if (destEl) {
-          animateNoteFlip(destEl, firstRect, 1.0);
+          animateNoteFlip(destEl, firstRect, processLots.length === 1 ? 0.9 : -1.3);
         }
       }
     }
@@ -1901,7 +2132,7 @@
 
       const finishedLot = processLots.shift()!;
       finishedLot.status = 'done';
-      finishedLot.completedTimestamp = `Entrega Lote ${completedLots.length + 1} · Calidad Conforme`;
+      finishedLot.completedTimestamp = `Orden #${completedLots.length + 1} archivada · Inspección 100% conforme`;
 
       // Guardar posición origen para FLIP
       const sourceNoteEl = slotProcess?.querySelector(`#note-${finishedLot.id}`) as HTMLElement | null;
@@ -1910,12 +2141,11 @@
       completedLots.push(finishedLot);
 
       if (feedbackBanner) {
-        feedbackBanner.textContent = `${finishedLot.id} completado con éxito (50 barras). Se liberó 1 cupo WIP (Efecto Jalón / Pull).`;
+        feedbackBanner.textContent = `✓ ${finishedLot.id} (Nota ${finishedLot.colorLabel}) terminado y registrado en Archivo (${completedLots.length * BARS_PER_LOT} barras listas). Se liberó 1 cupo WIP (${processLots.length}/${WIP_LIMIT}).`;
       }
 
       renderBoardState();
 
-      // Aplicar animación FLIP nativa hacia Terminado
       if (firstRect) {
         const destEl = slotDone?.querySelector(`#note-${finishedLot.id}`) as HTMLElement | null;
         if (destEl) {
@@ -1925,41 +2155,66 @@
     }
 
     function resetSimulation() {
-      completedLots = [ createLot(1, 'done') ];
+      completedLots = [createLot(1, 'done')];
       processLots = [];
       nextLotNumber = 2;
       hideWipAlert();
       closeTray();
-      closeNoteInspector();
+      closeNoteInspector(false);
 
       if (feedbackBanner) {
-        feedbackBanner.textContent = 'Demostración reiniciada al estado original: 1 lote terminado (50 barras), 19 lotes pendientes (950 barras), 0 en proceso.';
+        feedbackBanner.textContent =
+          'Pedido reiniciado: 1 lote terminado (LOT-01, 50 barras), 19 lotes pendientes (950 barras), 0 en proceso (WIP 0/2).';
       }
 
       renderBoardState();
     }
 
     // =========================================================================
-    // BANDEJA DE TRAZABILIDAD (DRAWER FLOTANTE DE HISTORIAL)
+    // BANDEJA DE TRAZABILIDAD (DRAWER DE ARCHIVO CON COLOR E INSPECCIÓN)
     // =========================================================================
 
     function openTray() {
       if (!trayDrawer || !trayList) return;
       trayList.innerHTML = '';
 
-      completedLots.forEach((lot) => {
-        const item = document.createElement('div');
-        item.className = 'kb-tray-item';
-        item.setAttribute('role', 'listitem');
-        item.innerHTML = `
-          <div class="kb-tray-item-left">
-            <span class="kb-tray-item-id">✓ ${lot.id} · ${lot.workTypeName}</span>
-            <span class="kb-tray-item-meta">${lot.completedTimestamp || 'Inspección conforme'}</span>
-          </div>
-          <strong class="kb-tray-item-qty">${lot.bars} barras</strong>
-        `;
-        trayList.appendChild(item);
-      });
+      completedLots
+        .slice()
+        .reverse()
+        .forEach((lot) => {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'kb-tray-item';
+          item.setAttribute('role', 'listitem');
+          item.setAttribute('data-archived-lot', lot.id);
+
+          const swatchClass =
+            lot.colorKey === 'yellow'
+              ? 'kb-swatch-yellow'
+              : lot.colorKey === 'pink'
+                ? 'kb-swatch-pink'
+                : 'kb-swatch-cyan';
+
+          item.innerHTML = `
+            <div class="kb-tray-item-left">
+              <span class="kb-tray-item-id">
+                <span class="kb-swatch ${swatchClass}" aria-hidden="true"></span>
+                <span>✓ ${lot.id} · ${lot.shortTask}</span>
+              </span>
+              <span class="kb-tray-item-meta">Nota ${lot.colorLabel} · ${lot.workTypeName} · ${lot.completedTimestamp || 'Calidad conforme'}</span>
+            </div>
+            <strong class="kb-tray-item-qty">${lot.bars} barras ↗</strong>
+          `;
+
+          item.addEventListener('click', () => {
+            trayDrawer.hidden = true;
+            trayDrawer.setAttribute('aria-hidden', 'true');
+            lastActiveTrigger = item;
+            openNoteInspector(lot, item);
+          });
+
+          trayList.appendChild(item);
+        });
 
       trayDrawer.hidden = false;
       trayDrawer.setAttribute('aria-hidden', 'false');
@@ -1976,7 +2231,6 @@
       trayDrawer.hidden = true;
       trayDrawer.setAttribute('aria-hidden', 'true');
 
-      // Solo ocultar el scrim si el inspector de notas tampoco está abierto
       if (noteInspector?.hidden) {
         if (floatingScrim) {
           floatingScrim.hidden = true;
@@ -1984,7 +2238,7 @@
         }
       }
 
-      if (lastActiveTrigger) {
+      if (lastActiveTrigger && document.body.contains(lastActiveTrigger)) {
         lastActiveTrigger.focus();
       } else {
         openTrayBtn?.focus();
@@ -1992,28 +2246,51 @@
     }
 
     // =========================================================================
-    // INSPECTOR DE DETALLE Y TRAYECTORIA DE NOTA ADHESIVA
+    // INSPECTOR DE DETALLE Y TRAYECTORIA DE NOTA ADHESIVA (APERTURA FLIP)
     // =========================================================================
 
-    function openNoteInspector(lot: KanbanLot) {
+    function openNoteInspector(lot: KanbanLot, originEl?: HTMLElement | null) {
       if (!noteInspector) return;
 
-      if (noteInspTag) noteInspTag.textContent = `NOTA KANBAN · ${lot.id}`;
+      noteInspector.setAttribute('data-note-color', lot.colorKey);
+
+      if (noteInspTag) noteInspTag.textContent = `TARJETA KANBAN · ${lot.id} · NOTA ${lot.colorLabel.toUpperCase()}`;
       if (noteInspectorTitle) noteInspectorTitle.textContent = lot.taskTitle;
+      if (noteInspColorLabel) {
+        noteInspColorLabel.textContent = `PAPEL ${lot.paperLabel.toUpperCase()} · ${lot.workTypeName.toUpperCase()}`;
+      }
+      if (noteInspSpecDesc) noteInspSpecDesc.textContent = lot.taskDesc;
       if (noteInspQty) noteInspQty.textContent = `${lot.bars} barras de acero mecanizadas`;
-      if (noteInspType) noteInspType.textContent = lot.workTypeName;
+      if (noteInspType) noteInspType.textContent = `${lot.workTypeName} (Nota ${lot.colorLabel})`;
+      if (noteInspCycle) noteInspCycle.textContent = lot.cycleSpec;
+
       if (noteInspStatus) {
-        noteInspStatus.textContent = lot.status === 'done'
-          ? 'Terminado / Entregado al cliente'
-          : lot.status === 'process'
-          ? 'En proceso activo (Límite WIP 2)'
-          : 'En cola de espera (Pendiente)';
+        noteInspStatus.textContent =
+          lot.status === 'done'
+            ? 'Terminado y registrado en Archivo'
+            : lot.status === 'process'
+              ? `En proceso activo (WIP ${processLots.length}/${WIP_LIMIT})`
+              : 'En cola de espera (Pendiente de señal Pull)';
       }
 
-      // Preview de la nota
+      if (noteInspStageMeaning) {
+        if (lot.status === 'pending') {
+          noteInspStageMeaning.innerHTML =
+            '<strong>Por qué espera en Pendiente:</strong> La orden está liberada, pero no ingresa al taller hasta que exista un cupo WIP disponible en las estaciones CNC (sistema <em>Pull</em>).';
+        } else if (lot.status === 'process') {
+          noteInspStageMeaning.innerHTML =
+            '<strong>Qué significa En Proceso (WIP):</strong> Este lote ocupa actualmente 1 de los 2 cupos máximos autorizados en la celda. Ningún lote nuevo desplazará su prioridad hasta que termine.';
+        } else {
+          noteInspStageMeaning.innerHTML =
+            '<strong>Trazabilidad en Terminado / Archivo:</strong> El lote completó su mecanizado e inspección, liberó 1 cupo WIP aguas arriba y quedó archivado con su código y color de origen.';
+        }
+      }
+
+      // Vista previa táctil de la nota física
       if (noteInspPreview) {
         noteInspPreview.innerHTML = '';
-        const previewNote = createNoteElement(lot, 0);
+        const previewNote = createNoteElement(lot, -1.0);
+        previewNote.removeAttribute('id');
         previewNote.style.cursor = 'default';
         previewNote.tabIndex = -1;
         noteInspPreview.appendChild(previewNote);
@@ -2027,15 +2304,15 @@
         noteInspTrajectory.innerHTML = `
           <div class="kb-traj-step ${isProc || isDone ? 'is-done' : 'is-current'}">
             <span class="kb-traj-icon">${isProc || isDone ? '✓' : '1'}</span>
-            <span>Etapa 01: Recepción de barras y preparación en cola ${isProc || isDone ? '(Completado)' : '(Activo)'}</span>
+            <span><strong>01 · Pendiente (Cola Pull):</strong> Orden física ${lot.id} (${lot.bars} barras) preparada ${isProc || isDone ? 'y jalada a planta' : 'esperando cupo WIP libre'}.</span>
           </div>
           <div class="kb-traj-step ${isDone ? 'is-done' : isProc ? 'is-current' : ''}">
             <span class="kb-traj-icon">${isDone ? '✓' : isProc ? '▶' : '2'}</span>
-            <span>Etapa 02: Centro de mecanizado CNC (En Proceso, WIP = 2) ${isDone ? '(Completado)' : isProc ? '(En proceso)' : '(Pendiente)'}</span>
+            <span><strong>02 · En proceso (Política WIP ≤ 2):</strong> ${lot.shortTask} en celda CNC ${isDone ? '(Completado)' : isProc ? '(En ejecución activa)' : '(Pendiente de ingreso)'}.</span>
           </div>
           <div class="kb-traj-step ${isDone ? 'is-done' : ''}">
             <span class="kb-traj-icon">${isDone ? '✓' : '3'}</span>
-            <span>Etapa 03: Inspección final de calidad y archivo de salida ${isDone ? '(Aprobado)' : '(Pendiente)'}</span>
+            <span><strong>03 · Terminado y Archivo:</strong> Inspección final (${lot.cycleSpec}) y registro histórico ${isDone ? '✓ Aprobado y archivado' : '(Pendiente)'}.</span>
           </div>
         `;
       }
@@ -2047,22 +2324,42 @@
         floatingScrim.setAttribute('aria-hidden', 'false');
       }
 
-      noteCloseBtn?.focus();
-    }
-
-    function closeNoteInspector() {
-      if (!noteInspector) return;
-      noteInspector.hidden = true;
-      noteInspector.setAttribute('aria-hidden', 'true');
-
-      if (trayDrawer?.hidden) {
-        if (floatingScrim) {
-          floatingScrim.hidden = true;
-          floatingScrim.setAttribute('aria-hidden', 'true');
-        }
+      if (originEl && document.body.contains(originEl)) {
+        animateFlipOpen(originEl, noteInspector, { durationOpen: 360 });
       }
 
-      lastActiveTrigger?.focus();
+      noteCloseBtn?.focus({ preventScroll: true });
+    }
+
+    function closeNoteInspector(animate = true) {
+      if (!noteInspector || noteInspector.hidden) return;
+
+      const finalizeClose = () => {
+        noteInspector.hidden = true;
+        noteInspector.setAttribute('aria-hidden', 'true');
+
+        if (trayDrawer?.hidden) {
+          if (floatingScrim) {
+            floatingScrim.hidden = true;
+            floatingScrim.setAttribute('aria-hidden', 'true');
+          }
+        }
+
+        if (lastActiveTrigger && document.body.contains(lastActiveTrigger)) {
+          lastActiveTrigger.focus({ preventScroll: true });
+        }
+      };
+
+      const currentBoardNote =
+        lastActiveTrigger && document.body.contains(lastActiveTrigger)
+          ? lastActiveTrigger
+          : null;
+
+      if (animate && currentBoardNote) {
+        animateFlipClose(currentBoardNote, noteInspector, finalizeClose, { durationClose: 250 });
+      } else {
+        finalizeClose();
+      }
     }
 
     // =========================================================================
@@ -2102,16 +2399,26 @@
       scrim?.setAttribute('aria-hidden', 'false');
 
       updateTechMoment(techKeys[techCurrentIdx]);
+      if (openDetailBtn) {
+        animateFlipOpen(openDetailBtn, inspector, { durationOpen: 360 });
+      }
       setTimeout(() => closeBtn?.focus({ preventScroll: true }), 60);
     }
 
     function closeTechDiagnosis() {
-      if (!inspector) return;
-      root.setAttribute('data-expanded', 'false');
-      inspector.hidden = true;
-      inspector.setAttribute('aria-hidden', 'true');
-      scrim?.setAttribute('aria-hidden', 'true');
-      openDetailBtn?.focus({ preventScroll: true });
+      if (!inspector || inspector.hidden) return;
+      const finish = () => {
+        root.setAttribute('data-expanded', 'false');
+        inspector.hidden = true;
+        inspector.setAttribute('aria-hidden', 'true');
+        scrim?.setAttribute('aria-hidden', 'true');
+        openDetailBtn?.focus({ preventScroll: true });
+      };
+      if (openDetailBtn) {
+        animateFlipClose(openDetailBtn, inspector, finish, { durationClose: 250 });
+      } else {
+        finish();
+      }
     }
 
     // =========================================================================
@@ -2135,12 +2442,12 @@
     trayCloseBtn?.addEventListener('click', closeTray);
 
     // Cierre del inspector de notas
-    noteCloseBtn?.addEventListener('click', closeNoteInspector);
+    noteCloseBtn?.addEventListener('click', () => closeNoteInspector(true));
 
     // Clic fuera en el velo flotante
     floatingScrim?.addEventListener('click', () => {
       if (trayDrawer && !trayDrawer.hidden) closeTray();
-      if (noteInspector && !noteInspector.hidden) closeNoteInspector();
+      if (noteInspector && !noteInspector.hidden) closeNoteInspector(true);
     });
 
     // Diagnóstico técnico M1-M4
@@ -2171,7 +2478,7 @@
       if (e.key === 'Escape') {
         if (noteInspector && !noteInspector.hidden) {
           e.preventDefault();
-          closeNoteInspector();
+          closeNoteInspector(true);
         } else if (trayDrawer && !trayDrawer.hidden) {
           e.preventDefault();
           closeTray();

@@ -17,14 +17,14 @@ import KanbanWipSimulator from '../components/diagrams/KanbanWipSimulator.astro'
           <em>más entregas terminadas con calidad.</em>
         </h1>
         <p class="lead">
-          Un tablero Kanban operativo no es una lista de deseos donde se acumulan tarjetas sin control. Su elemento regulador es el límite de Trabajo en Curso (WIP, por sus siglas en inglés: <em>Work In Progress</em>), que protege al equipo de la multitarea improductiva y expone de inmediato cualquier restricción del flujo.
+          En excelencia operacional conviene distinguir tres conceptos complementarios: el <strong>método Kanban</strong> (gestión del flujo mediante políticas explícitas), el <strong>tablero Kanban</strong> (representación visual de las etapas reales del proceso) y la <strong>señal Kanban</strong> (autorización física o visual para <em>jalar</em> trabajo sólo cuando existe capacidad libre). Su regulador central es el límite de Trabajo en Curso (<strong>WIP</strong>, <em>Work In Progress</em>), que evita la sobreproducción y hace visible cualquier restricción en segundos.
         </p>
       </div>
 
       <aside class="chapter-purpose-pill" aria-label="Propósito de esta página">
         <span>PROPÓSITO DE APRENDIZAJE</span>
         <p>
-          Observar visualmente cómo avanza una actividad a través de los estados del proceso, cómo se identifica el trabajo en curso (WIP) y qué decisiones debe tomar el líder cuando una etapa alcanza su límite por una restricción.
+          Experimentar sobre un pedido real de <strong>1.000 barras</strong> (<strong>20 lotes de 50 barras</strong>) cómo las tarjetas físicas autorizan el ingreso por jalón (<em>Pull</em>), cómo la política explícita de <strong>WIP máximo = 2 lotes</strong> protege la celda de mecanizado y cómo cada lote conserva su trazabilidad desde la cola hasta el archivo.
         </p>
       </aside>
     </header>
@@ -35,34 +35,34 @@ import KanbanWipSimulator from '../components/diagrams/KanbanWipSimulator.astro'
     <!-- Lectura editorial -->
     <div class="editorial-copy-grid">
       <div class="reading-block">
-        <span>01 · QUÉ ES EL WIP</span>
-        <h3>El costo oculto de tener todo empezado</h3>
+        <span>01 · MÉTODO, TABLERO Y SEÑAL</span>
+        <h3>No todo tablero Kanban tiene tres columnas</h3>
         <p>
-          El trabajo en curso comprende todas las órdenes o lotes que ya consumieron recursos pero aún no han sido entregados como salida completa. Cuando el WIP crece sin límite, el tiempo total de respuesta se alarga y los defectos tardan más en descubrirse.
+          Un tablero Kanban modela las etapas reales de cada operación (por ejemplo: <em>Corte → Torneado → Tratamiento térmico → Rectificado → Inspección</em>). En este ejercicio usamos tres columnas (<strong>Pendiente → En proceso → Terminado</strong>) como modelo didáctico simplificado de una celda, donde cada nota adhesiva actúa como orden física y señal de autorización.
         </p>
       </div>
 
       <div class="reading-block">
-        <span>02 · FUNCIÓN DEL LÍMITE WIP</span>
-        <h3>Un tope explícito por etapa</h3>
+        <span>02 · POLÍTICA EXPLÍCITA DE WIP</span>
+        <h3>Por qué fijar un tope de 2 lotes simultáneos</h3>
         <p>
-          Fijar un máximo de actividades simultáneas en cada columna obliga a sincronizar el proceso. Si una etapa llega a su tope, las etapas anteriores no pueden seguir empujando trabajo: deben ayudar a destrabar el flujo.
+          El límite <strong>WIP = 2</strong> no es una constante universal: es una política configurada para la capacidad real de esta celda (dos estaciones activas, 100 barras en curso). Si ambas estaciones están ocupadas, jalar un tercer lote sólo acumularía material semielaborado esperando en el piso.
         </p>
       </div>
 
       <div class="reading-block">
         <span>03 · GESTIÓN DE LA RESTRICCIÓN</span>
-        <h3>El cuello de botella marca el ritmo</h3>
+        <h3>Cuando el WIP llega a 2/2, la señal se bloquea</h3>
         <p>
-          Cuando una actividad se bloquea en una etapa crítica, iniciar más órdenes al principio del proceso solo agrava la congestión. La prioridad del líder es proteger y desbloquear la etapa restrictiva.
+          Cuando la columna <strong>En proceso</strong> alcanza su tope (<strong>2/2</strong>), el sistema impide jalar nuevos lotes desde <strong>Pendiente</strong>. En vez de empujar más órdenes al inicio, la prioridad del líder es acudir a la estación restringida y ayudar a completar el lote activo.
         </p>
       </div>
 
       <div class="reading-block">
-        <span>04 · REGLA DE EJECUCIÓN</span>
-        <h3>Terminar antes de empezar</h3>
+        <span>04 · REGLA DE EJECUCIÓN Y TRAZABILIDAD</span>
+        <h3>Dejar de empezar y empezar a terminar</h3>
         <p>
-          En la revisión diaria del tablero, el equipo lee las columnas de derecha a izquierda (desde la salida hacia la entrada): primero asegura cómo cerrar lo que está más cerca de entregarse y solo al final inicia nuevas órdenes.
+          En la reunión operativa frente al tablero, el flujo se gestiona de derecha a izquierda (desde la salida hacia la entrada): primero se libera un lote hacia <strong>Terminado</strong> (registrándolo en el <strong>Archivo</strong> con su lote, color y tarea) y esa salida genera el cupo <em>Pull</em> para jalar el siguiente lote en espera.
         </p>
       </div>
     </div>
