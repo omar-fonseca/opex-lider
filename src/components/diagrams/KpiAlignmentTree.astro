@@ -982,7 +982,8 @@
 
   function initKpiAlignmentTree() {
     const root = document.getElementById('kpi-tree-workbench');
-    if (!root) return;
+    if (!root || root.hasAttribute('data-initialized')) return;
+    root.setAttribute('data-initialized', 'true');
 
     // Elementos de la Telemetría Superior Compacta
     const otifPercentDisplay = document.getElementById('otif-percent-display');
@@ -1007,7 +1008,6 @@
     const svgNodeResultSub = document.getElementById('svg-node-result-sub');
     const svgNodeResultNote = document.getElementById('svg-node-result-note');
     const svgResultRect = document.getElementById('svg-result-rect');
-    const svgResultKicker = document.getElementById('svg-result-kicker');
 
     // Cuadro de Interpretación del Nodo
     const insightBadge = document.getElementById('insight-badge');

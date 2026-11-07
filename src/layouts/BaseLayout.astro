@@ -59,35 +59,8 @@ const {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-    <!-- Script crítico inmediato para prevenir parpadeo (FOUC) del tema, paleta de acento y estado del índice -->
-    <script is:inline>
-      (function() {
-        try {
-          const storedTheme = localStorage.getItem('opex-theme');
-          if (storedTheme === 'light' || storedTheme === 'dark') {
-            document.documentElement.setAttribute('data-theme', storedTheme);
-          } else {
-            document.documentElement.setAttribute('data-theme', 'dark');
-          }
-
-          const storedAccent = localStorage.getItem('opex-accent');
-          const validAccents = ['blue', 'orange', 'red', 'green'];
-          if (validAccents.includes(storedAccent)) {
-            document.documentElement.setAttribute('data-accent', storedAccent);
-          } else {
-            document.documentElement.setAttribute('data-accent', 'blue');
-          }
-
-          const storedNavCollapsed = localStorage.getItem('opex-nav-collapsed');
-          if (storedNavCollapsed === 'true') {
-            document.documentElement.setAttribute('data-nav-collapsed', 'true');
-          }
-        } catch (e) {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          document.documentElement.setAttribute('data-accent', 'blue');
-        }
-      })();
-    </script>
+    <!-- Script crítico inmediato en una sola línea (hash SHA-256 invariante multiplataforma para CSP sin unsafe-inline en script-src) -->
+    <script is:inline>(function(){try{const t=localStorage.getItem('opex-theme');document.documentElement.setAttribute('data-theme',t==='light'||t==='dark'?t:'dark');const a=localStorage.getItem('opex-accent');document.documentElement.setAttribute('data-accent',['blue','orange','red','green'].includes(a)?a:'blue');if(localStorage.getItem('opex-nav-collapsed')==='true'){document.documentElement.setAttribute('data-nav-collapsed','true');}}catch(e){document.documentElement.setAttribute('data-theme','dark');document.documentElement.setAttribute('data-accent','blue');}})();</script>
   </head>
   <body>
     <div class="app-shell" id="app-shell">
@@ -556,7 +529,8 @@ const {
 
           // Navegación con flechas cuando no se está escribiendo ni en un control o tarjeta interactiva del diagrama ni en modo presentación
           const activeEl = document.activeElement as Element | null;
-          const isCardExpanded = document.querySelector('[data-expanded="true"]') !== null;
+          const isCardExpanded =
+            document.querySelector('[data-expanded="true"], #kb-note-inspector:not([hidden]), #kb-tray-drawer:not([hidden])') !== null;
           const isPresentationActive = document.querySelector('[data-presentation-mode="true"]') !== null;
           const isInteractiveControl =
             activeEl?.getAttribute('role') === 'tab' ||
