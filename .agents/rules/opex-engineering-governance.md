@@ -7,6 +7,7 @@ trigger: always_on
 ## 1. Fuente de Verdad y Verificación de Inicio de Sesión
 
 - **Repositorio oficial:** `omar-fonseca/opex-lider`
+- **Rama estable de producción (`RELEASE-01`):** `main` (`0c189dd` / `0c189ddc5989007dcec583509c37bd5daec6172b`)
 - **Rama integrada vigente:** `integration/v1-interactive-book`
 - **Worktree oficial de integración:** `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration`
 - **Estado de referencia documentado:** Consultar siempre `docs/PROJECT_STATE.md` al iniciar sesión.

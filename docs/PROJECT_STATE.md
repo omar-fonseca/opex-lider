@@ -1,7 +1,7 @@
 # OPEX LÍDER — Estado Oficial del Proyecto (`PROJECT_STATE.md`)
 
-**Última actualización:** 2026-11-07 (Directiva `RELEASE-01 / Fase 2`)
-**Estado:** Release Candidate verificada con CI y cabeceras Cloudflare (`RELEASE-01`)
+**Última actualización:** 2026-11-08 (Directiva `RELEASE-01 / Fase 3B`)
+**Estado:** Versión estable de Primera Edición (`00–09`) integrada en `main` (`RELEASE-01`)
 
 ---
 
@@ -10,10 +10,11 @@
 | Parámetro | Valor oficial verificado |
 | :--- | :--- |
 | **Repositorio remoto** | `omar-fonseca/opex-lider` (`https://github.com/omar-fonseca/opex-lider.git`) |
-| **Rama integrada vigente** | `integration/v1-interactive-book` |
-| **Commit Kanban 2.8D integrado (`EDU-UX-02`)** | `fa3e035` (`fa3e035df8a5658055e2a1cb3b1a3403189270f1`) |
+| **Rama estable de producción** | `main` (Merge Commit de PR `#1`: `0c189dd` / `0c189ddc5989007dcec583509c37bd5daec6172b`) |
+| **Rama integrada de trabajo** | `integration/v1-interactive-book` (sincronizada con `main`) |
+| **Commit base de `RELEASE-01` (PR `#1`)** | `460acce` (`460acce3f2865e09e7df421238a49ea9444219ac`, incluye `EDU-UX-02` `fa3e035`) |
 | **Worktree oficial de referencia** | `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration` |
-| **Último hito validado** | `RELEASE-01 / Fase 2` — Integración de `EDU-UX-02` (Kanban 2.8D), correcciones de estabilidad en `KpiAlignmentTree.astro` y `BaseLayout.astro`, suite de pruebas `node:test`, pipeline CI en `.github/workflows/ci.yml` y cabeceras `public/_headers` con CSP por hash SHA-256 |
+| **Último hito validado** | `RELEASE-01 / Fase 3B` — Fusión controlada de PR `#1` en `main` (`0c189dd`) con las 10 páginas (`00–09`), `EDU-UX-02` (Kanban 2.8D), CI en verde (`Run 42514113159`) y cabeceras de seguridad Cloudflare (`public/_headers`) |
 
 > [!IMPORTANT]
 > No utilizar `refine_ui_ux_v2` (`966083d`) ni ramas de funcionalidades aisladas ya fusionadas como punto de partida para nuevos desarrollos. Todo trabajo de integración parte de `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration` en la rama `integration/v1-interactive-book`.
