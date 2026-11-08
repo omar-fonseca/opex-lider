@@ -59,7 +59,7 @@
       >
         <defs>
           <marker id="paArrowHead" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 1 L 8 5 L 0 9 z" fill="#60a5fa" />
+            <path d="M 0 1 L 8 5 L 0 9 z" fill="var(--accent-strong)" />
           </marker>
           <marker id="paLoopArrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
             <path d="M 0 1 L 8 5 L 0 9 z" fill="#34d399" />
@@ -72,13 +72,13 @@
 
         <g id="pa-camera-group" style="transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1); transform-origin: 410px 195px;">
           <!-- Contenedor del sistema de proceso -->
-          <rect x="28" y="34" width="764" height="176" rx="18" fill="rgba(15, 29, 56, 0.44)" stroke="rgba(96, 165, 250, 0.2)" stroke-width="1.2" />
-          <text x="52" y="58" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.6">
+          <rect x="28" y="34" width="764" height="176" rx="18" fill="rgba(15, 29, 56, 0.44)" stroke="var(--accent-border)" stroke-width="1.2" />
+          <text x="52" y="58" fill="var(--accent-text)" font-family="DM Sans, sans-serif" font-size="10.5" font-weight="700" letter-spacing="1.6">
             FLUJO DIRECTO DE CREACIÓN DE VALOR · SENTIDO DEL FLUJO →
           </text>
 
           <!-- Conectores principales entre etapas (1 -> 2 -> 3 -> 4) -->
-          <g stroke="#60a5fa" stroke-width="2.6" fill="none">
+          <g stroke="var(--accent-strong)" stroke-width="2.6" fill="none">
             <line id="pa-link-1-2" class="pa-flow-connector" data-flow-pair="entrada,actividades" x1="194" y1="128" x2="224" y2="128" marker-end="url(#paArrowHead)" pathLength="1" />
             <line id="pa-link-2-3" class="pa-flow-connector" data-flow-pair="actividades,transformacion" x1="388" y1="128" x2="418" y2="128" marker-end="url(#paArrowHead)" pathLength="1" />
             <line id="pa-link-3-4" class="pa-flow-connector" data-flow-pair="transformacion,salida" x1="582" y1="128" x2="612" y2="128" marker-end="url(#paArrowHead)" pathLength="1" />
@@ -98,12 +98,12 @@
           />
 
           <!-- Partícula viajera que indica visualmente el sentido del flujo entre etapas -->
-          <circle id="pa-flow-traveler" cx="121" cy="128" r="6" fill="#60a5fa" stroke="#ffffff" stroke-width="2" opacity="0" pointer-events="none" />
+          <circle id="pa-flow-traveler" cx="121" cy="128" r="6" fill="var(--accent-strong)" stroke="#ffffff" stroke-width="2" opacity="0" pointer-events="none" />
 
           <!-- ETAPA 1: ENTRADA -->
           <g class="svg-node-group is-active" data-proc-node="entrada" tabindex="0" role="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Etapa 1: Entrada — Pulsa para aproximarte y ampliar">
-            <rect class="node-card-bg" x="48" y="74" width="146" height="108" rx="13" fill="url(#paCardGrad)" stroke="#60a5fa" stroke-width="2" />
-            <text x="64" y="99" fill="#93c5fd" font-family="DM Sans, sans-serif" font-size="10" font-weight="700" letter-spacing="1.2">01 · INPUT ↗</text>
+            <rect class="node-card-bg" x="48" y="74" width="146" height="108" rx="13" fill="url(#paCardGrad)" stroke="var(--accent-strong)" stroke-width="2" />
+            <text x="64" y="99" fill="var(--accent-text)" font-family="DM Sans, sans-serif" font-size="10" font-weight="700" letter-spacing="1.2">01 · INPUT ↗</text>
             <text x="64" y="123" fill="#ffffff" font-family="Playfair Display, Georgia, serif" font-size="18.5" font-weight="700">Entrada</text>
             <text x="64" y="145" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">Material, datos,</text>
             <text x="64" y="162" fill="#cbd5e1" font-family="Manrope, sans-serif" font-size="11.5">requerimiento claro</text>

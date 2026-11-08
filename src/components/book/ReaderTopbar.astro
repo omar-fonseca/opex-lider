@@ -73,6 +73,98 @@ const formattedTotal = String(totalPages - 1).padStart(2, "0");
       <span class="tool-text theme-name">Tema</span>
     </button>
 
+    <!-- Selector de Paleta de Acento Desplegable (Directivas UI-01 y UI-01.1) -->
+    <div class="palette-menu-container" id="palette-menu-container">
+      <button
+        type="button"
+        class="tool-button palette-toggle-button"
+        id="palette-toggle-btn"
+        aria-label="Paleta de color de acento"
+        title="Elegir paleta de color"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-controls="palette-dropdown"
+      >
+        <span class="palette-rainbow-glyph" aria-hidden="true">
+          <svg class="palette-glyph-svg" viewBox="0 0 20 20" width="15" height="15" aria-hidden="true">
+            <!-- Cuadrante superior-izquierdo: Verde manzana -->
+            <path d="M 10 10 L 2 10 A 8 8 0 0 1 10 2 Z" class="rainbow-green" />
+            <!-- Cuadrante superior-derecho: Azul original -->
+            <path d="M 10 10 L 10 2 A 8 8 0 0 1 18 10 Z" class="rainbow-blue" />
+            <!-- Cuadrante inferior-derecho: Naranja industrial -->
+            <path d="M 10 10 L 18 10 A 8 8 0 0 1 10 18 Z" class="rainbow-orange" />
+            <!-- Cuadrante inferior-izquierdo: Rojo -->
+            <path d="M 10 10 L 10 18 A 8 8 0 0 1 2 10 Z" class="rainbow-red" />
+            <!-- Borde exterior de precisión y eje central -->
+            <circle cx="10" cy="10" r="8" fill="none" class="rainbow-ring" stroke-width="0.75" />
+            <circle cx="10" cy="10" r="2.2" class="rainbow-hub" stroke-width="0.75" />
+          </svg>
+        </span>
+        <span class="tool-text palette-name">Paleta</span>
+      </button>
+
+      <div
+        class="palette-dropdown"
+        id="palette-dropdown"
+        role="dialog"
+        aria-modal="false"
+        aria-label="Seleccionar paleta de acento"
+        aria-hidden="true"
+      >
+        <div class="palette-dropdown-title">Paleta visual</div>
+        <div class="palette-picker" id="palette-picker" role="radiogroup" aria-label="Paleta de acento visual">
+          <button
+            type="button"
+            class="palette-swatch swatch-blue"
+            role="radio"
+            aria-checked="true"
+            data-accent-value="blue"
+            aria-label="Paleta azul original"
+            title="Azul original"
+            tabindex="0"
+          >
+            <span class="swatch-check" aria-hidden="true">&#10003;</span>
+          </button>
+          <button
+            type="button"
+            class="palette-swatch swatch-orange"
+            role="radio"
+            aria-checked="false"
+            data-accent-value="orange"
+            aria-label="Paleta naranja industrial"
+            title="Naranja industrial"
+            tabindex="-1"
+          >
+            <span class="swatch-check" aria-hidden="true">&#10003;</span>
+          </button>
+          <button
+            type="button"
+            class="palette-swatch swatch-red"
+            role="radio"
+            aria-checked="false"
+            data-accent-value="red"
+            aria-label="Paleta rojo"
+            title="Rojo"
+            tabindex="-1"
+          >
+            <span class="swatch-check" aria-hidden="true">&#10003;</span>
+          </button>
+          <button
+            type="button"
+            class="palette-swatch swatch-green"
+            role="radio"
+            aria-checked="false"
+            data-accent-value="green"
+            aria-label="Paleta verde manzana"
+            title="Verde manzana"
+            tabindex="-1"
+          >
+            <span class="swatch-check" aria-hidden="true">&#10003;</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Bookmark Tool Button -->
     <button class="tool-button bookmark-button" id="bookmark-toggle-btn" aria-label="Añadir marcador" aria-pressed="false">
       <span class="bookmark-glyph" aria-hidden="true"></span>
