@@ -1,0 +1,760 @@
+/**
+ * Controlador Three.js de la Página 02 — Sistema operacional 3D.
+ * Ciclo de vida alineado con patrones de gears3d (sin modificar la portada):
+ * lazy init, DPR limitado, pausa offscreen/tab, temas, dispose y context loss.
+ */
+import * as THREE from 'three';
+import gsap from 'gsap';
+import {
+  observeDocumentGearPalette,
+  readCurrentDocumentGearPalette,
+  type GearVisualPalette,
+} from '../gears3d/GearThemeBridge.ts';
+import { prefersReducedMotion } from '../presentationEngine.ts';
+import type { ForceId } from './SystemEducationalData.ts';
+import { getForceById } from './SystemEducationalData.ts';
+import {
+  buildSystemGeometryWorld,
+  disposeObject3D,
+  disposeSystemMaterials,
+  type SystemGeometryWorld,
+  type SystemSharedMaterials,
+} from './SystemGeometry.ts';
+import { SystemForceStoryDirector } from './SystemForceStories.ts';
+import {
+  FORCE_CAMERA_POSES,
+  OVERVIEW_CAMERA_POSE,
+  clampOrbitOffsets,
+  computeForceHighlightMap,
+  isGenuinePointerClick,
+  overviewPoseForAspect,
+  type CameraFocusPose,
+  type ForceVisualState,
+} from './SystemInteraction.ts';
+
+export interface ProjectedForceLabel {
+  id: ForceId | 'sistema';
+  xPercent: number;
+  yPercent: number;
+}
+
+export interface SystemScene3DOptions {
+  canvas: HTMLCanvasElement;
+  container: HTMLElement;
+  onSelectForce: (forceId: ForceId) => void;
+  onHoverForce?: (forceId: ForceId | null) => void;
+  onLabelsProjected?: (labels: ProjectedForceLabel[]) => void;
+  onStoryBeat?: (forceId: ForceId, beatIndex: number, label: string) => void;
+  onMotionStateChange?: (isRunning: boolean, isUserPaused: boolean) => void;
+  onWebGLFallback?: (reason: string) => void;
+}
+
+export interface SystemSceneDiagnosticSnapshot {
+  initialized: boolean;
+  activeForce: ForceId | null;
+  relationsMode: boolean;
+  isUserPaused: boolean;
+  storyPlaying: boolean;
+  platformCount: number;
+  connectionCount: number;
+  currentBeat: string | null;
+  labels: ProjectedForceLabel[];
+}
+
+export class SystemScene3DController {
+  private readonly options: SystemScene3DOptions;
+  private renderer: THREE.WebGLRenderer | null = null;
+  private scene: THREE.Scene | null = null;
+  private camera: THREE.PerspectiveCamera | null = null;
+  private materials: SystemSharedMaterials | null = null;
+  private world: SystemGeometryWorld | null = null;
+  private storyDirector: SystemForceStoryDirector | null = null;
+
+  private ambientLight: THREE.AmbientLight | null = null;
+  private keyLight: THREE.DirectionalLight | null = null;
+  private fillLight: THREE.DirectionalLight | null = null;
+  private rimLight: THREE.PointLight | null = null;
+
+  private readonly raycaster = new THREE.Raycaster();
+  private readonly pointerNdc = new THREE.Vector2();
+  private pointerDownX = 0;
+  private pointerDownY = 0;
+  private isPointerDragging = false;
+  private orbitYaw = 0;
+  private orbitPitch = 0;
+  private inspectEnabled = false;
+
+  private readonly cameraPose: CameraFocusPose = { ...OVERVIEW_CAMERA_POSE };
+  private cameraTween: gsap.core.Tween | null = null;
+
+  private activeForce: ForceId | null = null;
+  private hoveredForce: ForceId | null = null;
+  private relationsMode = false;
+  private currentBeat: string | null = null;
+
+  private rafId: number | null = null;
+  private lastFrameMs = 0;
+  private ambientPhase = 0;
+  private disposed = false;
+  private initialized = false;
+  private isUserPaused = false;
+  private viewportPaused = false;
+  private tabHiddenPaused = false;
+  private captureFrozen = false;
+  private lastLabels: ProjectedForceLabel[] = [];
+
+  private disconnectThemeObserver: (() => void) | null = null;
+  private resizeObserver: ResizeObserver | null = null;
+  private intersectionObserver: IntersectionObserver | null = null;
+  private reducedMotionQuery: MediaQueryList | null = null;
+
+  constructor(options: SystemScene3DOptions) {
+    this.options = options;
+  }
+
+  public init(): boolean {
+    if (this.initialized || this.disposed) return this.initialized;
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas: this.options.canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: 'high-performance',
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'WebGL initialization failed';
+      this.options.onWebGLFallback?.(msg);
+      return false;
+    }
+
+    const gl = renderer.getContext();
+    if (!gl) {
+      this.options.onWebGLFallback?.('WebGL context unavailable');
+      renderer.dispose();
+      return false;
+    }
+
+    this.renderer = renderer;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x000000, 0);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.12;
+
+    const scene = new THREE.Scene();
+    this.scene = scene;
+
+    const camera = new THREE.PerspectiveCamera(OVERVIEW_CAMERA_POSE.fov ?? 36, 1, 0.1, 80);
+    this.camera = camera;
+    this.applyCameraPose(this.cameraPose);
+
+    const palette = readCurrentDocumentGearPalette();
+    const built = buildSystemGeometryWorld(palette.accentHex);
+    this.materials = built.materials;
+    this.world = built.world;
+    scene.add(built.world.root);
+    this.storyDirector = new SystemForceStoryDirector(built.world);
+
+    this.ambientLight = new THREE.AmbientLight(palette.ambientLightHex, 1.2);
+    scene.add(this.ambientLight);
+    this.keyLight = new THREE.DirectionalLight(palette.keyLightHex, 2.2);
+    this.keyLight.position.set(4.5, 8.5, 3.5);
+    scene.add(this.keyLight);
+    this.fillLight = new THREE.DirectionalLight(palette.warmRimLightHex, 1.1);
+    this.fillLight.position.set(-5, 3.5, -2);
+    scene.add(this.fillLight);
+    this.rimLight = new THREE.PointLight(palette.coolRimLightHex, 3.2, 18, 1.5);
+    this.rimLight.position.set(0, 4.5, 0);
+    scene.add(this.rimLight);
+
+    this.applyPalette(palette);
+    this.setupListeners();
+    this.updateSize();
+    this.projectLabels();
+    this.renderSingleFrame(0);
+
+    this.initialized = true;
+    this.lastFrameMs = performance.now();
+    this.startLoop();
+    this.notifyMotion();
+
+    // Re-medir tras el layout (evita canvas 1×N cuando el contenedor aún no tiene ancho)
+    requestAnimationFrame(() => {
+      this.updateSize();
+      this.projectLabels();
+      this.renderSingleFrame(0);
+      requestAnimationFrame(() => {
+        this.updateSize();
+        this.projectLabels();
+        this.renderSingleFrame(0);
+      });
+    });
+    return true;
+  }
+
+  public selectForce(forceId: ForceId | null, playStory = true): void {
+    if (!this.world || !this.storyDirector) return;
+    this.activeForce = forceId;
+    this.inspectEnabled = Boolean(forceId);
+    this.orbitYaw = 0;
+    this.orbitPitch = 0;
+    this.currentBeat = null;
+
+    const connected = forceId ? getForceById(forceId).connectedIds : [];
+    this.applyHighlights(
+      computeForceHighlightMap(forceId, this.hoveredForce, connected, this.relationsMode)
+    );
+
+    if (forceId) {
+      this.tweenCamera(FORCE_CAMERA_POSES[forceId]);
+      if (playStory) {
+        this.storyDirector.playForce(forceId, {
+          onBeat: (id, idx, label) => {
+            this.currentBeat = label;
+            this.options.onStoryBeat?.(id, idx, label);
+          },
+          onComplete: () => this.notifyMotion(),
+        });
+      } else {
+        this.storyDirector.cancel();
+      }
+    } else {
+      this.storyDirector.cancel();
+      this.tweenCamera(this.currentOverviewPose());
+    }
+    this.notifyMotion();
+    this.projectLabels();
+  }
+
+  public setRelationsMode(enabled: boolean): void {
+    this.relationsMode = enabled;
+    const connected = this.activeForce ? getForceById(this.activeForce).connectedIds : [];
+    this.applyHighlights(
+      computeForceHighlightMap(this.activeForce, this.hoveredForce, connected, enabled)
+    );
+    if (enabled && !this.activeForce) {
+      this.pulseAllConnections(true);
+    }
+  }
+
+  public restoreOverview(): void {
+    this.storyDirector?.cancel();
+    this.activeForce = null;
+    this.relationsMode = false;
+    this.inspectEnabled = false;
+    this.orbitYaw = 0;
+    this.orbitPitch = 0;
+    this.currentBeat = null;
+    this.applyHighlights(computeForceHighlightMap(null, null, [], false));
+    this.tweenCamera(this.currentOverviewPose());
+    this.pulseAllConnections(false);
+    this.notifyMotion();
+    this.projectLabels();
+  }
+
+  public pauseStories(): void {
+    this.isUserPaused = true;
+    this.storyDirector?.pause();
+    this.notifyMotion();
+  }
+
+  public resumeStories(): void {
+    this.isUserPaused = false;
+    this.storyDirector?.resume();
+    this.lastFrameMs = performance.now();
+    this.startLoop();
+    this.notifyMotion();
+  }
+
+  public togglePause(): boolean {
+    if (this.isUserPaused) {
+      this.resumeStories();
+      return true;
+    }
+    this.pauseStories();
+    return false;
+  }
+
+  public setCaptureFreeze(frozen: boolean): void {
+    this.captureFrozen = frozen;
+    if (!frozen) {
+      this.lastFrameMs = performance.now();
+      this.startLoop();
+    } else {
+      this.stopLoop();
+      this.renderSingleFrame(0);
+    }
+  }
+
+  public getDiagnosticSnapshot(): SystemSceneDiagnosticSnapshot {
+    return {
+      initialized: this.initialized,
+      activeForce: this.activeForce,
+      relationsMode: this.relationsMode,
+      isUserPaused: this.isUserPaused,
+      storyPlaying: Boolean(this.storyDirector?.isPlaying()),
+      platformCount: this.world ? 5 : 0,
+      connectionCount: this.world?.connectionMeshes.length ?? 0,
+      currentBeat: this.currentBeat,
+      labels: this.lastLabels,
+    };
+  }
+
+  public dispose(): void {
+    if (this.disposed) return;
+    this.disposed = true;
+    this.stopLoop();
+    this.cameraTween?.kill();
+    this.storyDirector?.cancel();
+    this.teardownListeners();
+
+    if (this.world) {
+      disposeObject3D(this.world.root, this.materials ?? undefined);
+      this.scene?.remove(this.world.root);
+    }
+    if (this.materials) disposeSystemMaterials(this.materials);
+
+    this.ambientLight = null;
+    this.keyLight = null;
+    this.fillLight = null;
+    this.rimLight = null;
+    this.world = null;
+    this.materials = null;
+    this.storyDirector = null;
+    this.scene = null;
+    this.camera = null;
+
+    this.renderer?.dispose();
+    this.renderer = null;
+    this.initialized = false;
+  }
+
+  private applyPalette(palette: GearVisualPalette): void {
+    if (!this.materials) return;
+    const accent = palette.accentHex;
+    this.materials.platformEdge.color.setHex(accent);
+    this.materials.platformEdge.emissive.setHex(accent);
+    this.materials.platformGlow.color.setHex(accent);
+    this.materials.platformGlow.emissive.setHex(accent);
+    this.materials.accentEmissive.color.setHex(accent);
+    this.materials.accentEmissive.emissive.setHex(accent);
+    this.materials.connection.color.setHex(accent);
+    this.materials.connection.emissive.setHex(accent);
+    this.materials.domeGlass.emissive.setHex(accent);
+    this.materials.propScreen.color.setHex(palette.accentBrightHex);
+    this.materials.propScreen.emissive.setHex(accent);
+
+    if (palette.theme === 'light') {
+      this.materials.platformBody.color.setHex(0xdbe4f0);
+      this.materials.propDark.color.setHex(0x475569);
+    } else {
+      this.materials.platformBody.color.setHex(0x1c2433);
+      this.materials.propDark.color.setHex(0x0f172a);
+    }
+
+    if (this.ambientLight) this.ambientLight.color.setHex(palette.ambientLightHex);
+    if (this.keyLight) this.keyLight.color.setHex(palette.keyLightHex);
+    if (this.fillLight) this.fillLight.color.setHex(palette.warmRimLightHex);
+    if (this.rimLight) this.rimLight.color.setHex(palette.coolRimLightHex);
+
+    if (this.world) {
+      (Object.values(this.world.forces) as typeof this.world.forces[ForceId][]).forEach((bundle) => {
+        bundle.underLight.color.setHex(palette.accentBrightHex);
+      });
+      this.world.center.underLight.color.setHex(palette.accentBrightHex);
+    }
+    this.renderSingleFrame(0);
+  }
+
+  private applyHighlights(map: ReturnType<typeof computeForceHighlightMap>): void {
+    if (!this.world) return;
+    this.setBundleState(this.world.center, map.centerState);
+    (Object.keys(map.forceStates) as ForceId[]).forEach((id) => {
+      this.setBundleState(this.world!.forces[id], map.forceStates[id]);
+    });
+
+    const active = map.activeForce;
+    const connected = new Set<string>([
+      ...(active ? [active, 'sistema', ...map.connectedIds] : []),
+      ...(map.relationsMode ? ['personas', 'procesos', 'liderazgo', 'mejora', 'sistema'] : []),
+    ]);
+
+    this.world.connectionMeshes.forEach((mesh) => {
+      const pair = mesh.userData.pair as Array<ForceId | 'sistema'>;
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      const relevant =
+        map.relationsMode ||
+        (active && pair.includes(active) && pair.some((p) => connected.has(p)));
+      const opacity = relevant ? 0.85 : map.activeForce ? 0.08 : 0.28;
+      const intensity = relevant ? 0.85 : 0.25;
+      mat.opacity = opacity;
+      mat.emissiveIntensity = intensity;
+    });
+  }
+
+  private setBundleState(
+    bundle: SystemGeometryWorld['center'] | SystemGeometryWorld['forces'][ForceId],
+    state: ForceVisualState
+  ): void {
+    const scale =
+      state === 'active' ? 1.06 : state === 'hovered' ? 1.03 : state === 'dimmed' ? 0.96 : 1;
+    gsap.to(bundle.root.scale, { x: scale, y: scale, z: scale, duration: 0.35, overwrite: true });
+    const glow = state === 'active' || state === 'hovered' ? 0.95 : state === 'connected' ? 0.6 : 0.28;
+    const mat = bundle.glowRing.material as THREE.MeshStandardMaterial;
+    gsap.to(mat, { emissiveIntensity: glow, opacity: Math.min(0.8, glow), duration: 0.35, overwrite: true });
+    bundle.underLight.intensity = state === 'dimmed' ? 0.25 : state === 'active' ? 2.4 : 1.15;
+    const veilMat = bundle.veil.material as THREE.MeshBasicMaterial;
+    gsap.to(veilMat, {
+      opacity: state === 'dimmed' ? 0.62 : 0,
+      duration: 0.35,
+      overwrite: true,
+    });
+  }
+
+  private pulseAllConnections(strong: boolean): void {
+    if (!this.world) return;
+    this.world.connectionMeshes.forEach((mesh) => {
+      const mat = mesh.material as THREE.MeshStandardMaterial;
+      mat.opacity = strong ? 0.8 : 0.28;
+      mat.emissiveIntensity = strong ? 0.8 : 0.25;
+    });
+  }
+
+  private tweenCamera(pose: CameraFocusPose): void {
+    if (!this.camera) return;
+    this.cameraTween?.kill();
+    if (prefersReducedMotion()) {
+      Object.assign(this.cameraPose, pose);
+      this.applyCameraPose(this.cameraPose);
+      return;
+    }
+    const proxy = { ...this.cameraPose };
+    this.cameraTween = gsap.to(proxy, {
+      positionX: pose.positionX,
+      positionY: pose.positionY,
+      positionZ: pose.positionZ,
+      lookAtX: pose.lookAtX,
+      lookAtY: pose.lookAtY,
+      lookAtZ: pose.lookAtZ,
+      duration: 0.85,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        Object.assign(this.cameraPose, proxy);
+        if (pose.fov && this.camera) this.camera.fov = pose.fov;
+        this.applyCameraPose(this.cameraPose);
+        this.camera?.updateProjectionMatrix();
+        this.projectLabels();
+      },
+    });
+  }
+
+  private applyCameraPose(pose: CameraFocusPose): void {
+    if (!this.camera) return;
+    const base = new THREE.Vector3(pose.positionX, pose.positionY, pose.positionZ);
+    const look = new THREE.Vector3(pose.lookAtX, pose.lookAtY, pose.lookAtZ);
+    if (this.inspectEnabled && (this.orbitYaw !== 0 || this.orbitPitch !== 0)) {
+      const offset = base.clone().sub(look);
+      const spherical = new THREE.Spherical().setFromVector3(offset);
+      spherical.theta += this.orbitYaw;
+      spherical.phi = Math.max(0.25, Math.min(1.35, spherical.phi + this.orbitPitch));
+      offset.setFromSpherical(spherical);
+      this.camera.position.copy(look.clone().add(offset));
+    } else {
+      this.camera.position.copy(base);
+    }
+    this.camera.lookAt(look);
+    this.camera.updateMatrixWorld();
+  }
+
+  private setupListeners(): void {
+    const { canvas, container } = this.options;
+
+    this.disconnectThemeObserver = observeDocumentGearPalette((palette) => {
+      this.applyPalette(palette);
+    });
+
+    if (typeof window.matchMedia === 'function') {
+      this.reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      this.reducedMotionQuery.addEventListener('change', this.handleReducedMotion);
+    }
+
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.updateSize();
+        this.projectLabels();
+        this.renderSingleFrame(0);
+      });
+      this.resizeObserver.observe(container);
+    }
+    window.addEventListener('resize', this.handleResize, { passive: true });
+
+    if (typeof IntersectionObserver !== 'undefined') {
+      this.intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            this.viewportPaused = !entry.isIntersecting;
+          }
+          this.syncLoop();
+        },
+        { threshold: 0.05 }
+      );
+      this.intersectionObserver.observe(container);
+    }
+
+    document.addEventListener('visibilitychange', this.handleVisibility);
+    canvas.addEventListener('pointerdown', this.handlePointerDown);
+    canvas.addEventListener('pointermove', this.handlePointerMove);
+    canvas.addEventListener('pointerup', this.handlePointerUp);
+    canvas.addEventListener('pointerleave', this.handlePointerLeave);
+    canvas.addEventListener('webglcontextlost', this.handleContextLost, false);
+    canvas.addEventListener('webglcontextrestored', this.handleContextRestored, false);
+  }
+
+  private teardownListeners(): void {
+    const { canvas } = this.options;
+    this.disconnectThemeObserver?.();
+    this.disconnectThemeObserver = null;
+    this.resizeObserver?.disconnect();
+    this.intersectionObserver?.disconnect();
+    this.reducedMotionQuery?.removeEventListener('change', this.handleReducedMotion);
+    window.removeEventListener('resize', this.handleResize);
+    document.removeEventListener('visibilitychange', this.handleVisibility);
+    canvas.removeEventListener('pointerdown', this.handlePointerDown);
+    canvas.removeEventListener('pointermove', this.handlePointerMove);
+    canvas.removeEventListener('pointerup', this.handlePointerUp);
+    canvas.removeEventListener('pointerleave', this.handlePointerLeave);
+    canvas.removeEventListener('webglcontextlost', this.handleContextLost);
+    canvas.removeEventListener('webglcontextrestored', this.handleContextRestored);
+  }
+
+  private readonly handleReducedMotion = (): void => {
+    this.renderSingleFrame(0);
+  };
+
+  private readonly handleResize = (): void => {
+    this.updateSize();
+    this.projectLabels();
+    this.renderSingleFrame(0);
+  };
+
+  private readonly handleVisibility = (): void => {
+    this.tabHiddenPaused = document.hidden;
+    if (!document.hidden) this.lastFrameMs = performance.now();
+    this.syncLoop();
+  };
+
+  private readonly handlePointerDown = (e: PointerEvent): void => {
+    this.pointerDownX = e.clientX;
+    this.pointerDownY = e.clientY;
+    this.isPointerDragging = false;
+    if (this.inspectEnabled) {
+      this.options.canvas.setPointerCapture(e.pointerId);
+    }
+  };
+
+  private readonly handlePointerMove = (e: PointerEvent): void => {
+    if (this.inspectEnabled && (e.buttons & 1) === 1) {
+      const dx = e.clientX - this.pointerDownX;
+      const dy = e.clientY - this.pointerDownY;
+      if (Math.hypot(dx, dy) > 6) this.isPointerDragging = true;
+      if (this.isPointerDragging) {
+        const clamped = clampOrbitOffsets(this.orbitYaw + dx * 0.004, this.orbitPitch + dy * 0.003);
+        this.orbitYaw = clamped.yaw;
+        this.orbitPitch = clamped.pitch;
+        this.pointerDownX = e.clientX;
+        this.pointerDownY = e.clientY;
+        this.applyCameraPose(this.cameraPose);
+        this.projectLabels();
+        this.renderSingleFrame(0);
+        return;
+      }
+    }
+
+    const hit = this.raycastForce(e.clientX, e.clientY);
+    this.hoveredForce = hit;
+    this.options.onHoverForce?.(hit);
+    this.options.canvas.style.cursor = hit ? 'pointer' : this.inspectEnabled ? 'grab' : 'default';
+    if (!this.activeForce) {
+      this.applyHighlights(computeForceHighlightMap(null, hit, [], this.relationsMode));
+      this.renderSingleFrame(0);
+    }
+  };
+
+  private readonly handlePointerUp = (e: PointerEvent): void => {
+    try {
+      this.options.canvas.releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    if (this.isPointerDragging) {
+      this.isPointerDragging = false;
+      return;
+    }
+    if (!isGenuinePointerClick(this.pointerDownX, this.pointerDownY, e.clientX, e.clientY)) {
+      return;
+    }
+    const hit = this.raycastForce(e.clientX, e.clientY);
+    if (hit) this.options.onSelectForce(hit);
+  };
+
+  private readonly handlePointerLeave = (): void => {
+    this.hoveredForce = null;
+    this.options.onHoverForce?.(null);
+    this.options.canvas.style.cursor = 'default';
+  };
+
+  private readonly handleContextLost = (e: Event): void => {
+    e.preventDefault();
+    this.stopLoop();
+  };
+
+  private readonly handleContextRestored = (): void => {
+    this.lastFrameMs = performance.now();
+    this.renderSingleFrame(0);
+    this.startLoop();
+  };
+
+  private raycastForce(clientX: number, clientY: number): ForceId | null {
+    if (!this.camera || !this.world) return null;
+    const rect = this.options.canvas.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return null;
+    this.pointerNdc.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+    this.pointerNdc.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    this.raycaster.setFromCamera(this.pointerNdc, this.camera);
+    const targets = [
+      this.world.forces.personas.hitTarget,
+      this.world.forces.procesos.hitTarget,
+      this.world.forces.liderazgo.hitTarget,
+      this.world.forces.mejora.hitTarget,
+    ];
+    const hits = this.raycaster.intersectObjects(targets, false);
+    if (!hits.length) return null;
+    const id = hits[0].object.userData.forceId;
+    return id === 'personas' || id === 'procesos' || id === 'liderazgo' || id === 'mejora'
+      ? id
+      : null;
+  }
+
+  private updateSize(): void {
+    if (!this.renderer || !this.camera) return;
+    const { container, canvas } = this.options;
+    const rect = container.getBoundingClientRect();
+    const width = Math.max(1, Math.floor(rect.width || container.clientWidth || canvas.clientWidth));
+    const height = Math.max(
+      1,
+      Math.floor(rect.height || container.clientHeight || canvas.clientHeight)
+    );
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    this.renderer.setSize(width, height, false);
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    this.camera.aspect = width / height;
+    if (!this.activeForce && !this.inspectEnabled) {
+      const fitted = overviewPoseForAspect(this.camera.aspect);
+      Object.assign(this.cameraPose, fitted);
+      this.camera.fov = fitted.fov ?? 36;
+    }
+    this.camera.updateProjectionMatrix();
+    this.applyCameraPose(this.cameraPose);
+  }
+
+  private currentOverviewPose(): CameraFocusPose {
+    const aspect = this.camera?.aspect ?? 1.4;
+    return overviewPoseForAspect(aspect);
+  }
+
+  private projectLabels(): void {
+    if (!this.camera || !this.world) return;
+    const width = this.options.container.clientWidth || 1;
+    const height = this.options.container.clientHeight || 1;
+    const ids: Array<ForceId | 'sistema'> = [
+      'sistema',
+      'personas',
+      'procesos',
+      'liderazgo',
+      'mejora',
+    ];
+    const labels: ProjectedForceLabel[] = ids.map((id) => {
+      const obj = id === 'sistema' ? this.world!.center.root : this.world!.forces[id].root;
+      const worldPos = new THREE.Vector3(0, 1.35, 0);
+      obj.localToWorld(worldPos);
+      worldPos.project(this.camera!);
+      return {
+        id,
+        xPercent: ((worldPos.x + 1) / 2) * 100,
+        yPercent: ((-worldPos.y + 1) / 2) * 100,
+      };
+    });
+    this.lastLabels = labels;
+    this.options.onLabelsProjected?.(labels);
+    void width;
+    void height;
+  }
+
+  private shouldRunLoop(): boolean {
+    return (
+      this.initialized &&
+      !this.disposed &&
+      !this.captureFrozen &&
+      !this.isUserPaused &&
+      !this.viewportPaused &&
+      !this.tabHiddenPaused
+    );
+  }
+
+  private syncLoop(): void {
+    if (this.shouldRunLoop()) this.startLoop();
+    else this.stopLoop();
+  }
+
+  private startLoop(): void {
+    if (this.rafId !== null || !this.shouldRunLoop()) return;
+    this.lastFrameMs = performance.now();
+    const tick = (now: number) => {
+      this.rafId = null;
+      if (!this.shouldRunLoop()) {
+        this.renderSingleFrame(0);
+        this.notifyMotion();
+        return;
+      }
+      const dt = Math.min(0.05, (now - this.lastFrameMs) / 1000);
+      this.lastFrameMs = now;
+      this.ambientPhase += dt;
+      this.updateAmbientMotion(dt);
+      this.renderSingleFrame(dt);
+      this.rafId = window.requestAnimationFrame(tick);
+    };
+    this.rafId = window.requestAnimationFrame(tick);
+    this.notifyMotion();
+  }
+
+  private stopLoop(): void {
+    if (this.rafId !== null) {
+      window.cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+    this.notifyMotion();
+  }
+
+  private updateAmbientMotion(dt: number): void {
+    if (!this.world || prefersReducedMotion()) return;
+    const core = this.world.center.storyNodes.core;
+    if (core) {
+      core.rotation.y += dt * 0.55;
+      core.position.y = 0.55 + Math.sin(this.ambientPhase * 1.2) * 0.04;
+    }
+    const dome = this.world.center.storyNodes.dome;
+    if (dome) dome.rotation.y -= dt * 0.12;
+  }
+
+  private renderSingleFrame(_dt: number): void {
+    if (!this.renderer || !this.scene || !this.camera) return;
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  private notifyMotion(): void {
+    this.options.onMotionStateChange?.(this.shouldRunLoop(), this.isUserPaused);
+  }
+}
