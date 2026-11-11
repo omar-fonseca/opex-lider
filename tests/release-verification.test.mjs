@@ -389,3 +389,27 @@ describe('5. Sistema mecánico de 7 engranajes 3D sincronizados en Cubierta (GEA
     }
   });
 });
+
+
+describe('6. Refinamiento editorial y responsive de Cubierta (COVER-UX-02)', () => {
+  test('index.astro ubica Omar Yesid Fonseca debajo del subtítulo sin duplicados y preserva textos originales', () => {
+    const indexSrc = fs.readFileSync(path.join(ROOT_DIR, 'src/pages/index.astro'), 'utf8');
+
+    // Exactamente una firma visible en el cuerpo de la cubierta
+    const authorMatches = [...indexSrc.matchAll(/<em class="credit-author">Omar Yesid Fonseca<\/em>/g)];
+    assert.equal(authorMatches.length, 1, 'No debe duplicarse la firma en el pie de página');
+
+    // Ubicada después del subtítulo dentro de .cover-header-block
+    const headerBlockMatch = indexSrc.match(/<div class="cover-header-block">([\s\S]*?)<\/div>\s*<\/div>/);
+    assert.ok(headerBlockMatch, 'El bloque .cover-header-block debe contener el crédito de autoría');
+    assert.match(headerBlockMatch[0], /Libro interactivo de liderazgo y excelencia operacional\./);
+    assert.match(headerBlockMatch[0], /Omar Yesid Fonseca/);
+
+    // Guía de lectura con texto intacto
+    assert.match(indexSrc, /<span>CÓMO LEER ESTE LIBRO<\/span>/);
+    assert.match(
+      indexSrc,
+      /Avanza en orden o utiliza el índice para volver a una pregunta concreta\. Toca los conceptos, observa qué conexiones aparecen y contrasta cada modelo con tu propio contexto operacional\. No busques recetas: busca relaciones causales y comportamientos sostenibles\./
+    );
+  });
+});

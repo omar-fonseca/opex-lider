@@ -9,7 +9,7 @@ import Constellation from '../components/diagrams/Constellation.astro';
   currentPath="/"
 >
   <section class="page cover-page" aria-labelledby="cover-title">
-    <!-- 1. Columna izquierda (superior): Título y subtítulo -->
+    <!-- 1. Columna izquierda (superior): Título, subtítulo y crédito de autoría -->
     <div class="cover-header-block">
       <p class="eyebrow">LIBRO INTERACTIVO · EDICIÓN 01</p>
       
@@ -20,9 +20,14 @@ import Constellation from '../components/diagrams/Constellation.astro';
       <p class="cover-subtitle">
         Libro interactivo de liderazgo y excelencia operacional.
       </p>
+
+      <div class="credit-block cover-author-credit" aria-label="Crédito de autoría">
+        <strong class="credit-role">Concepción y diseño digital</strong>
+        <em class="credit-author">Omar Yesid Fonseca</em>
+      </div>
     </div>
 
-    <!-- 2 y 3. Diagrama orbital (columna derecha en escritorio / 2º en móvil) + Tarjeta contextual dinámica (columna izquierda bajo el subtítulo en escritorio / 3º en móvil) -->
+    <!-- 2 y 3. Sistema 3D de siete engranajes sincronizados (columna derecha en escritorio / 2º en móvil) + Indicador contextual dinámico (columna izquierda bajo la autoría en escritorio / 3º en móvil) -->
     <Constellation />
 
     <!-- 4. Referencia conceptual (debajo del diagrama en escritorio / 4º en móvil) -->
@@ -34,7 +39,7 @@ import Constellation from '../components/diagrams/Constellation.astro';
       </p>
     </div>
 
-    <!-- 5. Propósito de esta edición y continuación editorial (columna izquierda inferior en escritorio / 5º en móvil) -->
+    <!-- 5. Propósito de esta edición y continuación editorial (columna izquierda en escritorio / 5º en móvil) -->
     <div class="cover-purpose-block">
       <div class="opening-note">
         <span>PROPÓSITO DE ESTA EDICIÓN</span>
@@ -52,13 +57,8 @@ import Constellation from '../components/diagrams/Constellation.astro';
       </a>
     </div>
 
-    <!-- 6. Zona inferior de la cubierta: Crédito editorial y guía de lectura -->
-    <footer class="cover-bottom-bar" aria-label="Crédito de autoría y guía de lectura">
-      <div class="credit-block" aria-label="Crédito de autoría">
-        <strong class="credit-role">Concepción y diseño digital</strong>
-        <em class="credit-author">Omar Yesid Fonseca</em>
-      </div>
-
+    <!-- 6. Zona horizontal inferior de ancho completo: Guía de lectura -->
+    <footer class="cover-bottom-bar" aria-label="Guía de lectura de la cubierta">
       <div class="cover-reading-guide">
         <span>CÓMO LEER ESTE LIBRO</span>
         <p>
