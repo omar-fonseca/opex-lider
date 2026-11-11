@@ -199,6 +199,7 @@ test.describe('OPEX LÍDER — GEAR-3D-01 + COVER-UX-02: Cubierta 3D y refinamie
 
     // Arrastrar tarjeta desde la etiqueta de agarre (.card-drag-grip-label) y comprobar línea conectora
     await page.locator('#insight-next-btn').click(); // PERSONAS
+    await page.evaluate(() => window.scrollTo(0, 0));
     const handle = page.locator('#insight-drag-handle .card-drag-grip-label');
     const boxBefore = await insightCard.boundingBox();
     const handleBox = await handle.boundingBox();

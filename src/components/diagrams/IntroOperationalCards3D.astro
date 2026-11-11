@@ -1,0 +1,1010 @@
+---
+/**
+ * OPEX LÍDER — PAGE-01-UX-3D-01 · Versión 1.1
+ * Evolución editorial 3D de las cuatro tarjetas de la Página 01 (/introduccion).
+ *
+ * Características:
+ * - Conserva íntegramente los 4 títulos y párrafos originales sin recortes ni reescrituras.
+ * - Tarjeta protagonista frontal de gran formato (70-85% del escenario en escritorio) con texto 100% horizontal.
+ * - Tarjetas secundarias en profundidad CSS 3D con vista previa interactiva.
+ * - 4 ilustraciones educativas vectoriales 2.8D/3D adaptables a las 4 paletas y 2 temas.
+ * - Explicación contextual interactiva, accesible por teclado y reversible en cada ilustración (sin audio).
+ * - Pestañas superiores 01-04, botones Anterior/Siguiente, Play/Pausa desactivado por defecto y Modo Presentación para Auditorios reutilizando presentationEngine.ts.
+ */
+
+interface OperationalCardItem {
+  index: number;
+  id: string;
+  number: string;
+  kicker: string;
+  shortTag: string;
+  title: string;
+  paragraph: string;
+  keyIdea: string;
+  illustrationTitle: string;
+  illustrationExplanation: string;
+}
+
+const cards: OperationalCardItem[] = [
+  {
+    index: 0,
+    id: 'intro-card-01',
+    number: '01',
+    kicker: '01 · ADVERTENCIA FUNDAMENTAL',
+    shortTag: 'ADVERTENCIA FUNDAMENTAL',
+    title: 'El espejismo de las herramientas',
+    paragraph:
+      'Implementar 5S, tableros Kanban o rutinas de supervisión sin clarificar su propósito genera fatiga y burocracia. Las herramientas solo cobran sentido cuando responden a un problema real de la operación y cuando el equipo entiende qué brecha busca cerrar.',
+    keyIdea:
+      'Idea principal: Las herramientas solo cobran sentido cuando responden a un problema real de la operación y cuando el equipo entiende qué brecha busca cerrar.',
+    illustrationTitle: 'Ilustración 01 · Herramientas desconectadas vs. propósito operacional',
+    illustrationExplanation:
+      'Representa una caja de herramientas de gestión (5S, Kanban y rutinas) operando sin conexión con la brecha real del proceso. Comunica que las metodologías no son negativas por sí mismas: la fatiga y la burocracia surgen cuando se implementan sin clarificar qué problema real de la operación buscan resolver.',
+  },
+  {
+    index: 1,
+    id: 'intro-card-02',
+    number: '02',
+    kicker: '02 · PERSPECTIVA HOLÍSTICA',
+    shortTag: 'PERSPECTIVA HOLÍSTICA',
+    title: 'El sistema como totalidad viva',
+    paragraph:
+      'Una desviación en calidad o un retraso en entrega rara vez es un fallo individual. Con frecuencia involucra el diseño del flujo, la claridad del estándar, el ritmo de los insumos y la forma en que el líder reacciona frente al error. Quien solo mira la pieza pierde de vista el engranaje.',
+    keyIdea:
+      'Idea principal: Quien solo mira la pieza pierde de vista el engranaje; los resultados dependen de la interacción entre flujo, estándar, insumos y liderazgo.',
+    illustrationTitle: 'Ilustración 02 · Componentes y procesos interconectados en el sistema',
+    illustrationExplanation:
+      'Muestra cuatro nodos operacionales interconectados (Flujo, Estándar, Insumos y Respuesta del líder) que convergen en la entrega y calidad del sistema. Explica visualmente cómo una decisión o fallo en una parte repercute en las demás etapas del proceso.',
+  },
+  {
+    index: 2,
+    id: 'intro-card-03',
+    number: '03',
+    kicker: '03 · EL FACTOR HUMANO',
+    shortTag: 'EL FACTOR HUMANO',
+    title: 'Seguridad para cuestionar',
+    paragraph:
+      'Ningún estándar se mantiene vivo sin personas dispuestas a levantar la mano ante una anomalía. Cuando un entorno castiga el error, los problemas no desaparecen: se ocultan hasta convertirse en crisis. La excelencia exige confianza técnica y psicológica en la línea de trabajo.',
+    keyIdea:
+      'Idea principal: La excelencia exige confianza técnica y psicológica en la línea de trabajo para levantar la mano ante una anomalía antes de que se vuelva crisis.',
+    illustrationTitle: 'Ilustración 03 · Equipo comunicando una anomalía con apertura y respeto',
+    illustrationExplanation:
+      'Representa a un equipo en la línea de trabajo visibilizando una anomalía de manera abierta y respetuosa. Ilustra cómo la confianza técnica y psicológica permite elevar alertas tempranas en lugar de ocultar los problemas por temor al castigo.',
+  },
+  {
+    index: 3,
+    id: 'intro-card-04',
+    number: '04',
+    kicker: '04 · MÉTODO CIENTÍFICO',
+    shortTag: 'MÉTODO CIENTÍFICO',
+    title: 'De la intuición a la evidencia',
+    paragraph:
+      'Aprender en las operaciones significa sustituir las opiniones jerárquicas por datos contrastados en el Gemba (el lugar real). Cada desviación deja de ser una molestia y pasa a ser información privilegiada para ajustar el proceso con rigor y disciplina.',
+    keyIdea:
+      'Idea principal: Sustituir opiniones jerárquicas por datos contrastados en el Gemba transforma cada desviación en evidencia para ajustar el proceso con rigor.',
+    illustrationTitle: 'Ilustración 04 · Observación en el Gemba, datos y análisis de desviación',
+    illustrationExplanation:
+      'Muestra una lente de observación enfocando una desviación operacional junto a indicadores medidos en el Gemba (el lugar real). Explica el tránsito desde las opiniones intuitivas hacia la evidencia objetiva para ajustar el proceso con método científico.',
+  },
+];
+---
+
+<section
+  class="intro-deck-workbench expandable-workbench"
+  id="intro-cards-workbench"
+  aria-label="Explorador tridimensional de los cuatro pilares de excelencia operacional"
+  data-active-index="0"
+  data-autoplay="false"
+>
+  <!-- Cabecera de modo presentación para auditorios (visible al activar Modo Auditorio) -->
+  <header class="intro-pres-topbar" id="intro-pres-topbar" aria-label="Controles superiores de modo auditorio">
+    <div class="intro-pres-brand">
+      <span class="intro-pres-kicker">01 · EXCELENCIA OPERACIONAL · MODO AUDITORIO</span>
+      <strong class="intro-pres-title" id="intro-pres-header-title">
+        Antes de hablar de herramientas, comprende el sistema.
+      </strong>
+    </div>
+    <div class="intro-pres-actions">
+      <span class="intro-pres-status-pill" id="intro-pres-status-pill">TARJETA 01 DE 04</span>
+      <button
+        type="button"
+        class="intro-pres-action-btn"
+        id="intro-pres-overview-btn"
+        aria-pressed="false"
+        title="Alternar vista comparativa de las 4 tarjetas (Tecla O)"
+      >
+        <span aria-hidden="true">⊞</span> Vista 4 tarjetas
+      </button>
+      <button
+        type="button"
+        class="intro-pres-action-btn"
+        id="intro-pres-fullscreen-btn"
+        title="Alternar pantalla completa para proyección (Tecla F)"
+      >
+        <span aria-hidden="true">⛶</span> Pantalla completa
+      </button>
+      <button
+        type="button"
+        class="intro-pres-action-btn intro-pres-close-btn"
+        id="intro-pres-exit-btn"
+        aria-label="Salir del modo presentación de auditorio (Escape)"
+      >
+        <span aria-hidden="true">✕</span> Salir de auditorio
+      </button>
+    </div>
+  </header>
+
+  <!-- Barra superior de pestañas 01–04 + Botón de Modo Auditorio -->
+  <div class="intro-deck-header-bar">
+    <div
+      class="intro-deck-tablist"
+      role="tablist"
+      aria-label="Seleccionar concepto de excelencia operacional (01 a 04)"
+    >
+      {cards.map((card, idx) => (
+        <button
+          type="button"
+          role="tab"
+          id={`intro-tab-${idx}`}
+          class={`intro-deck-tab ${idx === 0 ? 'is-active' : ''}`}
+          aria-selected={idx === 0 ? 'true' : 'false'}
+          aria-controls={card.id}
+          tabindex={idx === 0 ? 0 : -1}
+          data-tab-index={idx}
+        >
+          <span class="intro-tab-num">{card.number}</span>
+          <span class="intro-tab-dot" aria-hidden="true">·</span>
+          <span class="intro-tab-label">{card.shortTag}</span>
+        </button>
+      ))}
+    </div>
+
+    <div class="intro-deck-mode-tools">
+      <button
+        type="button"
+        class="intro-auditorium-trigger-btn"
+        id="intro-pres-enter-btn"
+        aria-label="Abrir Modo Presentación para Auditorios y salas de reunión"
+        title="Ampliar tarjetas para presentación ante grupos o salas (20–100 personas)"
+      >
+        <svg class="intro-auditorium-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="2.5" y="4" width="19" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <path d="M8 20h8M12 17v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <span>Modo Auditorio</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Escenario espacial 3D de las 4 tarjetas (conserva .editorial-copy-grid y .reading-block) -->
+  <div class="editorial-copy-grid intro-deck-stage" id="intro-deck-stage">
+    {cards.map((card, idx) => {
+      const initialState = idx === 0 ? 'active' : `stack-${idx}`;
+      return (
+        <article
+          id={card.id}
+          class={`reading-block intro-card-3d ${idx === 0 ? 'is-active' : 'is-stacked'}`}
+          role="tabpanel"
+          aria-labelledby={`intro-tab-${idx}`}
+          data-card-index={idx}
+          data-card-state={initialState}
+          aria-current={idx === 0 ? 'true' : 'false'}
+          tabindex="0"
+        >
+          <!-- Vista compacta en profundidad para tarjetas secundarias (02, 03, 04) -->
+          <div class="intro-card-stack-preview" aria-hidden={idx === 0 ? 'true' : 'false'}>
+            <div class="intro-stack-header">
+              <strong class="intro-stack-number">{card.number}</strong>
+              <span class="intro-stack-tag">{card.shortTag}</span>
+            </div>
+            <h4 class="intro-stack-title">{card.title}</h4>
+            <div class="intro-stack-emblem" aria-hidden="true">
+              {idx === 0 && (
+                <svg viewBox="0 0 120 90" class="intro-stack-svg">
+                  <rect x="20" y="34" width="56" height="36" rx="5" class="svg-3d-surface" />
+                  <path d="M36 34v-8h24v8" class="svg-3d-stroke" />
+                  <polygon points="84,26 104,64 64,64" class="svg-3d-warn" />
+                </svg>
+              )}
+              {idx === 1 && (
+                <svg viewBox="0 0 120 90" class="intro-stack-svg">
+                  <circle cx="42" cy="45" r="18" class="svg-3d-surface" />
+                  <circle cx="78" cy="45" r="18" class="svg-3d-surface-accent" />
+                  <path d="M42 27 C60 15, 60 75, 78 63" class="svg-3d-stroke-bright" />
+                </svg>
+              )}
+              {idx === 2 && (
+                <svg viewBox="0 0 120 90" class="intro-stack-svg">
+                  <circle cx="38" cy="38" r="10" class="svg-3d-surface" />
+                  <circle cx="62" cy="34" r="11" class="svg-3d-surface-accent" />
+                  <circle cx="84" cy="38" r="10" class="svg-3d-surface" />
+                  <path d="M22 68c4-14 28-14 32 0M44 68c5-16 31-16 36 0M68 68c4-14 28-14 32 0" class="svg-3d-surface" />
+                </svg>
+              )}
+              {idx === 3 && (
+                <svg viewBox="0 0 120 90" class="intro-stack-svg">
+                  <rect x="24" y="48" width="12" height="24" rx="2" class="svg-3d-surface" />
+                  <rect x="44" y="34" width="12" height="38" rx="2" class="svg-3d-surface" />
+                  <rect x="64" y="24" width="12" height="48" rx="2" class="svg-3d-surface-accent" />
+                  <circle cx="80" cy="42" r="14" class="svg-3d-lens" />
+                  <line x1="90" y1="52" x2="102" y2="64" class="svg-3d-stroke-bright" />
+                </svg>
+              )}
+            </div>
+            <span class="intro-stack-cta">Pulsa para enfocar →</span>
+          </div>
+
+          <!-- Contenido protagonista completo y frontal -->
+          <div class="intro-card-body-full">
+            <header class="intro-card-top-meta">
+              <div class="intro-card-badge-group">
+                <strong class="intro-card-big-num" aria-hidden="true">{card.number}</strong>
+                <div class="intro-card-kicker-wrap">
+                  <span class="intro-card-kicker">{card.kicker}</span>
+                  <small class="intro-card-focus-indicator">
+                    TARJETA PROTAGONISTA · {card.number} DE 04
+                  </small>
+                </div>
+              </div>
+              <span class="intro-card-step-pill" aria-hidden="true">
+                Concepto {card.number} / 04
+              </span>
+            </header>
+
+            <div class="intro-card-main-grid">
+              <!-- Columna izquierda: Ilustración educativa 2.8D/3D + disparador de explicación contextual -->
+              <div class="intro-card-illustration-col">
+                <div
+                  class="intro-card-illustration-frame"
+                  id={`intro-illus-frame-${idx}`}
+                >
+                  <button
+                    type="button"
+                    class="intro-illus-canvas-btn"
+                    data-illus-toggle={idx}
+                    aria-expanded="false"
+                    aria-controls={`intro-illus-panel-${idx}`}
+                    aria-label={`Ver explicación de la ilustración: ${card.illustrationTitle}`}
+                    title="Haz clic o pulsa Enter para desplegar qué representa esta ilustración"
+                  >
+                    {idx === 0 && (
+                      <svg
+                        class="intro-edu-svg"
+                        viewBox="0 0 320 220"
+                        role="img"
+                        aria-label="Ilustración 2.8D de herramientas de gestión sin conexión clara con la brecha del proceso"
+                      >
+                        <defs>
+                          <linearGradient id="p01-metal-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="var(--gold-light)" stop-opacity="0.42" />
+                            <stop offset="50%" stop-color="#334155" stop-opacity="0.88" />
+                            <stop offset="100%" stop-color="#0f172a" stop-opacity="0.96" />
+                          </linearGradient>
+                          <linearGradient id="p01-warn-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#fbbf24" />
+                            <stop offset="100%" stop-color="#d97706" />
+                          </linearGradient>
+                        </defs>
+                        <!-- Plataforma base en perspectiva 2.8D -->
+                        <ellipse cx="160" cy="186" rx="126" ry="20" class="svg-platform-glow" />
+                        <path d="M40 176 L160 198 L280 176 L160 154 Z" class="svg-platform-base" />
+
+                        <!-- Engranaje y llave saliendo de la caja de herramientas -->
+                        <g class="svg-float-group">
+                          <circle cx="128" cy="74" r="26" fill="url(#p01-metal-grad-1)" stroke="var(--gold-light)" stroke-width="2" />
+                          <circle cx="128" cy="74" r="11" fill="var(--ink)" stroke="var(--gold)" stroke-width="1.6" />
+                          <path d="M128 42v8M128 98v8M96 74h8M152 74h8M105 51l6 6M145 91l6 6M151 51l-6 6M111 91l-6 6" stroke="var(--gold-light)" stroke-width="3.2" stroke-linecap="round" />
+
+                          <!-- Mini tablero Kanban / 5S flotante sin conectar -->
+                          <rect x="166" y="48" width="66" height="44" rx="6" fill="url(#p01-metal-grad-1)" stroke="var(--gold-light)" stroke-width="1.5" />
+                          <line x1="188" y1="54" x2="188" y2="86" stroke="var(--line-strong)" stroke-width="1.2" />
+                          <line x1="210" y1="54" x2="210" y2="86" stroke="var(--line-strong)" stroke-width="1.2" />
+                          <rect x="171" y="57" width="12" height="8" rx="1.5" fill="var(--gold-light)" opacity="0.85" />
+                          <rect x="193" y="66" width="12" height="8" rx="1.5" fill="var(--gold)" opacity="0.75" />
+                          <text x="199" y="42" text-anchor="middle" class="svg-micro-label">5S · KANBAN</text>
+                        </g>
+
+                        <!-- Caja de herramientas tridimensional -->
+                        <path d="M58 106 L192 106 L206 122 L72 122 Z" fill="var(--gold-subtle)" stroke="var(--gold-light)" stroke-width="1.6" />
+                        <rect x="58" y="122" width="134" height="52" rx="6" fill="url(#p01-metal-grad-1)" stroke="var(--gold-light)" stroke-width="2" />
+                        <path d="M192 122 L206 106 L206 158 L192 174 Z" fill="rgba(15, 23, 42, 0.85)" stroke="var(--gold)" stroke-width="1.5" />
+                        <rect x="76" y="136" width="42" height="10" rx="3" fill="var(--ink)" stroke="var(--gold-light)" stroke-width="1.3" />
+                        <rect x="132" y="136" width="42" height="10" rx="3" fill="var(--ink)" stroke="var(--gold-light)" stroke-width="1.3" />
+                        <text x="125" y="164" text-anchor="middle" class="svg-box-caption">HERRAMIENTAS</text>
+
+                        <!-- Puente interrumpido + Triángulo de advertencia (brecha sin propósito) -->
+                        <path d="M206 146 H254" stroke="var(--status-amber)" stroke-width="2.5" stroke-dasharray="5 5" />
+                        <g transform="translate(216, 114)">
+                          <polygon points="24,0 48,44 0,44" fill="url(#p01-warn-grad)" stroke="#fef3c7" stroke-width="2" />
+                          <rect x="22" y="14" width="4" height="15" rx="2" fill="#0f172a" />
+                          <circle cx="24" cy="35" r="2.6" fill="#0f172a" />
+                        </g>
+                        <text x="240" y="175" text-anchor="middle" class="svg-warn-caption">¿QUÉ BRECHA CIERRA?</text>
+                      </svg>
+                    )}
+
+                    {idx === 1 && (
+                      <svg
+                        class="intro-edu-svg"
+                        viewBox="0 0 320 220"
+                        role="img"
+                        aria-label="Ilustración 2.8D de componentes y procesos interconectados como totalidad viva"
+                      >
+                        <defs>
+                          <linearGradient id="p01-node-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="var(--gold-light)" stop-opacity="0.48" />
+                            <stop offset="100%" stop-color="#0f172a" stop-opacity="0.94" />
+                          </linearGradient>
+                        </defs>
+                        <ellipse cx="160" cy="186" rx="126" ry="20" class="svg-platform-glow" />
+                        <path d="M40 176 L160 198 L280 176 L160 154 Z" class="svg-platform-base" />
+
+                        <!-- Red de conexiones causales del sistema -->
+                        <path d="M84 68 L160 110 L236 68 M84 146 L160 110 L236 146 M84 68 L84 146 M236 68 L236 146" stroke="var(--gold-light)" stroke-width="2.2" stroke-dasharray="5 4" fill="none" />
+
+                        <!-- Piezas/módulos interconectados en 2.8D -->
+                        <g>
+                          <rect x="36" y="46" width="92" height="38" rx="8" fill="url(#p01-node-grad)" stroke="var(--gold-light)" stroke-width="1.8" />
+                          <text x="82" y="69" text-anchor="middle" class="svg-node-title">DISEÑO DEL FLUJO</text>
+
+                          <rect x="192" y="46" width="92" height="38" rx="8" fill="url(#p01-node-grad)" stroke="var(--gold-light)" stroke-width="1.8" />
+                          <text x="238" y="69" text-anchor="middle" class="svg-node-title">ESTÁNDAR CLARO</text>
+
+                          <rect x="36" y="128" width="92" height="38" rx="8" fill="url(#p01-node-grad)" stroke="var(--gold-light)" stroke-width="1.8" />
+                          <text x="82" y="151" text-anchor="middle" class="svg-node-title">RITMO INSUMOS</text>
+
+                          <rect x="192" y="128" width="92" height="38" rx="8" fill="url(#p01-node-grad)" stroke="var(--gold-light)" stroke-width="1.8" />
+                          <text x="238" y="151" text-anchor="middle" class="svg-node-title">REACCIÓN LÍDER</text>
+                        </g>
+
+                        <!-- Engranaje integrador central (Totalidad Viva) -->
+                        <circle cx="160" cy="108" r="31" fill="var(--ink)" stroke="var(--gold)" stroke-width="3" />
+                        <circle cx="160" cy="108" r="23" fill="url(#p01-node-grad)" stroke="var(--gold-light)" stroke-width="1.6" />
+                        <text x="160" y="105" text-anchor="middle" class="svg-core-title">SISTEMA</text>
+                        <text x="160" y="117" text-anchor="middle" class="svg-micro-label">ENGRANAJE VIVO</text>
+                      </svg>
+                    )}
+
+                    {idx === 2 && (
+                      <svg
+                        class="intro-edu-svg"
+                        viewBox="0 0 320 220"
+                        role="img"
+                        aria-label="Ilustración 2.8D de un equipo comunicando una anomalía con seguridad técnica y psicológica"
+                      >
+                        <defs>
+                          <linearGradient id="p01-team-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="var(--gold-light)" stop-opacity="0.55" />
+                            <stop offset="100%" stop-color="#1e293b" stop-opacity="0.95" />
+                          </linearGradient>
+                        </defs>
+                        <ellipse cx="160" cy="186" rx="126" ry="20" class="svg-platform-glow" />
+                        <path d="M40 176 L160 198 L280 176 L160 154 Z" class="svg-platform-base" />
+
+                        <!-- Arco protector de confianza psicológica y técnica -->
+                        <path d="M56 154 A106 96 0 0 1 264 154" fill="none" stroke="var(--gold-light)" stroke-width="2" stroke-dasharray="6 4" />
+                        <text x="160" y="34" text-anchor="middle" class="svg-micro-label">CONFIANZA TÉCNICA Y PSICOLÓGICA</text>
+
+                        <!-- Integrante izquierdo (escucha activa) -->
+                        <circle cx="96" cy="102" r="15" fill="url(#p01-team-grad)" stroke="var(--gold-light)" stroke-width="1.8" />
+                        <path d="M68 158 C68 130, 124 130, 124 158 Z" fill="url(#p01-team-grad)" stroke="var(--gold-light)" stroke-width="1.8" />
+
+                        <!-- Integrante derecho / líder (apoyo respetuoso) -->
+                        <circle cx="224" cy="102" r="15" fill="url(#p01-team-grad)" stroke="var(--gold-light)" stroke-width="1.8" />
+                        <path d="M196 158 C196 130, 252 130, 252 158 Z" fill="url(#p01-team-grad)" stroke="var(--gold-light)" stroke-width="1.8" />
+
+                        <!-- Integrante central levantando la mano ante una anomalía -->
+                        <circle cx="160" cy="92" r="18" fill="url(#p01-team-grad)" stroke="var(--gold)" stroke-width="2.4" />
+                        <path d="M126 162 C126 128, 194 128, 194 162 Z" fill="url(#p01-team-grad)" stroke="var(--gold)" stroke-width="2.4" />
+                        <!-- Mano levantada / señal abierta -->
+                        <path d="M182 126 L198 84" stroke="var(--gold-light)" stroke-width="5" stroke-linecap="round" />
+                        <circle cx="200" cy="80" r="5" fill="var(--gold-light)" />
+
+                        <!-- Baliza de anomalía visibilizada a tiempo -->
+                        <rect x="114" y="44" width="92" height="24" rx="12" fill="var(--ink)" stroke="var(--status-amber)" stroke-width="1.8" />
+                        <circle cx="128" cy="56" r="4.5" fill="var(--status-amber)" />
+                        <text x="166" y="60" text-anchor="middle" class="svg-warn-caption">¡ANOMALÍA VISIBLE!</text>
+                      </svg>
+                    )}
+
+                    {idx === 3 && (
+                      <svg
+                        class="intro-edu-svg"
+                        viewBox="0 0 320 220"
+                        role="img"
+                        aria-label="Ilustración 2.8D de observación en el Gemba, datos y análisis riguroso de una desviación"
+                      >
+                        <defs>
+                          <linearGradient id="p01-bar-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="var(--gold-light)" stop-opacity="0.85" />
+                            <stop offset="100%" stop-color="var(--gold)" stop-opacity="0.3" />
+                          </linearGradient>
+                        </defs>
+                        <ellipse cx="160" cy="186" rx="126" ry="20" class="svg-platform-glow" />
+                        <path d="M40 176 L160 198 L280 176 L160 154 Z" class="svg-platform-base" />
+
+                        <!-- Panel de telemetría y evidencia en el Gemba -->
+                        <rect x="52" y="42" width="176" height="122" rx="8" fill="rgba(15, 23, 42, 0.82)" stroke="var(--gold-light)" stroke-width="1.8" />
+                        <line x1="68" y1="146" x2="212" y2="146" stroke="var(--line-strong)" stroke-width="1.5" />
+
+                        <!-- Barras tridimensionales de datos reales -->
+                        <rect x="78" y="108" width="20" height="38" rx="3" fill="url(#p01-bar-grad)" stroke="var(--gold-light)" stroke-width="1.2" />
+                        <rect x="112" y="88" width="20" height="58" rx="3" fill="url(#p01-bar-grad)" stroke="var(--gold-light)" stroke-width="1.2" />
+                        <rect x="146" y="116" width="20" height="30" rx="3" fill="rgba(245, 158, 11, 0.35)" stroke="var(--status-amber)" stroke-width="1.8" />
+                        <rect x="180" y="70" width="20" height="76" rx="3" fill="url(#p01-bar-grad)" stroke="var(--gold-light)" stroke-width="1.2" />
+
+                        <!-- Curva de evidencia y punto de desviación -->
+                        <polyline points="88,100 122,82 156,110 190,64" fill="none" stroke="var(--gold-light)" stroke-width="2.5" stroke-linecap="round" />
+                        <circle cx="156" cy="110" r="5.5" fill="var(--status-amber)" stroke="#fff" stroke-width="1.5" />
+
+                        <!-- Lupa de observación científica en el Gemba -->
+                        <circle cx="212" cy="108" r="34" fill="rgba(56, 189, 248, 0.14)" stroke="var(--gold-light)" stroke-width="3.2" />
+                        <circle cx="212" cy="108" r="27" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4 4" opacity="0.6" />
+                        <line x1="237" y1="132" x2="268" y2="162" stroke="var(--gold-light)" stroke-width="7" stroke-linecap="round" />
+                        <text x="140" y="34" text-anchor="middle" class="svg-micro-label">EVIDENCIA EN EL GEMBA</text>
+                      </svg>
+                    )}
+
+                    <span class="intro-illus-badge">
+                      <span aria-hidden="true">🔍</span> Explicación visual
+                    </span>
+                  </button>
+
+                  <!-- Botón accesible explícito debajo de la ilustración -->
+                  <button
+                    type="button"
+                    class="intro-illus-explain-btn"
+                    data-illus-toggle={idx}
+                    aria-expanded="false"
+                    aria-controls={`intro-illus-panel-${idx}`}
+                  >
+                    <span class="intro-illus-btn-dot" aria-hidden="true"></span>
+                    <span class="intro-illus-btn-text">Qué representa esta ilustración</span>
+                    <span class="intro-illus-btn-chevron" aria-hidden="true">▾</span>
+                  </button>
+
+                  <!-- Panel desplegable reversible con la explicación contextual de la ilustración -->
+                  <div
+                    class="intro-illus-explanation"
+                    id={`intro-illus-panel-${idx}`}
+                    role="region"
+                    aria-label={card.illustrationTitle}
+                    hidden
+                  >
+                    <div class="intro-illus-exp-head">
+                      <strong>{card.illustrationTitle}</strong>
+                      <button
+                        type="button"
+                        class="intro-illus-exp-close"
+                        data-illus-close={idx}
+                        aria-label="Cerrar explicación de la ilustración"
+                      >
+                        ✕ Cerrar
+                      </button>
+                    </div>
+                    <p>{card.illustrationExplanation}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Columna derecha: Título grande, párrafo original íntegro e idea clave destacada -->
+              <div class="intro-card-editorial-col">
+                <h3 class="intro-card-title">{card.title}</h3>
+                <p class="intro-card-paragraph">{card.paragraph}</p>
+
+                <div class="intro-card-key-takeaway">
+                  <span class="intro-takeaway-kicker">SÍNTESIS PARA EL LÍDER</span>
+                  <p class="intro-takeaway-copy">{card.keyIdea}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      );
+    })}
+  </div>
+
+  <!-- Barra inferior de navegación espacial, indicador activo y reproducción guiada -->
+  <nav class="intro-deck-controls" aria-label="Controles de navegación de las cuatro tarjetas">
+    <div class="intro-deck-nav-group">
+      <button
+        type="button"
+        class="intro-deck-arrow-btn"
+        id="intro-deck-prev-btn"
+        aria-label="Tarjeta anterior"
+        title="Ir a la tarjeta anterior (Flecha izquierda)"
+      >
+        <span aria-hidden="true">←</span>
+        <span class="intro-arrow-text">Anterior</span>
+      </button>
+
+      <button
+        type="button"
+        class="intro-deck-play-btn"
+        id="intro-deck-play-btn"
+        aria-pressed="false"
+        aria-label="Iniciar recorrido guiado por las cuatro tarjetas"
+        title="Iniciar o pausar avance guiado para presentación (desactivado inicialmente)"
+      >
+        <span class="intro-play-glyph" id="intro-play-glyph" aria-hidden="true">▶</span>
+        <span class="intro-play-label" id="intro-play-label">Recorrido guiado</span>
+      </button>
+
+      <button
+        type="button"
+        class="intro-deck-arrow-btn"
+        id="intro-deck-next-btn"
+        aria-label="Siguiente tarjeta"
+        title="Avanzar a la siguiente tarjeta (Flecha derecha)"
+      >
+        <span class="intro-arrow-text">Siguiente</span>
+        <span aria-hidden="true">→</span>
+      </button>
+    </div>
+
+    <div class="intro-deck-indicators" role="group" aria-label="Indicador de tarjeta activa">
+      <div class="intro-deck-dots">
+        {cards.map((card, idx) => (
+          <button
+            type="button"
+            class={`intro-deck-dot ${idx === 0 ? 'is-active' : ''}`}
+            data-dot-index={idx}
+            aria-label={`Ir a la tarjeta ${card.number}: ${card.title}`}
+            aria-current={idx === 0 ? 'true' : 'false'}
+          >
+            <span>{card.number}</span>
+          </button>
+        ))}
+      </div>
+      <span class="intro-deck-counter" id="intro-deck-counter" aria-live="polite">
+        Tarjeta activa: <strong>01</strong> de 04
+      </span>
+    </div>
+
+    <div class="intro-deck-autoplay-wrap">
+      <button
+        type="button"
+        role="switch"
+        aria-checked="false"
+        class="intro-autoplay-switch"
+        id="intro-autoplay-switch"
+        title="Activar o desactivar reproducción automática con tiempo de lectura completo (9 s por tarjeta)"
+      >
+        <span class="intro-switch-label">Reproducción automática</span>
+        <span class="intro-switch-track" aria-hidden="true">
+          <span class="intro-switch-thumb"></span>
+        </span>
+      </button>
+    </div>
+  </nav>
+</section>
+
+<script>
+  import {
+    createPresentationController,
+    prefersReducedMotion,
+    type PresentationScene,
+  } from '../../lib/presentationEngine';
+
+  function initIntroOperationalCards3D() {
+    const workbench = document.getElementById('intro-cards-workbench');
+    if (!workbench || workbench.hasAttribute('data-initialized')) return;
+    workbench.setAttribute('data-initialized', 'true');
+
+    const tabs = Array.from(workbench.querySelectorAll<HTMLButtonElement>('.intro-deck-tab'));
+    const cards = Array.from(workbench.querySelectorAll<HTMLElement>('.intro-card-3d'));
+    const dots = Array.from(workbench.querySelectorAll<HTMLButtonElement>('.intro-deck-dot'));
+    const prevBtn = document.getElementById('intro-deck-prev-btn') as HTMLButtonElement | null;
+    const nextBtn = document.getElementById('intro-deck-next-btn') as HTMLButtonElement | null;
+    const playBtn = document.getElementById('intro-deck-play-btn') as HTMLButtonElement | null;
+    const playGlyph = document.getElementById('intro-play-glyph');
+    const playLabel = document.getElementById('intro-play-label');
+    const autoSwitch = document.getElementById('intro-autoplay-switch') as HTMLButtonElement | null;
+    const counterEl = document.getElementById('intro-deck-counter');
+
+    // Controles de Modo Auditorio (Presentation Engine)
+    const enterPresBtn = document.getElementById('intro-pres-enter-btn') as HTMLButtonElement | null;
+    const exitPresBtn = document.getElementById('intro-pres-exit-btn') as HTMLButtonElement | null;
+    const overviewPresBtn = document.getElementById('intro-pres-overview-btn') as HTMLButtonElement | null;
+    const fullscreenPresBtn = document.getElementById('intro-pres-fullscreen-btn') as HTMLButtonElement | null;
+    const presStatusPill = document.getElementById('intro-pres-status-pill');
+
+    const total = cards.length;
+    let activeIndex = 0;
+    let isAutoPlaying = false;
+    let autoPlayTimer: number | null = null;
+    const READING_INTERVAL_MS = 9000;
+
+    const scenes: PresentationScene[] = cards.map((cardEl, idx) => {
+      const num = String(idx + 1).padStart(2, '0');
+      const kicker = cardEl.querySelector('.intro-card-kicker')?.textContent?.trim() || '';
+      const title = cardEl.querySelector('.intro-card-title')?.textContent?.trim() || '';
+      const summary = cardEl.querySelector('.intro-card-paragraph')?.textContent?.trim() || '';
+      return {
+        id: `intro-scene-${num}`,
+        number: num,
+        tag: kicker,
+        title,
+        summary,
+      };
+    });
+
+    function syncPlayControlsUI(playing: boolean) {
+      isAutoPlaying = playing;
+      workbench?.setAttribute('data-autoplay', playing ? 'true' : 'false');
+      if (playBtn) {
+        playBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+      }
+      if (playGlyph) {
+        playGlyph.textContent = playing ? '⏸' : '▶';
+      }
+      if (playLabel) {
+        playLabel.textContent = playing ? 'Pausar recorrido' : 'Recorrido guiado';
+      }
+      if (autoSwitch) {
+        autoSwitch.setAttribute('aria-checked', playing ? 'true' : 'false');
+      }
+    }
+
+    function stopDeckAutoPlay() {
+      if (autoPlayTimer !== null) {
+        window.clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+      }
+      if (presCtrl.isPresented() && presCtrl.isPlaying()) {
+        presCtrl.togglePlayPause();
+      }
+      syncPlayControlsUI(false);
+    }
+
+    function startDeckAutoPlay() {
+      if (autoPlayTimer !== null) {
+        window.clearInterval(autoPlayTimer);
+      }
+      syncPlayControlsUI(true);
+      autoPlayTimer = window.setInterval(() => {
+        activateCard((activeIndex + 1) % total, { userInitiated: false, direction: 1 });
+      }, READING_INTERVAL_MS);
+    }
+
+    function toggleDeckAutoPlay() {
+      if (isAutoPlaying) {
+        stopDeckAutoPlay();
+      } else {
+        startDeckAutoPlay();
+      }
+    }
+
+    function applySpatialPositions(targetIndex: number, direction: 1 | -1, animateTransition: boolean) {
+      const prevIndex = activeIndex;
+      activeIndex = ((targetIndex % total) + total) % total;
+      workbench?.setAttribute('data-active-index', String(activeIndex));
+
+      cards.forEach((cardEl, idx) => {
+        const offset = (idx - activeIndex + total) % total;
+        const isCurrent = offset === 0;
+        const stateName = isCurrent ? 'active' : `stack-${offset}`;
+
+        cardEl.setAttribute('data-card-state', stateName);
+        cardEl.classList.toggle('is-active', isCurrent);
+        cardEl.classList.toggle('is-stacked', !isCurrent);
+        cardEl.setAttribute('aria-current', isCurrent ? 'true' : 'false');
+
+        const previewEl = cardEl.querySelector('.intro-card-stack-preview');
+        if (previewEl) {
+          previewEl.setAttribute('aria-hidden', isCurrent ? 'true' : 'false');
+        }
+
+        // Animación espacial 3D suave al entrar como protagonista (respetando prefers-reduced-motion)
+        if (
+          isCurrent &&
+          animateTransition &&
+          prevIndex !== activeIndex &&
+          !prefersReducedMotion() &&
+          typeof cardEl.animate === 'function'
+        ) {
+          cardEl.getAnimations().forEach((a) => a.cancel());
+          cardEl.animate(
+            [
+              {
+                transform: `translate3d(${direction * 38}px, 6px, -65px) rotateY(${direction * -7}deg) scale(0.95)`,
+                opacity: 0.45,
+              },
+              {
+                transform: 'translate3d(0px, 0px, 0px) rotateY(0deg) scale(1)',
+                opacity: 1,
+              },
+            ],
+            {
+              duration: 410,
+              easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+              fill: 'none',
+            }
+          );
+        }
+      });
+
+      tabs.forEach((tabEl, idx) => {
+        const isSelected = idx === activeIndex;
+        tabEl.classList.toggle('is-active', isSelected);
+        tabEl.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        tabEl.tabIndex = isSelected ? 0 : -1;
+      });
+
+      dots.forEach((dotEl, idx) => {
+        const isSelected = idx === activeIndex;
+        dotEl.classList.toggle('is-active', isSelected);
+        dotEl.setAttribute('aria-current', isSelected ? 'true' : 'false');
+      });
+
+      const numStr = String(activeIndex + 1).padStart(2, '0');
+      if (counterEl) {
+        counterEl.innerHTML = `Tarjeta activa: <strong>${numStr}</strong> de 04`;
+      }
+      if (presStatusPill) {
+        presStatusPill.textContent = `TARJETA ${numStr} DE 04`;
+      }
+    }
+
+    function activateCard(
+      targetIndex: number,
+      options: { userInitiated?: boolean; direction?: 1 | -1; focusTab?: boolean } = {}
+    ) {
+      const { userInitiated = true, focusTab = false } = options;
+      const normalized = ((targetIndex % total) + total) % total;
+      const dir: 1 | -1 =
+        options.direction ?? (normalized >= activeIndex ? 1 : -1);
+
+      if (userInitiated && isAutoPlaying) {
+        stopDeckAutoPlay();
+      }
+
+      // Si estamos en Vista General de auditorio y se elige una tarjeta, salir de vista general
+      if (workbench?.getAttribute('data-presentation-overview') === 'true') {
+        workbench.setAttribute('data-presentation-overview', 'false');
+        overviewPresBtn?.setAttribute('aria-pressed', 'false');
+      }
+
+      applySpatialPositions(normalized, dir, true);
+
+      if (presCtrl.isPresented() && presCtrl.getCurrentIndex() !== normalized) {
+        presCtrl.goToScene(normalized);
+      }
+
+      if (focusTab) {
+        tabs[normalized]?.focus({ preventScroll: true });
+      }
+    }
+
+    // Integración con el motor de presentación existente (src/lib/presentationEngine.ts)
+    const presCtrl = createPresentationController({
+      containerEl: workbench,
+      scenes,
+      autoPlayIntervalMs: READING_INTERVAL_MS,
+      onSceneChange: (_scene, index, isOverview) => {
+        if (isOverview) {
+          overviewPresBtn?.setAttribute('aria-pressed', 'true');
+          if (presStatusPill) {
+            presStatusPill.textContent = 'VISTA GENERAL · 04 TARJETAS';
+          }
+          return;
+        }
+        overviewPresBtn?.setAttribute('aria-pressed', 'false');
+        if (index !== activeIndex) {
+          applySpatialPositions(index, index >= activeIndex ? 1 : -1, true);
+        } else {
+          const numStr = String(activeIndex + 1).padStart(2, '0');
+          if (presStatusPill) {
+            presStatusPill.textContent = `TARJETA ${numStr} DE 04`;
+          }
+        }
+      },
+      onExit: () => {
+        overviewPresBtn?.setAttribute('aria-pressed', 'false');
+        stopDeckAutoPlay();
+      },
+    });
+
+    // Eventos de pestañas superiores 01–04
+    tabs.forEach((tabEl, idx) => {
+      tabEl.addEventListener('click', () => {
+        activateCard(idx, { userInitiated: true });
+      });
+
+      tabEl.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          e.stopPropagation();
+          activateCard((idx + 1) % total, { userInitiated: true, direction: 1, focusTab: true });
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          e.stopPropagation();
+          activateCard((idx - 1 + total) % total, { userInitiated: true, direction: -1, focusTab: true });
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          e.stopPropagation();
+          activateCard(0, { userInitiated: true, direction: -1, focusTab: true });
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          e.stopPropagation();
+          activateCard(total - 1, { userInitiated: true, direction: 1, focusTab: true });
+        }
+      });
+    });
+
+    // Clic o teclado sobre tarjetas en profundidad para traerlas al frente
+    cards.forEach((cardEl, idx) => {
+      cardEl.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement | null;
+        if (target?.closest('button, a')) return;
+        if (idx !== activeIndex) {
+          activateCard(idx, { userInitiated: true });
+        }
+      });
+
+      cardEl.addEventListener('keydown', (e) => {
+        const target = e.target as HTMLElement | null;
+        if (target && target !== cardEl) return;
+        if ((e.key === 'Enter' || e.key === ' ') && idx !== activeIndex) {
+          e.preventDefault();
+          activateCard(idx, { userInitiated: true });
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          e.stopPropagation();
+          activateCard((activeIndex + 1) % total, { userInitiated: true, direction: 1 });
+          cards[(activeIndex) % total]?.focus({ preventScroll: true });
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          e.stopPropagation();
+          activateCard((activeIndex - 1 + total) % total, { userInitiated: true, direction: -1 });
+          cards[(activeIndex) % total]?.focus({ preventScroll: true });
+        }
+      });
+    });
+
+    // Botones Anterior / Siguiente / Puntos
+    prevBtn?.addEventListener('click', () => {
+      activateCard((activeIndex - 1 + total) % total, { userInitiated: true, direction: -1 });
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      activateCard((activeIndex + 1) % total, { userInitiated: true, direction: 1 });
+    });
+
+    dots.forEach((dotEl, idx) => {
+      dotEl.addEventListener('click', () => {
+        activateCard(idx, { userInitiated: true });
+      });
+    });
+
+    // Play / Pausa y Switch de reproducción automática
+    playBtn?.addEventListener('click', () => {
+      toggleDeckAutoPlay();
+    });
+
+    autoSwitch?.addEventListener('click', () => {
+      toggleDeckAutoPlay();
+    });
+
+    // Interacción contextual de las 4 ilustraciones educativas (reversible y accesible por teclado)
+    function setIllustrationPanelOpen(cardIdx: number, open: boolean) {
+      const panel = document.getElementById(`intro-illus-panel-${cardIdx}`);
+      const frame = document.getElementById(`intro-illus-frame-${cardIdx}`);
+      const triggers = workbench?.querySelectorAll<HTMLButtonElement>(
+        `[data-illus-toggle="${cardIdx}"]`
+      );
+      if (!panel) return;
+
+      panel.hidden = !open;
+      frame?.classList.toggle('is-explanation-open', open);
+      triggers?.forEach((btn) => {
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    }
+
+    const illusToggles = Array.from(
+      workbench.querySelectorAll<HTMLButtonElement>('[data-illus-toggle]')
+    );
+    illusToggles.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.getAttribute('data-illus-toggle') || '0', 10);
+        if (idx !== activeIndex && workbench.getAttribute('data-presentation-overview') !== 'true') {
+          activateCard(idx, { userInitiated: true });
+        }
+        const panel = document.getElementById(`intro-illus-panel-${idx}`);
+        const isCurrentlyOpen = panel ? !panel.hidden : false;
+        setIllustrationPanelOpen(idx, !isCurrentlyOpen);
+      });
+    });
+
+    const illusCloseBtns = Array.from(
+      workbench.querySelectorAll<HTMLButtonElement>('[data-illus-close]')
+    );
+    illusCloseBtns.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.getAttribute('data-illus-close') || '0', 10);
+        setIllustrationPanelOpen(idx, false);
+        const trigger = workbench.querySelector<HTMLButtonElement>(
+          `.intro-illus-explain-btn[data-illus-toggle="${idx}"]`
+        );
+        trigger?.focus({ preventScroll: true });
+      });
+    });
+
+    // Cerrar explicación de ilustración con Escape cuando no se está en modo auditorio
+    workbench.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !presCtrl.isPresented()) {
+        const openPanel = workbench.querySelector<HTMLElement>('.intro-illus-explanation:not([hidden])');
+        if (openPanel) {
+          e.preventDefault();
+          e.stopPropagation();
+          const idMatch = openPanel.id.match(/intro-illus-panel-(\d+)/);
+          if (idMatch) {
+            const idx = parseInt(idMatch[1], 10);
+            setIllustrationPanelOpen(idx, false);
+          }
+        }
+      }
+    });
+
+    // Soporte táctil (swipe horizontal suave en móviles/tablets)
+    let touchStartX: number | null = null;
+    let touchStartY: number | null = null;
+    workbench.addEventListener(
+      'touchstart',
+      (e) => {
+        if (e.touches.length === 1) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }
+      },
+      { passive: true }
+    );
+
+    workbench.addEventListener(
+      'touchend',
+      (e) => {
+        if (touchStartX === null || touchStartY === null || e.changedTouches.length === 0) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        touchStartX = null;
+        touchStartY = null;
+        if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+          if (dx < 0) {
+            activateCard((activeIndex + 1) % total, { userInitiated: true, direction: 1 });
+          } else {
+            activateCard((activeIndex - 1 + total) % total, { userInitiated: true, direction: -1 });
+          }
+        }
+      },
+      { passive: true }
+    );
+
+    // Botones del Modo Presentación para Auditorios
+    enterPresBtn?.addEventListener('click', () => {
+      presCtrl.enter(activeIndex);
+    });
+
+    exitPresBtn?.addEventListener('click', () => {
+      presCtrl.exit();
+    });
+
+    overviewPresBtn?.addEventListener('click', () => {
+      const isOverview = workbench.getAttribute('data-presentation-overview') === 'true';
+      if (isOverview) {
+        presCtrl.goToScene(activeIndex);
+      } else {
+        presCtrl.showOverview();
+      }
+    });
+
+    fullscreenPresBtn?.addEventListener('click', () => {
+      void presCtrl.toggleFullscreen();
+    });
+  }
+
+  initIntroOperationalCards3D();
+  document.addEventListener('astro:page-load', initIntroOperationalCards3D);
+</script>

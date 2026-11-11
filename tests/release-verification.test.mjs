@@ -413,3 +413,52 @@ describe('6. Refinamiento editorial y responsive de Cubierta (COVER-UX-02)', () 
     );
   });
 });
+
+describe('7. Evolución editorial 3D de las cuatro tarjetas de Página 01 (PAGE-01-UX-3D-01)', () => {
+  test('Preserva íntegramente los 4 conceptos y párrafos originales, ilustraciones contextuales sin audio y modo auditorio reutilizando presentationEngine.ts', () => {
+    const introPageSrc = fs.readFileSync(
+      path.join(ROOT_DIR, 'src/pages/introduccion.astro'),
+      'utf8'
+    );
+    const cardsCompSrc = fs.readFileSync(
+      path.join(ROOT_DIR, 'src/components/diagrams/IntroOperationalCards3D.astro'),
+      'utf8'
+    );
+
+    // 1. Conservación exacta de los 4 títulos y párrafos originales
+    assert.match(cardsCompSrc, /El espejismo de las herramientas/);
+    assert.match(
+      cardsCompSrc,
+      /Implementar 5S, tableros Kanban o rutinas de supervisión sin clarificar su propósito genera fatiga y burocracia\. Las herramientas solo cobran sentido cuando responden a un problema real de la operación y cuando el equipo entiende qué brecha busca cerrar\./
+    );
+
+    assert.match(cardsCompSrc, /El sistema como totalidad viva/);
+    assert.match(
+      cardsCompSrc,
+      /Una desviación en calidad o un retraso en entrega rara vez es un fallo individual\. Con frecuencia involucra el diseño del flujo, la claridad del estándar, el ritmo de los insumos y la forma en que el líder reacciona frente al error\. Quien solo mira la pieza pierde de vista el engranaje\./
+    );
+
+    assert.match(cardsCompSrc, /Seguridad para cuestionar/);
+    assert.match(
+      cardsCompSrc,
+      /Ningún estándar se mantiene vivo sin personas dispuestas a levantar la mano ante una anomalía\. Cuando un entorno castiga el error, los problemas no desaparecen: se ocultan hasta convertirse en crisis\. La excelencia exige confianza técnica y psicológica en la línea de trabajo\./
+    );
+
+    assert.match(cardsCompSrc, /De la intuición a la evidencia/);
+    assert.match(
+      cardsCompSrc,
+      /Aprender en las operaciones significa sustituir las opiniones jerárquicas por datos contrastados en el Gemba \(el lugar real\)\. Cada desviación deja de ser una molestia y pasa a ser información privilegiada para ajustar el proceso con rigor y disciplina\./
+    );
+
+    // 2. Reutilización de createPresentationController y ausencia de elementos de audio/voz
+    assert.match(cardsCompSrc, /createPresentationController/);
+    assert.doesNotMatch(cardsCompSrc, /<audio|speechSynthesis|AudioContext/i);
+
+    // 3. Conservación del encabezado, caso breve, principio clave y CTA en introduccion.astro
+    assert.match(introPageSrc, /Antes de hablar de herramientas/);
+    assert.match(introPageSrc, /CASO BREVE · DESVIACIÓN EN ENTREGA/);
+    assert.match(introPageSrc, /Dos respuestas frente al mismo incidente/);
+    assert.match(introPageSrc, /PRINCIPIO CLAVE/);
+    assert.match(introPageSrc, /Explora la anatomía del sistema/);
+  });
+});
