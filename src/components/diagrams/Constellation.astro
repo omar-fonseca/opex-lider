@@ -6,8 +6,8 @@ const nodes = [
     relation: "Se vincula con Liderazgo y Procesos: aporta el criterio humano para ejecutar el estándar, detectar anomalías y sostener la Mejora en el terreno.",
     connectedTo: [1, 4, 5],
     connectedLabel: "Liderazgo · Procesos · Mejora",
-    x: 18,
-    y: 22
+    x: 50,
+    y: 15.5
   },
   {
     name: "PROCESOS",
@@ -15,8 +15,8 @@ const nodes = [
     relation: "Conecta a las Personas con los Resultados: estabiliza el flujo de trabajo para que cada desviación sea visible y corregible en la fuente.",
     connectedTo: [0, 2, 3],
     connectedLabel: "Personas · Estrategia · Resultados",
-    x: 78,
-    y: 22
+    x: 79.8,
+    y: 32.8
   },
   {
     name: "ESTRATEGIA",
@@ -24,8 +24,8 @@ const nodes = [
     relation: "Orienta a Procesos y Liderazgo: traduce la visión organizacional en prioridades operacionales claras para enfocar los esfuerzos del equipo.",
     connectedTo: [1, 3, 5],
     connectedLabel: "Liderazgo · Procesos · Resultados",
-    x: 90,
-    y: 54
+    x: 79.8,
+    y: 67.2
   },
   {
     name: "RESULTADOS",
@@ -33,8 +33,8 @@ const nodes = [
     relation: "Articula Procesos, Estrategia y Mejora: refleja el desempeño real del sistema y señala dónde iniciar el siguiente ciclo de aprendizaje.",
     connectedTo: [1, 2, 4],
     connectedLabel: "Procesos · Estrategia · Mejora",
-    x: 72,
-    y: 84
+    x: 50,
+    y: 84.5
   },
   {
     name: "MEJORA",
@@ -42,8 +42,8 @@ const nodes = [
     relation: "Conecta Resultados con Personas y Liderazgo: transforma cada brecha operacional en experimentación estructurada para evolucionar el sistema.",
     connectedTo: [0, 3, 5],
     connectedLabel: "Personas · Liderazgo · Resultados",
-    x: 28,
-    y: 84
+    x: 20.2,
+    y: 67.2
   },
   {
     name: "LIDERAZGO",
@@ -51,8 +51,8 @@ const nodes = [
     relation: "Activa a las Personas y sostiene la Mejora: traduce la Estrategia en comportamientos observables y elimina barreras en la operación diaria.",
     connectedTo: [0, 2, 4],
     connectedLabel: "Personas · Estrategia · Mejora",
-    x: 10,
-    y: 54
+    x: 20.2,
+    y: 32.8
   }
 ];
 
@@ -73,15 +73,75 @@ nodes.forEach((node, i) => {
   });
 });
 
+// Seis arcos exteriores luminosos en sentido horario (referencia visual GEAR-3D-01)
+const flowArcAngles = [-68, -8, 52, 112, 172, 232];
+
 const defaultIndex = 5;
 const initialNode = nodes[defaultIndex];
 ---
 
-<div class="cover-diagram-block" id="constellation" data-expanded="false" aria-label="Sistema orbital interactivo de conceptos de liderazgo operacional">
+<div
+  class="cover-diagram-block"
+  id="constellation"
+  data-expanded="false"
+  data-gears-mode="initializing"
+  aria-label="Sistema tridimensional interactivo de siete engranajes sincronizados de liderazgo y excelencia operacional"
+>
   <div class="constellation" id="constellation-stage">
     <div class="orbit orbit-one" aria-hidden="true"></div>
     <div class="orbit orbit-two" aria-hidden="true"></div>
     <div class="constellation-glow" aria-hidden="true"></div>
+
+    <!-- Anillo exterior de flujo luminoso en sentido horario (Referencia visual GEAR-3D-01) -->
+    <svg
+      class="gears-flow-ring-svg"
+      id="gears-flow-ring-svg"
+      viewBox="0 0 240 240"
+      aria-hidden="true"
+    >
+      <defs>
+        <marker
+          id="gear-flow-arrow-head"
+          viewBox="0 0 10 10"
+          refX="6.5"
+          refY="5"
+          markerWidth="4.6"
+          markerHeight="4.6"
+          orient="auto"
+        >
+          <path d="M 0 1.4 L 9 5 L 0 8.6 z" class="gear-flow-arrow-path" />
+        </marker>
+      </defs>
+
+      <!-- Escala circular exterior sutil -->
+      <circle cx="120" cy="120" r="113" class="gear-outer-dial-ring" />
+      <circle cx="120" cy="120" r="108" class="gear-outer-ticks-ring" />
+
+      {flowArcAngles.map((startDeg) => {
+        const spanDeg = 28;
+        const r = 104;
+        const a1 = (startDeg * Math.PI) / 180;
+        const a2 = ((startDeg + spanDeg) * Math.PI) / 180;
+        const x1 = (120 + Math.cos(a1) * r).toFixed(2);
+        const y1 = (120 + Math.sin(a1) * r).toFixed(2);
+        const x2 = (120 + Math.cos(a2) * r).toFixed(2);
+        const y2 = (120 + Math.sin(a2) * r).toFixed(2);
+        return (
+          <path
+            d={`M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`}
+            class="gear-flow-arc"
+            marker-end="url(#gear-flow-arrow-head)"
+          />
+        );
+      })}
+    </svg>
+
+    <!-- Lienzo 3D Three.js: 7 engranajes metálicos sincronizados -->
+    <canvas
+      id="constellation-gears-canvas"
+      class="constellation-gears-canvas"
+      aria-hidden="true"
+    ></canvas>
 
     <svg class="constellation-lines" id="constellation-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <!-- Conexiones relacionales entre nodos orbitales -->
@@ -121,11 +181,23 @@ const initialNode = nodes[defaultIndex];
         y2="50"
         pathLength="1"
       />
-      <circle cx="50" cy="50" r="1.4"></circle>
+      <circle cx="50" cy="50" r="1.4" id="constellation-center-dot"></circle>
     </svg>
 
+    <!-- Núcleo central OPEX / EXCELENCIA OPERACIONAL (fijo, no gira con los dientes) -->
     <div class="core-mark" id="constellation-core" aria-hidden="true">
+      <svg class="gear-hub-arrow gear-hub-arrow-core" viewBox="0 0 64 22" aria-hidden="true">
+        <path
+          d="M 10 17 A 26 26 0 0 1 50 14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+        />
+        <polygon points="48,9 57,15 47,18" fill="currentColor" />
+      </svg>
       <span>OPEX</span>
+      <small class="core-subtitle">EXCELENCIA OPERACIONAL</small>
       <i></i>
     </div>
 
@@ -148,10 +220,34 @@ const initialNode = nodes[defaultIndex];
         aria-controls="node-insight"
         aria-label={`Ampliar concepto ${node.name}`}
       >
+        <svg class="gear-hub-arrow" viewBox="0 0 56 18" aria-hidden="true">
+          <path
+            d="M 10 14 A 22 22 0 0 1 42 11"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+          />
+          <polygon points="40,7 48,12 39,15" fill="currentColor" />
+        </svg>
         <i aria-hidden="true"></i>
         <span>{node.name}</span>
+        <u class="node-hub-bar" aria-hidden="true"></u>
       </button>
     ))}
+
+    <!-- Control accesible para pausar o reanudar el giro mecánico (FASE 3) -->
+    <button
+      type="button"
+      class="gears-motion-toggle-btn"
+      id="gears-motion-toggle-btn"
+      aria-pressed="false"
+      aria-label="Pausar rotación mecánica de los engranajes"
+      title="Pausar o reanudar rotación mecánica"
+    >
+      <span class="gears-motion-icon" id="gears-motion-icon" aria-hidden="true">⏸</span>
+      <span class="gears-motion-label" id="gears-motion-label">Pausar giro</span>
+    </button>
 
     <!-- Velo sutil clicable (sin bloquear los nodos ni las conexiones orbitales) -->
     <div class="constellation-scrim" id="constellation-scrim" aria-hidden="true" title="Haz clic en el fondo para cerrar la ficha y volver a la órbita completa"></div>
@@ -206,7 +302,7 @@ const initialNode = nodes[defaultIndex];
     </article>
 
     <span class="touch-hint" id="constellation-touch-hint" aria-hidden="true">
-      TOCA CUALQUIER NODO PARA ABRIR SU FICHA Y ARRÁSTRALA PARA DESCUBRIR LAS CONEXIONES
+      TOCA CUALQUIER ENGRANAJE PARA ABRIR SU FICHA Y ARRÁSTRALA PARA DESCUBRIR LAS CONEXIONES
     </span>
   </div>
 </div>
@@ -215,9 +311,9 @@ const initialNode = nodes[defaultIndex];
 <div class="cover-card-block" id="cover-card-block" data-expanded="false">
   <p class="cover-inline-cue" id="cover-rest-prompt" role="status" aria-live="polite">
     <span class="insight-live-dot" aria-hidden="true"></span>
-    <span class="cover-inline-cue-kicker">EXPLORACIÓN ORBITAL ·</span>
+    <span class="cover-inline-cue-kicker">SISTEMA SINCRONIZADO ·</span>
     <span class="cover-inline-cue-status" id="cover-rest-status">
-      Selecciona cualquier nodo en la órbita derecha para desplegar su ficha conceptual desplazable.
+      Selecciona cualquiera de los seis engranajes alrededor de OPEX para desplegar su ficha conceptual desplazable.
     </span>
   </p>
 </div>
@@ -229,6 +325,10 @@ const initialNode = nodes[defaultIndex];
     animateProgressiveConnections,
     makeCardDraggable,
   } from '../../lib/expandableCardEngine';
+  import type {
+    GearScene3DController,
+    ProjectedGearSystemCenters,
+  } from '../../lib/gears3d/GearScene3D';
 
   function initConstellation() {
     const container = document.getElementById('constellation');
@@ -238,10 +338,15 @@ const initialNode = nodes[defaultIndex];
     container.setAttribute('data-initialized', 'true');
 
     const coverSection = container.closest<HTMLElement>('.cover-page') || container;
+    const gearsCanvas = document.getElementById('constellation-gears-canvas') as HTMLCanvasElement | null;
+    const motionToggleBtn = document.getElementById('gears-motion-toggle-btn') as HTMLButtonElement | null;
+    const motionIcon = document.getElementById('gears-motion-icon');
+    const motionLabel = document.getElementById('gears-motion-label');
     const nodeButtons = Array.from(container.querySelectorAll<HTMLButtonElement>('.constellation-node'));
     const radialLines = Array.from(container.querySelectorAll<SVGLineElement>('.constellation-lines .radial-link'));
     const orbitalLinks = Array.from(container.querySelectorAll<SVGLineElement>('.constellation-lines .orbital-link'));
     const tetherLine = document.getElementById('constellation-tether-line') as SVGLineElement | null;
+    const centerDot = document.getElementById('constellation-center-dot') as SVGCircleElement | null;
     const coreMark = document.getElementById('constellation-core');
     const scrim = document.getElementById('constellation-scrim');
     const insightCard = document.getElementById('node-insight') as HTMLElement | null;
@@ -262,6 +367,7 @@ const initialNode = nodes[defaultIndex];
     let isExpanded = false;
     let activeIndex = -1;
     let lastOriginBtn: HTMLButtonElement | null = null;
+    let gearSceneCtrl: GearScene3DController | null = null;
 
     function updateTetherToCard() {
       if (!isExpanded || activeIndex < 0 || !tetherLine || !stageEl || !insightCard) return;
@@ -283,6 +389,54 @@ const initialNode = nodes[defaultIndex];
         tetherLine.setAttribute('x2', cx.toFixed(1));
         tetherLine.setAttribute('y2', cy.toFixed(1));
       }
+    }
+
+    function applyProjectedCenters(centers: ProjectedGearSystemCenters) {
+      const cx = String(centers.central.xPercent);
+      const cy = String(centers.central.yPercent);
+
+      if (coreMark) {
+        coreMark.style.left = `${cx}%`;
+        coreMark.style.top = `${cy}%`;
+      }
+      if (centerDot) {
+        centerDot.setAttribute('cx', cx);
+        centerDot.setAttribute('cy', cy);
+      }
+
+      centers.secondaries.forEach((sec) => {
+        const btn = nodeButtons[sec.index];
+        const sx = String(sec.xPercent);
+        const sy = String(sec.yPercent);
+        if (btn) {
+          btn.style.left = `${sx}%`;
+          btn.style.top = `${sy}%`;
+          btn.setAttribute('data-x', sx);
+          btn.setAttribute('data-y', sy);
+        }
+        const rLine = radialLines[sec.index];
+        if (rLine) {
+          rLine.setAttribute('x1', cx);
+          rLine.setAttribute('y1', cy);
+          rLine.setAttribute('x2', sx);
+          rLine.setAttribute('y2', sy);
+        }
+      });
+
+      orbitalLinks.forEach((link) => {
+        const fromIdx = parseInt(link.getAttribute('data-from') || '-1', 10);
+        const toIdx = parseInt(link.getAttribute('data-to') || '-1', 10);
+        const fromSec = centers.secondaries[fromIdx];
+        const toSec = centers.secondaries[toIdx];
+        if (fromSec && toSec) {
+          link.setAttribute('x1', String(fromSec.xPercent));
+          link.setAttribute('y1', String(fromSec.yPercent));
+          link.setAttribute('x2', String(toSec.xPercent));
+          link.setAttribute('y2', String(toSec.yPercent));
+        }
+      });
+
+      updateTetherToCard();
     }
 
     const dragCtrl = insightCard
@@ -342,6 +496,9 @@ const initialNode = nodes[defaultIndex];
         b.setAttribute('aria-expanded', isActive ? 'true' : 'false');
       });
 
+      // Sincronizar realce 3D y enfoque suave de cámara
+      gearSceneCtrl?.setActiveConcept(index);
+
       // Actualizar líneas radiales y orbitales + animar encendido progresivo
       const activeSvgLines: SVGElement[] = [];
       radialLines.forEach((line, idx) => {
@@ -383,7 +540,7 @@ const initialNode = nodes[defaultIndex];
       renderConnectedChips(connectedIndices);
 
       if (restStatus) {
-        restStatus.textContent = `Explorando 0${index + 1} · ${name} — Arrastra la barra superior de la ficha para despejar la órbita.`;
+        restStatus.textContent = `Explorando 0${index + 1} · ${name} — Arrastra la barra superior de la ficha para despejar los engranajes.`;
       }
       if (touchHint) {
         touchHint.textContent = 'ARRASTRA LA FICHA PARA VER LAS CONEXIONES DETRÁS O PULSA [✕ CERRAR] / [ESC]';
@@ -414,6 +571,8 @@ const initialNode = nodes[defaultIndex];
       if (!isExpanded || !insightCard || !container) return;
       const originToFocus = lastOriginBtn || nodeButtons[activeIndex] || null;
 
+      gearSceneCtrl?.setActiveConcept(-1);
+
       animateFlipClose(originToFocus, insightCard, () => {
         isExpanded = false;
         activeIndex = -1;
@@ -435,11 +594,11 @@ const initialNode = nodes[defaultIndex];
 
         if (restStatus) {
           restStatus.textContent =
-            'Selecciona cualquier nodo en la órbita derecha para desplegar su ficha conceptual desplazable.';
+            'Selecciona cualquiera de los seis engranajes alrededor de OPEX para desplegar su ficha conceptual desplazable.';
         }
         if (touchHint) {
           touchHint.textContent =
-            'TOCA CUALQUIER NODO PARA ABRIR SU FICHA Y ARRÁSTRALA PARA DESCUBRIR LAS CONEXIONES';
+            'TOCA CUALQUIER ENGRANAJE PARA ABRIR SU FICHA Y ARRÁSTRALA PARA DESCUBRIR LAS CONEXIONES';
         }
 
         originToFocus?.focus({ preventScroll: true });
@@ -453,6 +612,14 @@ const initialNode = nodes[defaultIndex];
         } else {
           openConceptNode(btn, true);
         }
+      });
+
+      btn.addEventListener('pointerenter', () => {
+        gearSceneCtrl?.setHoveredConcept(idx);
+      });
+
+      btn.addEventListener('pointerleave', () => {
+        gearSceneCtrl?.setHoveredConcept(-1);
       });
 
       btn.addEventListener('keydown', (e) => {
@@ -506,6 +673,86 @@ const initialNode = nodes[defaultIndex];
         closeConceptNode();
       }
     });
+
+    function syncMotionToggleUI(isRunning: boolean, isUserPaused: boolean) {
+      if (!motionToggleBtn) return;
+      motionToggleBtn.setAttribute('aria-pressed', isUserPaused ? 'true' : 'false');
+      motionToggleBtn.setAttribute(
+        'aria-label',
+        isUserPaused
+          ? 'Reanudar rotación mecánica de los engranajes'
+          : 'Pausar rotación mecánica de los engranajes'
+      );
+      if (motionIcon) {
+        motionIcon.textContent = isUserPaused || !isRunning ? '▶' : '⏸';
+      }
+      if (motionLabel) {
+        motionLabel.textContent = isUserPaused || !isRunning ? 'Reanudar giro' : 'Pausar giro';
+      }
+    }
+
+    motionToggleBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!gearSceneCtrl) return;
+      gearSceneCtrl.toggleUserPause();
+    });
+
+    // Lazy-load 3D Gear Engine (FASE 7)
+    const forceFallback =
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('webgl') === '0';
+
+    if (forceFallback || !gearsCanvas || !stageEl) {
+      container.setAttribute('data-gears-mode', 'fallback-2d');
+      if (motionToggleBtn) motionToggleBtn.hidden = true;
+      return;
+    }
+
+    import('../../lib/gears3d/GearScene3D')
+      .then(({ GearScene3DController }) => {
+        const ctrl = new GearScene3DController({
+          canvas: gearsCanvas,
+          container: stageEl,
+          onSelectConcept: (idx) => {
+            const targetBtn = nodeButtons[idx];
+            if (!targetBtn) return;
+            if (isExpanded && activeIndex === idx) {
+              closeConceptNode();
+            } else {
+              openConceptNode(targetBtn, true);
+            }
+          },
+          onHoverConcept: (hoveredIdx) => {
+            nodeButtons.forEach((b, i) => {
+              b.classList.toggle('is-3d-hovered', i === hoveredIdx);
+            });
+          },
+          onCentersProjected: (centers) => {
+            applyProjectedCenters(centers);
+          },
+          onMotionStateChange: (isRunning, isUserPaused) => {
+            syncMotionToggleUI(isRunning, isUserPaused);
+          },
+          onWebGLFallback: () => {
+            container.setAttribute('data-gears-mode', 'fallback-2d');
+            if (motionToggleBtn) motionToggleBtn.hidden = true;
+          },
+        });
+
+        const ok = ctrl.init();
+        if (ok) {
+          gearSceneCtrl = ctrl;
+          container.setAttribute('data-gears-mode', '3d');
+          (window as unknown as Record<string, unknown>).__opexCoverGears3D = ctrl;
+        } else {
+          container.setAttribute('data-gears-mode', 'fallback-2d');
+          if (motionToggleBtn) motionToggleBtn.hidden = true;
+        }
+      })
+      .catch(() => {
+        container.setAttribute('data-gears-mode', 'fallback-2d');
+        if (motionToggleBtn) motionToggleBtn.hidden = true;
+      });
   }
 
   initConstellation();

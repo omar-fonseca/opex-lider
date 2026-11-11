@@ -20,6 +20,28 @@ import {
   getPageNavigation,
 } from '../src/lib/bookManifest.ts';
 
+import {
+  DEFAULT_GEAR_SYSTEM_CONFIG,
+  GEAR_CONCEPT_DEFINITIONS,
+  GearTransmissionClock,
+  buildSevenGearSpecs,
+  calculateCenterDistance,
+  calculateInitialToothPhase,
+  calculatePitchRadius,
+  calculateSecondaryAngularVelocity,
+  computeGearAnglesAtTime,
+  validateGearSystemMechanics,
+} from '../src/lib/gears3d/GearTransmission.ts';
+
+import {
+  DEFAULT_CAMERA_POSE,
+  computeCameraFocusPose,
+  computeGearHighlightMap,
+  isGenuinePointerClick,
+} from '../src/lib/gears3d/GearInteraction.ts';
+
+import { resolveGearVisualPalette } from '../src/lib/gears3d/GearThemeBridge.ts';
+
 const ROOT_DIR = process.cwd();
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
 
@@ -230,6 +252,139 @@ describe('4. Integridad del build estático (dist/) y seguridad Cloudflare (_hea
           scriptSrc.includes(`'${hash}'`),
           `El script inline en ${route} con hash '${hash}' no está autorizado en script-src (${scriptSrc})`
         );
+      }
+    }
+  });
+});
+
+describe('5. Sistema mecánico de 7 engranajes 3D sincronizados en Cubierta (GEAR-3D-01)', () => {
+  test('Relación de dientes y sentidos opuestos: central horario (omega < 0) y 6 secundarios antihorarios', () => {
+    const specs = buildSevenGearSpecs();
+    assert.equal(specs.all.length, 7);
+    assert.equal(specs.central.teeth, 18);
+    assert.equal(specs.secondaries.length, 6);
+    assert.ok(specs.central.angularVelocityRadPerSec < 0, 'El engranaje central debe girar en sentido horario (< 0)');
+
+    const expectedSecondaryOmega = calculateSecondaryAngularVelocity(
+      specs.central.teeth,
+      specs.secondaries[0].teeth,
+      specs.central.angularVelocityRadPerSec
+    );
+    assert.ok(expectedSecondaryOmega > 0, 'Los 6 engranajes secundarios deben girar en sentido antihorario (> 0)');
+    assert.ok(
+      Math.abs(expectedSecondaryOmega - -1.5 * specs.central.angularVelocityRadPerSec) < 1e-9,
+      'La relación de velocidad debe ser exactamente -(Z_central / Z_secundario) = -1.5'
+    );
+
+    for (const sec of specs.secondaries) {
+      assert.equal(sec.teeth, 12);
+      assert.equal(sec.angularVelocityRadPerSec, expectedSecondaryOmega);
+    }
+  });
+
+  test('Distancias centro a centro, engrane diente-valle y ausencia de colisión entre secundarios adyacentes', () => {
+    const rCentral = calculatePitchRadius(DEFAULT_GEAR_SYSTEM_CONFIG.module, 18);
+    const rSec = calculatePitchRadius(DEFAULT_GEAR_SYSTEM_CONFIG.module, 12);
+    const dist = calculateCenterDistance(rCentral, rSec, DEFAULT_GEAR_SYSTEM_CONFIG.radialClearance);
+    assert.ok(Math.abs(rCentral - 1.44) < 1e-9);
+    assert.ok(Math.abs(rSec - 0.96) < 1e-9);
+    assert.ok(Math.abs(dist - 2.415) < 1e-9);
+
+    for (const sampleTime of [0, 1.25, 4.8, 19.4]) {
+      const check = validateGearSystemMechanics(DEFAULT_GEAR_SYSTEM_CONFIG, sampleTime);
+      assert.equal(check.valid, true, `Fallo mecánico en t=${sampleTime}s`);
+      assert.ok(check.toothEngagementDepth > 0.2, 'Los dientes central-secundario deben engranar con profundidad real');
+      assert.ok(
+        check.adjacentSecondaryClearance > 0.2,
+        'Los engranajes secundarios adyacentes no deben tocarse ni bloquearse entre sí'
+      );
+      assert.ok(
+        check.maxPhaseAlignmentErrorRad < 1e-9,
+        `Desfase diente-valle detectado en t=${sampleTime}s: ${check.maxPhaseAlignmentErrorRad}`
+      );
+    }
+  });
+
+  test('Fases iniciales mecánicas y evolución temporal determinista', () => {
+    const t0 = computeGearAnglesAtTime(0);
+    const t2 = computeGearAnglesAtTime(2.0);
+    const deltaCentral = t2.centralAngleRad - t0.centralAngleRad;
+    assert.ok(Math.abs(deltaCentral - DEFAULT_GEAR_SYSTEM_CONFIG.centralAngularVelocity * 2.0) < 1e-9);
+
+    for (let i = 0; i < 6; i++) {
+      const deltaSec = t2.secondaryAnglesRad[i] - t0.secondaryAnglesRad[i];
+      assert.ok(Math.abs(deltaSec / deltaCentral - -1.5) < 1e-9);
+      const expectedPhase0 = calculateInitialToothPhase(
+        (GEAR_CONCEPT_DEFINITIONS[i].polarAngleDeg * Math.PI) / 180,
+        18,
+        12,
+        0
+      );
+      assert.ok(Math.abs(t0.secondaryAnglesRad[i] - expectedPhase0) < 1e-9);
+    }
+  });
+
+  test('Controlador de pausa y reanudación preserva la fase mecánica exacta sin saltos', () => {
+    const clock = new GearTransmissionClock();
+    assert.equal(clock.isRunning(), true);
+
+    const step1 = clock.step(0.05);
+    assert.ok(Math.abs(step1.elapsedSeconds - 0.05) < 1e-9);
+
+    // Pausar por usuario
+    const paused = clock.toggleUserPaused();
+    assert.equal(paused, true);
+    assert.equal(clock.isRunning(), false);
+
+    const stepWhilePaused = clock.step(0.5);
+    assert.ok(Math.abs(stepWhilePaused.elapsedSeconds - 0.05) < 1e-9);
+    assert.equal(stepWhilePaused.centralAngleRad, step1.centralAngleRad);
+
+    // Reanudar por usuario
+    clock.toggleUserPaused();
+    assert.equal(clock.isRunning(), true);
+    const stepAfterResume = clock.step(0.05);
+    assert.ok(Math.abs(stepAfterResume.elapsedSeconds - 0.1) < 1e-9);
+
+    // Pausa por prefers-reduced-motion
+    clock.setReducedMotion(true);
+    assert.equal(clock.isRunning(), false);
+    clock.setReducedMotion(false);
+    assert.equal(clock.isRunning(), true);
+  });
+
+  test('Selección de los 6 conceptos, mapa de relaciones, cámara acotada y puente de 4 paletas x 2 temas', () => {
+    const expectedLabels = ['PERSONAS', 'PROCESOS', 'ESTRATEGIA', 'RESULTADOS', 'MEJORA', 'LIDERAZGO'];
+    assert.deepEqual(
+      GEAR_CONCEPT_DEFINITIONS.map((d) => d.label),
+      expectedLabels
+    );
+
+    for (let idx = 0; idx < 6; idx++) {
+      const map = computeGearHighlightMap(idx);
+      assert.equal(map.activeIndex, idx);
+      assert.equal(map.secondaryStates[idx], 'active');
+      assert.equal(map.connectedIndices.length, 3);
+      for (const connIdx of map.connectedIndices) {
+        assert.equal(map.secondaryStates[connIdx], 'connected');
+      }
+      const dimmedCount = map.secondaryStates.filter((s) => s === 'dimmed').length;
+      assert.equal(dimmedCount, 2);
+
+      const camPose = computeCameraFocusPose(idx);
+      assert.ok(Math.abs(camPose.positionX - DEFAULT_CAMERA_POSE.positionX) < 0.5);
+      assert.ok(Math.abs(camPose.positionY - DEFAULT_CAMERA_POSE.positionY) < 0.5);
+    }
+
+    assert.equal(isGenuinePointerClick(100, 100, 103, 104), true);
+    assert.equal(isGenuinePointerClick(100, 100, 130, 140), false);
+
+    for (const theme of ['dark', 'light']) {
+      for (const accent of ['blue', 'orange', 'red', 'green']) {
+        const pal = resolveGearVisualPalette(theme, accent);
+        assert.equal(pal.theme, theme);
+        assert.equal(pal.accent, accent);
+        assert.ok(pal.accentHex > 0);
       }
     }
   });
