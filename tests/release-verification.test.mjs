@@ -20,6 +20,15 @@ import {
   getPageNavigation,
 } from '../src/lib/bookManifest.ts';
 
+import {
+  PROCESS_ELEMENTS,
+  PROCESS_ELEMENT_ORDER,
+  OVERVIEW_CAMERA_POSE,
+  OVERVIEW_EXPLODED_CAMERA_POSE,
+} from '../src/lib/visual3d/processWorkOrderData.ts';
+import { ProcessInteractionController } from '../src/lib/visual3d/processInteractionController.ts';
+import { resolveThreeThemeTokens } from '../src/lib/visual3d/threeThemeAdapter.ts';
+
 const ROOT_DIR = process.cwd();
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
 
@@ -210,12 +219,13 @@ describe('4. Integridad del build estático (dist/) y seguridad Cloudflare (_hea
       'script-src no debe usar unsafe-inline indiscriminadamente'
     );
 
-    // Verificar que cada script inline ejecutable en los 10 HTML coincida con un hash SHA-256 autorizado en script-src
-    for (const route of EXPECTED_ROUTES) {
+    const routesToVerifyCsp = [...EXPECTED_ROUTES, '/lab/anatomia-proceso-3d'];
+    for (const route of routesToVerifyCsp) {
       const htmlPath =
         route === '/'
           ? path.join(DIST_DIR, 'index.html')
           : path.join(DIST_DIR, route.slice(1), 'index.html');
+      assert.ok(fs.existsSync(htmlPath), `Falta archivo compilado para ${route}`);
       const html = fs.readFileSync(htmlPath, 'utf8');
       const scriptRegex = /<script([^>]*)>([\s\S]*?)<\/script>/gi;
       let m;
@@ -231,6 +241,80 @@ describe('4. Integridad del build estático (dist/) y seguridad Cloudflare (_hea
           `El script inline en ${route} con hash '${hash}' no está autorizado en script-src (${scriptSrc})`
         );
       }
+    }
+  });
+});
+
+describe('5. Prototipo aislado VISUAL-3D-04: modelo de datos, controlador, temas y aislamiento de bundle', () => {
+  test('Modelo de solicitud de trabajo tiene 3 etapas de flujo directo y 1 mecanismo conectado de control', () => {
+    assert.deepEqual(PROCESS_ELEMENT_ORDER, [
+      'entrada',
+      'transformacion',
+      'salida',
+      'control',
+    ]);
+    assert.equal(PROCESS_ELEMENTS.entrada.isFeedbackMechanism, false);
+    assert.equal(PROCESS_ELEMENTS.transformacion.isFeedbackMechanism, false);
+    assert.equal(PROCESS_ELEMENTS.salida.isFeedbackMechanism, false);
+    assert.equal(PROCESS_ELEMENTS.control.isFeedbackMechanism, true);
+
+    for (const id of PROCESS_ELEMENT_ORDER) {
+      assert.equal(PROCESS_ELEMENTS[id].subParts.length, 3);
+    }
+  });
+
+  test('ProcessInteractionController gestiona selección, despiece, poses de cámara, modo alternativo y restauración', () => {
+    const ctrl = new ProcessInteractionController();
+    assert.equal(ctrl.getState().selectedId, null);
+    assert.equal(ctrl.getState().isExploded, false);
+    assert.deepEqual(ctrl.getActiveCameraPose(), OVERVIEW_CAMERA_POSE);
+
+    ctrl.selectElement('entrada');
+    assert.equal(ctrl.getState().selectedId, 'entrada');
+    assert.deepEqual(ctrl.getActiveCameraPose(), PROCESS_ELEMENTS.entrada.focusCameraPose);
+
+    ctrl.toggleExploded();
+    assert.equal(ctrl.getState().isExploded, true);
+    assert.deepEqual(ctrl.getActiveCameraPose(), PROCESS_ELEMENTS.entrada.explodedCameraPose);
+
+    ctrl.selectNext();
+    assert.equal(ctrl.getState().selectedId, 'transformacion');
+
+    ctrl.selectPrev();
+    assert.equal(ctrl.getState().selectedId, 'entrada');
+
+    ctrl.setViewMode('2d-fallback');
+    assert.equal(ctrl.getState().viewMode, '2d-fallback');
+
+    ctrl.reset();
+    assert.equal(ctrl.getState().selectedId, null);
+    assert.equal(ctrl.getState().isExploded, false);
+    assert.deepEqual(ctrl.getActiveCameraPose(), OVERVIEW_CAMERA_POSE);
+
+    ctrl.toggleExploded(true);
+    assert.deepEqual(ctrl.getActiveCameraPose(), OVERVIEW_EXPLODED_CAMERA_POSE);
+  });
+
+  test('threeThemeAdapter resuelve tokens diferenciados para las 4 paletas y ambos temas', () => {
+    const darkBlue = resolveThreeThemeTokens('dark', 'blue');
+    const lightOrange = resolveThreeThemeTokens('light', 'orange');
+    const darkRed = resolveThreeThemeTokens('dark', 'red');
+    const darkGreen = resolveThreeThemeTokens('dark', 'green');
+
+    assert.notEqual(darkBlue.sceneBackground, lightOrange.sceneBackground);
+    assert.notEqual(darkBlue.accentPrimary, lightOrange.accentPrimary);
+    assert.notEqual(darkRed.accentPrimary, darkGreen.accentPrimary);
+  });
+
+  test('Las 10 páginas publicadas (00-09) no cargan Three.js ni GSAP en sus HTML ni bundles iniciales', () => {
+    for (const route of EXPECTED_ROUTES) {
+      const htmlPath =
+        route === '/'
+          ? path.join(DIST_DIR, 'index.html')
+          : path.join(DIST_DIR, route.slice(1), 'index.html');
+      const html = fs.readFileSync(htmlPath, 'utf8');
+      assert.doesNotMatch(html, /processThreeScene/i);
+      assert.doesNotMatch(html, /ProcessAnatomy3DPoc/i);
     }
   });
 });

@@ -1,0 +1,1233 @@
+---
+/**
+ * OPEX LÍDER — VISUAL-3D-04 (Fase 4 · Capa 7: Interfaz Educativa Accesible)
+ * Prueba de concepto 3D aislada inspirada en la Página 04 (Anatomía de un proceso).
+ * Caso multisectorial: Ciclo de una Solicitud de Trabajo.
+ *
+ * Representa:
+ * 1. Entrada (Insumos e información requerida)
+ * 2. Actividades de transformación (Trabajo y coordinación necesarios)
+ * 3. Salida (Producto, servicio o resultado)
+ * 4. Control y retroalimentación (Mecanismo transversal conectado al sistema)
+ */
+import {
+  PROCESS_WORK_ORDER_CASE,
+  PROCESS_ELEMENTS,
+  PROCESS_ELEMENT_ORDER,
+} from '../../lib/visual3d/processWorkOrderData';
+
+const elementsList = PROCESS_ELEMENT_ORDER.map((id) => PROCESS_ELEMENTS[id]);
+---
+
+<section
+  class="poc3d-workbench"
+  id="poc3d-workbench"
+  data-selected-element="none"
+  data-exploded="false"
+  data-view-mode="3d"
+  data-webgl-ready="false"
+  aria-label="Prototipo espacial 3D: Anatomía de una solicitud de trabajo"
+>
+  <!-- Barra superior de control y contexto del caso multisectorial -->
+  <header class="poc3d-header">
+    <div class="poc3d-header-copy">
+      <span class="poc3d-kicker">{PROCESS_WORK_ORDER_CASE.kicker}</span>
+      <h2 class="poc3d-title">{PROCESS_WORK_ORDER_CASE.title}</h2>
+      <p class="poc3d-subtitle" id="poc3d-live-status" aria-live="polite">
+        Vista completa del sistema en 3D · Selecciona cualquier elemento para enfocar la cámara o activa el despiece espacial.
+      </p>
+    </div>
+
+    <div class="poc3d-toolbar" role="toolbar" aria-label="Controles espaciales del modelo 3D">
+      <button
+        type="button"
+        class="poc3d-btn poc3d-btn-explode"
+        id="poc3d-explode-btn"
+        aria-pressed="false"
+        title="Separar espacialmente las sub-piezas internas del proceso (Atajo: E)"
+      >
+        <span aria-hidden="true">🔧</span>
+        <span id="poc3d-explode-label">Activar despiece</span>
+      </button>
+
+      <button
+        type="button"
+        class="poc3d-btn poc3d-btn-reset"
+        id="poc3d-reset-btn"
+        title="Restaurar cámara y ensamblaje original (Atajo: R o Escape)"
+      >
+        <span aria-hidden="true">↺</span> Restaurar modelo
+      </button>
+
+      <button
+        type="button"
+        class="poc3d-btn poc3d-btn-fallback"
+        id="poc3d-mode-toggle-btn"
+        aria-pressed="false"
+        title="Alternar entre la vista espacial WebGL 3D y la vista alternativa accesible sin WebGL"
+      >
+        <span aria-hidden="true">⇄</span>
+        <span id="poc3d-mode-label">Alternativa sin WebGL</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Selector accesible de los 4 elementos (3 de flujo directo + 1 mecanismo conectado) -->
+  <nav class="poc3d-element-bar" aria-label="Elementos del proceso y mecanismo de control">
+    <button
+      type="button"
+      class="poc3d-pill is-overview is-active"
+      id="poc3d-pill-overview"
+      data-poc-select="overview"
+      aria-pressed="true"
+    >
+      <span class="poc3d-pill-code">00</span>
+      <span>Sistema completo</span>
+    </button>
+
+    {elementsList.map((el) => (
+      <button
+        type="button"
+        class={`poc3d-pill ${el.isFeedbackMechanism ? 'is-feedback-pill' : ''}`}
+        data-poc-select={el.id}
+        aria-pressed="false"
+      >
+        <span class="poc3d-pill-code">
+          {el.isFeedbackMechanism ? '↺ CONTROL' : el.orderLabel.split(' · ')[0]}
+        </span>
+        <span>
+          {el.id === 'entrada'
+            ? 'Entrada'
+            : el.id === 'transformacion'
+            ? 'Actividades de transformación'
+            : el.id === 'salida'
+            ? 'Salida'
+            : 'Control y retroalimentación'}
+        </span>
+      </button>
+    ))}
+  </nav>
+
+  <!-- Escenario principal: Visor 3D + Etiquetas HTML proyectadas + Inspector educativo lateral -->
+  <div class="poc3d-stage-grid">
+    <div class="poc3d-viewport-wrap" id="poc3d-viewport-wrap">
+      <!-- Lienzo WebGL 3D -->
+      <div class="poc3d-canvas-container" id="poc3d-canvas-container">
+        <canvas
+          id="poc3d-canvas"
+          class="poc3d-canvas"
+          aria-label="Escena interactiva 3D del proceso de solicitud de trabajo. Usa los botones superiores o el teclado (1 a 4, E para despiece, R para restaurar) para explorar."
+        ></canvas>
+
+        <!-- Capa de etiquetas HTML accesibles proyectadas desde las coordenadas 3D -->
+        <div class="poc3d-html-overlay" id="poc3d-html-overlay">
+          {elementsList.map((el) => (
+            <button
+              type="button"
+              class={`poc3d-anchor-pin ${el.isFeedbackMechanism ? 'is-feedback' : ''}`}
+              data-anchor-element={el.id}
+              aria-label={`Enfocar ${el.title}`}
+              hidden
+            >
+              <span class="poc3d-pin-badge">{el.orderLabel}</span>
+              <strong class="poc3d-pin-title">
+                {el.id === 'entrada'
+                  ? 'Entrada'
+                  : el.id === 'transformacion'
+                  ? 'Transformación'
+                  : el.id === 'salida'
+                  ? 'Salida'
+                  : 'Control conectado ↺'}
+              </strong>
+            </button>
+          ))}
+
+          <!-- Etiquetas de sub-piezas visibles cuando el despiece está activo -->
+          {elementsList.map((el) =>
+            el.subParts.map((part) => (
+              <div
+                class={`poc3d-subpart-tag ${el.isFeedbackMechanism ? 'is-feedback' : ''}`}
+                data-subpart-tag={part.id}
+                data-parent-element={el.id}
+                hidden
+              >
+                <span class="poc3d-subpart-code">{part.code}</span>
+                <span class="poc3d-subpart-name">{part.label}</span>
+              </div>
+            ))
+          )}
+        </div>
+
+        <!-- Aviso de pérdida de contexto WebGL -->
+        <div class="poc3d-context-notice" id="poc3d-context-notice" role="status" hidden>
+          Contexto gráfico WebGL en recuperación. Puedes continuar usando la vista alternativa accesible sin WebGL.
+        </div>
+
+        <!-- Leyenda inferior del visor 3D -->
+        <div class="poc3d-hud-legend" aria-hidden="true">
+          <span>🖱️ Arrastrar: Rotar vista</span>
+          <span>🔍 Rueda / Pellizco: Acercar</span>
+          <span>⌨️ Teclas: [1–4] Enfocar · [E] Despiece · [R / Esc] Restaurar</span>
+        </div>
+      </div>
+
+      <!-- Alternativa legible sin WebGL (Accesible y conmutable en todo momento) -->
+      <div
+        class="poc3d-fallback-view"
+        id="poc3d-fallback-view"
+        role="region"
+        aria-label="Representación esquemática estructurada sin WebGL"
+        hidden
+      >
+        <div class="poc3d-fallback-header">
+          <span class="poc3d-fallback-badge">MODO ACCESIBLE SIN WEBGL · ESQUEMA ESTRUCTURAL</span>
+          <p>
+            Representación directa del flujo de solicitud de trabajo y su mecanismo de control conectado. Selecciona cualquier componente para inspeccionar su función y su despiece.
+          </p>
+        </div>
+
+        <!-- Eje principal de flujo (3 elementos) -->
+        <div class="poc3d-fallback-flow-row">
+          {elementsList
+            .filter((el) => !el.isFeedbackMechanism)
+            .map((el) => (
+              <div
+                class="poc3d-fallback-card"
+                data-fallback-card={el.id}
+                tabindex="0"
+                role="button"
+                aria-label={`Seleccionar ${el.title}`}
+              >
+                <span class="poc3d-fallback-step">{el.orderLabel}</span>
+                <h4>{el.title}</h4>
+                <p>{el.shortSubtitle}</p>
+                <ul class="poc3d-fallback-parts">
+                  {el.subParts.map((p) => (
+                    <li>
+                      <strong>[{p.code}] {p.label}:</strong> {p.roleDescription}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+        </div>
+
+        <!-- Mecanismo conectado al sistema (Control y retroalimentación) -->
+        <div
+          class="poc3d-fallback-card is-feedback-card"
+          data-fallback-card="control"
+          tabindex="0"
+          role="button"
+          aria-label="Seleccionar Control y retroalimentación conectado al sistema"
+        >
+          <span class="poc3d-fallback-step">{PROCESS_ELEMENTS.control.orderLabel}</span>
+          <h4>{PROCESS_ELEMENTS.control.title}</h4>
+          <p>{PROCESS_ELEMENTS.control.summary}</p>
+          <ul class="poc3d-fallback-parts">
+            {PROCESS_ELEMENTS.control.subParts.map((p) => (
+              <li>
+                <strong>[{p.code}] {p.label}:</strong> {p.roleDescription}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel educativo HTML accesible y sincronizado -->
+    <aside
+      class="poc3d-inspector"
+      id="poc3d-inspector"
+      aria-labelledby="poc3d-insp-title"
+    >
+      <div class="poc3d-insp-top" id="poc3d-insp-drag-handle">
+        <span class="poc3d-insp-tag" id="poc3d-insp-tag">
+          VISTA GENERAL DEL SISTEMA
+        </span>
+        <span class="poc3d-insp-role" id="poc3d-insp-role">
+          3 ETAPAS DE FLUJO + 1 MECANISMO REGULADOR
+        </span>
+      </div>
+
+      <h3 class="poc3d-insp-title" id="poc3d-insp-title">
+        Flujo completo de una solicitud de trabajo
+      </h3>
+
+      <p class="poc3d-insp-summary" id="poc3d-insp-summary">
+        {PROCESS_WORK_ORDER_CASE.contextSummary}
+      </p>
+
+      <div class="poc3d-insp-box">
+        <span class="poc3d-box-label">PREGUNTA OPERACIONAL CLAVE</span>
+        <p id="poc3d-insp-question">
+          ¿Cómo se conectan la claridad de la solicitud inicial, el método de ejecución y la evaluación del resultado entregado?
+        </p>
+      </div>
+
+      <div class="poc3d-insp-box">
+        <span class="poc3d-box-label">APLICACIÓN MULTISECTORIAL</span>
+        <p id="poc3d-insp-example">
+          Selecciona Entrada, Actividades de transformación, Salida o el puente de Control y retroalimentación para examinar sus componentes internos.
+        </p>
+      </div>
+
+      <div class="poc3d-insp-box">
+        <span class="poc3d-box-label">CONEXIÓN CON EL SISTEMA</span>
+        <p id="poc3d-insp-connection">
+          La retroalimentación actúa como un circuito conectado simultáneamente a la Salida, a la Transformación y a la Entrada.
+        </p>
+      </div>
+
+      <!-- Lista accesible de sub-piezas del despiece -->
+      <div class="poc3d-parts-section">
+        <div class="poc3d-parts-head">
+          <span class="poc3d-box-label">COMPONENTES DEL DESPIECE ESPACIAL</span>
+          <span class="poc3d-parts-state" id="poc3d-parts-state">Ensamblado</span>
+        </div>
+        <ul class="poc3d-parts-list" id="poc3d-parts-list">
+          {PROCESS_ELEMENTS.entrada.subParts.map((p) => (
+            <li class="poc3d-part-item">
+              <span class="poc3d-part-code">{p.code}</span>
+              <div>
+                <strong>{p.label}</strong>
+                <p>{p.roleDescription}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Navegación secuencial entre componentes -->
+      <div class="poc3d-insp-footer">
+        <button type="button" class="poc3d-nav-btn" id="poc3d-prev-btn">
+          ← Anterior
+        </button>
+        <button type="button" class="poc3d-nav-btn" id="poc3d-next-btn">
+          Siguiente →
+        </button>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<script>
+  import {
+    PROCESS_WORK_ORDER_CASE,
+    PROCESS_ELEMENTS,
+    PROCESS_ELEMENT_ORDER,
+    type ProcessElementId,
+  } from '../../lib/visual3d/processWorkOrderData';
+  import { ProcessInteractionController } from '../../lib/visual3d/processInteractionController';
+  import { detectWebGLSupport } from '../../lib/visual3d/webglLifecycleManager';
+  import { prefersReducedMotion } from '../../lib/expandableCardEngine';
+  import type {
+    ProcessThreeSceneController,
+    ProjectedAnchor2D,
+  } from '../../lib/visual3d/processThreeScene';
+
+  function initProcessAnatomy3DPoc() {
+    const root = document.getElementById('poc3d-workbench');
+    if (!root || root.hasAttribute('data-poc-initialized')) return;
+    root.setAttribute('data-poc-initialized', 'true');
+
+    const canvasContainer = document.getElementById('poc3d-canvas-container');
+    const canvas = document.getElementById('poc3d-canvas') as HTMLCanvasElement | null;
+    const fallbackView = document.getElementById('poc3d-fallback-view');
+    const contextNotice = document.getElementById('poc3d-context-notice');
+    const liveStatus = document.getElementById('poc3d-live-status');
+
+    const explodeBtn = document.getElementById('poc3d-explode-btn');
+    const explodeLabel = document.getElementById('poc3d-explode-label');
+    const resetBtn = document.getElementById('poc3d-reset-btn');
+    const modeToggleBtn = document.getElementById('poc3d-mode-toggle-btn');
+    const modeLabel = document.getElementById('poc3d-mode-label');
+    const prevBtn = document.getElementById('poc3d-prev-btn');
+    const nextBtn = document.getElementById('poc3d-next-btn');
+
+    const pills = root.querySelectorAll<HTMLButtonElement>('[data-poc-select]');
+    const anchorPins = root.querySelectorAll<HTMLButtonElement>('[data-anchor-element]');
+    const subPartTags = root.querySelectorAll<HTMLElement>('[data-subpart-tag]');
+    const fallbackCards = root.querySelectorAll<HTMLElement>('[data-fallback-card]');
+
+    const inspTag = document.getElementById('poc3d-insp-tag');
+    const inspRole = document.getElementById('poc3d-insp-role');
+    const inspTitle = document.getElementById('poc3d-insp-title');
+    const inspSummary = document.getElementById('poc3d-insp-summary');
+    const inspQuestion = document.getElementById('poc3d-insp-question');
+    const inspExample = document.getElementById('poc3d-insp-example');
+    const inspConnection = document.getElementById('poc3d-insp-connection');
+    const partsState = document.getElementById('poc3d-parts-state');
+    const partsList = document.getElementById('poc3d-parts-list');
+
+    const webglSupported = detectWebGLSupport();
+    const controller = new ProcessInteractionController({
+      reducedMotion: prefersReducedMotion(),
+      webglAvailable: webglSupported,
+      viewMode: webglSupported ? '3d' : '2d-fallback',
+    });
+
+    let sceneController: ProcessThreeSceneController | null = null;
+    let sceneLoadingPromise: Promise<void> | null = null;
+
+    function renderPartsList(selectedId: ProcessElementId | null) {
+      if (!partsList) return;
+      const itemsToRender = selectedId
+        ? PROCESS_ELEMENTS[selectedId].subParts
+        : PROCESS_ELEMENT_ORDER.map((id) => PROCESS_ELEMENTS[id].subParts[0]);
+
+      partsList.replaceChildren(
+        ...itemsToRender.map((p) => {
+          const li = document.createElement('li');
+          li.className = 'poc3d-part-item';
+
+          const codeSpan = document.createElement('span');
+          codeSpan.className = 'poc3d-part-code';
+          codeSpan.textContent = p.code;
+
+          const bodyDiv = document.createElement('div');
+          const strong = document.createElement('strong');
+          strong.textContent = p.label;
+          const desc = document.createElement('p');
+          desc.textContent = p.roleDescription;
+
+          bodyDiv.append(strong, desc);
+          li.append(codeSpan, bodyDiv);
+          return li;
+        })
+      );
+    }
+
+    function updateAnchorsDOM(
+      elementAnchors: Record<ProcessElementId, ProjectedAnchor2D>,
+      subPartAnchors: Record<string, ProjectedAnchor2D>
+    ) {
+      const state = controller.getState();
+
+      anchorPins.forEach((pin) => {
+        const elId = pin.getAttribute('data-anchor-element') as ProcessElementId | null;
+        if (!elId || !elementAnchors[elId]) return;
+        const proj = elementAnchors[elId];
+        pin.style.left = `${proj.xPercent}%`;
+        pin.style.top = `${proj.yPercent}%`;
+        pin.hidden = !proj.visible;
+        pin.classList.toggle('is-selected', state.selectedId === elId);
+      });
+
+      subPartTags.forEach((tag) => {
+        const partId = tag.getAttribute('data-subpart-tag');
+        if (!state.isExploded || !partId || !subPartAnchors[partId]) {
+          tag.hidden = true;
+          return;
+        }
+        const proj = subPartAnchors[partId];
+        tag.style.left = `${proj.xPercent}%`;
+        tag.style.top = `${proj.yPercent}%`;
+        tag.hidden = !proj.visible;
+      });
+    }
+
+    async function ensure3DSceneLoaded(): Promise<void> {
+      if (sceneController || !webglSupported || !canvasContainer || !canvas) {
+        return;
+      }
+      if (sceneLoadingPromise) {
+        return sceneLoadingPromise;
+      }
+
+      sceneLoadingPromise = (async () => {
+        const { ProcessThreeSceneController: SceneCtrl } = await import(
+          '../../lib/visual3d/processThreeScene'
+        );
+        sceneController = new SceneCtrl(canvasContainer, canvas, {
+          onSelectElement: (id) => {
+            controller.selectElement(id);
+          },
+          onUpdateAnchors: (elAnchors, subAnchors) => {
+            updateAnchorsDOM(elAnchors, subAnchors);
+          },
+          onContextLostChange: (lost) => {
+            if (contextNotice) {
+              contextNotice.hidden = !lost;
+            }
+          },
+        });
+        root.setAttribute('data-webgl-ready', 'true');
+        const st = controller.getState();
+        await sceneController.syncState(
+          st.selectedId,
+          st.isExploded,
+          controller.getActiveCameraPose(),
+           prefersReducedMotion()
+        );
+      })();
+
+      return sceneLoadingPromise;
+    }
+
+    function syncUIFromState() {
+      const state = controller.getState();
+      const spec = controller.getSelectedSpec();
+
+      root?.setAttribute('data-selected-element', state.selectedId ?? 'none');
+      root?.setAttribute('data-exploded', state.isExploded ? 'true' : 'false');
+      root?.setAttribute('data-view-mode', state.viewMode);
+
+      const isFallback = state.viewMode === '2d-fallback';
+      if (canvasContainer) canvasContainer.hidden = isFallback;
+      if (fallbackView) fallbackView.hidden = !isFallback;
+
+      if (explodeBtn) {
+        explodeBtn.setAttribute('aria-pressed', state.isExploded ? 'true' : 'false');
+        explodeBtn.classList.toggle('is-active', state.isExploded);
+      }
+      if (explodeLabel) {
+        explodeLabel.textContent = state.isExploded
+          ? 'Cerrar despiece'
+          : 'Activar despiece';
+      }
+
+      if (modeToggleBtn) {
+        modeToggleBtn.setAttribute('aria-pressed', isFallback ? 'true' : 'false');
+        modeToggleBtn.classList.toggle('is-active', isFallback);
+      }
+      if (modeLabel) {
+        modeLabel.textContent = isFallback
+          ? 'Volver a vista 3D'
+          : 'Alternativa sin WebGL';
+      }
+
+      pills.forEach((pill) => {
+        const target = pill.getAttribute('data-poc-select');
+        const active =
+          (target === 'overview' && state.selectedId === null) ||
+          target === state.selectedId;
+        pill.classList.toggle('is-active', active);
+        pill.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+
+      fallbackCards.forEach((card) => {
+        const target = card.getAttribute('data-fallback-card');
+        card.classList.toggle('is-active', target === state.selectedId);
+      });
+
+      if (spec) {
+        if (inspTag) inspTag.textContent = spec.orderLabel;
+        if (inspRole) inspRole.textContent = spec.roleTag;
+        if (inspTitle) inspTitle.textContent = spec.title;
+        if (inspSummary) inspSummary.textContent = spec.summary;
+        if (inspQuestion) inspQuestion.textContent = spec.operationalQuestion;
+        if (inspExample) inspExample.textContent = spec.multisectorExample;
+        if (inspConnection) inspConnection.textContent = spec.systemConnection;
+        if (liveStatus) {
+          liveStatus.textContent = `${spec.orderLabel}: ${spec.shortSubtitle}${
+            state.isExploded ? ' · Despiece espacial activo.' : ''
+          }`;
+        }
+      } else {
+        if (inspTag) inspTag.textContent = 'VISTA GENERAL DEL SISTEMA';
+        if (inspRole) inspRole.textContent = '3 ETAPAS DE FLUJO + 1 MECANISMO REGULADOR';
+        if (inspTitle) inspTitle.textContent = 'Flujo completo de una solicitud de trabajo';
+        if (inspSummary) inspSummary.textContent = PROCESS_WORK_ORDER_CASE.contextSummary;
+        if (inspQuestion) {
+          inspQuestion.textContent =
+            '¿Cómo se conectan la claridad de la solicitud inicial, el método de ejecución y la evaluación del resultado entregado?';
+        }
+        if (inspExample) {
+          inspExample.textContent =
+            'Selecciona Entrada, Actividades de transformación, Salida o el puente de Control y retroalimentación para examinar sus componentes internos.';
+        }
+        if (inspConnection) {
+          inspConnection.textContent =
+            'La retroalimentación actúa como un circuito conectado simultáneamente a la Salida, a la Transformación y a la Entrada.';
+        }
+        if (liveStatus) {
+          liveStatus.textContent = state.isExploded
+            ? 'Vista general del sistema en despiece espacial · 12 sub-componentes desplegados.'
+            : 'Vista completa del sistema en 3D · Selecciona cualquier elemento para enfocar la cámara o activa el despiece espacial.';
+        }
+      }
+
+      if (partsState) {
+        partsState.textContent = state.isExploded
+          ? 'Despiece activo (partes separadas)'
+          : 'Ensamblado';
+      }
+
+      renderPartsList(state.selectedId);
+
+      if (sceneController && state.viewMode === '3d') {
+        void sceneController.syncState(
+          state.selectedId,
+          state.isExploded,
+          controller.getActiveCameraPose(),
+          prefersReducedMotion()
+        );
+      }
+    }
+
+    controller.subscribe(() => {
+      syncUIFromState();
+    });
+
+    // Carga diferida bajo demanda cuando el contenedor es visible
+    if (webglSupported) {
+      if (typeof IntersectionObserver !== 'undefined') {
+        const io = new IntersectionObserver(
+          (entries) => {
+            if (entries[0]?.isIntersecting) {
+              io.disconnect();
+              void ensure3DSceneLoaded();
+            }
+          },
+          { threshold: 0.05 }
+        );
+        io.observe(root);
+      } else {
+        void ensure3DSceneLoaded();
+      }
+    } else {
+      syncUIFromState();
+    }
+
+    // Eventos de selección
+    pills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const val = pill.getAttribute('data-poc-select');
+        if (val === 'overview') {
+          controller.selectElement(null);
+        } else if (val) {
+          controller.selectElement(val as ProcessElementId);
+        }
+      });
+    });
+
+    anchorPins.forEach((pin) => {
+      pin.addEventListener('click', () => {
+        const val = pin.getAttribute('data-anchor-element') as ProcessElementId | null;
+        if (val) controller.selectElement(val);
+      });
+    });
+
+    fallbackCards.forEach((card) => {
+      const activate = () => {
+        const val = card.getAttribute('data-fallback-card') as ProcessElementId | null;
+        if (val) controller.selectElement(val);
+      };
+      card.addEventListener('click', activate);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          activate();
+        }
+      });
+    });
+
+    explodeBtn?.addEventListener('click', () => {
+      controller.toggleExploded();
+    });
+
+    resetBtn?.addEventListener('click', () => {
+      controller.reset();
+    });
+
+    modeToggleBtn?.addEventListener('click', () => {
+      const current = controller.getState().viewMode;
+      const next = current === '3d' ? '2d-fallback' : '3d';
+      controller.setViewMode(next);
+      if (next === '3d') {
+        void ensure3DSceneLoaded();
+      }
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      controller.selectPrev();
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      controller.selectNext();
+    });
+
+    // Atajos de teclado accesibles
+    window.addEventListener('keydown', (e) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (e.key === '1') {
+        controller.selectElement('entrada');
+      } else if (e.key === '2') {
+        controller.selectElement('transformacion');
+      } else if (e.key === '3') {
+        controller.selectElement('salida');
+      } else if (e.key === '4') {
+        controller.selectElement('control');
+      } else if (e.key === 'e' || e.key === 'E') {
+        controller.toggleExploded();
+      } else if (e.key === 'r' || e.key === 'R' || e.key === 'Escape') {
+        controller.reset();
+      }
+    });
+
+    renderPartsList(null);
+
+    // Exponer API de diagnóstico para pruebas E2E automatizadas (Playwright)
+    (window as unknown as Record<string, unknown>).__opexPoc3D = {
+      getState: () => controller.getState(),
+      selectElement: (id: ProcessElementId | null) => controller.selectElement(id),
+      toggleExploded: (force?: boolean) => controller.toggleExploded(force),
+      setViewMode: (mode: '3d' | '2d-fallback') => controller.setViewMode(mode),
+      reset: () => controller.reset(),
+      getDiagnostics: () => sceneController?.getDiagnostics() ?? null,
+      dispose: () => {
+        const diag = sceneController?.dispose() ?? null;
+        root.setAttribute('data-webgl-disposed', 'true');
+        return diag;
+      },
+    };
+  }
+
+  initProcessAnatomy3DPoc();
+  document.addEventListener('astro:page-load', initProcessAnatomy3DPoc);
+</script>
+
+<style>
+  .poc3d-workbench {
+    margin: 28px 0 36px;
+    scroll-margin-top: 88px;
+    border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.22));
+    border-radius: 18px;
+    background: var(--surface-card, rgba(11, 22, 44, 0.86));
+    padding: 22px;
+    box-shadow: 0 20px 48px rgba(2, 8, 23, 0.32);
+  }
+
+  .poc3d-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .poc3d-kicker {
+    display: inline-block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-text, #60a5fa);
+    margin-bottom: 4px;
+  }
+
+  .poc3d-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(1.35rem, 2.1vw, 1.75rem);
+    color: var(--text-primary, #f8fafc);
+    margin: 0 0 6px;
+    line-height: 1.22;
+  }
+
+  .poc3d-subtitle {
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.92rem;
+    color: var(--text-secondary, #cbd5e1);
+    margin: 0;
+  }
+
+  .poc3d-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .poc3d-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--accent-border, rgba(96, 165, 250, 0.38));
+    background: rgba(15, 29, 56, 0.72);
+    color: var(--text-primary, #f8fafc);
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+  }
+
+  :global([data-theme='light']) .poc3d-btn {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: rgba(37, 99, 235, 0.35);
+  }
+
+  .poc3d-btn:hover,
+  .poc3d-btn:focus-visible {
+    border-color: var(--accent-strong, #3b82f6);
+    transform: translateY(-1px);
+  }
+
+  .poc3d-btn.is-active {
+    background: var(--accent-strong, #2563eb);
+    color: #ffffff;
+    border-color: transparent;
+  }
+
+  .poc3d-element-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.18));
+  }
+
+  .poc3d-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.55);
+    color: var(--text-secondary, #cbd5e1);
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  :global([data-theme='light']) .poc3d-pill {
+    background: #f8fafc;
+    color: #334155;
+    border-color: rgba(100, 116, 139, 0.3);
+  }
+
+  .poc3d-pill.is-feedback-pill {
+    border-color: rgba(16, 185, 129, 0.45);
+  }
+
+  .poc3d-pill.is-active {
+    background: var(--accent-strong, #2563eb);
+    color: #ffffff;
+    border-color: transparent;
+  }
+
+  .poc3d-pill.is-feedback-pill.is-active {
+    background: #059669;
+    color: #ffffff;
+  }
+
+  .poc3d-pill-code {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    opacity: 0.88;
+  }
+
+  .poc3d-stage-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr);
+    gap: 18px;
+    align-items: stretch;
+  }
+
+  .poc3d-viewport-wrap {
+    position: relative;
+    min-height: 460px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(9, 19, 38, 0.95);
+  }
+
+  :global([data-theme='light']) .poc3d-viewport-wrap {
+    background: #f1f5f9;
+  }
+
+  .poc3d-canvas-container {
+    position: relative;
+    width: 100%;
+    height: 560px;
+  }
+
+  .poc3d-canvas-container[hidden],
+  .poc3d-fallback-view[hidden],
+  .poc3d-anchor-pin[hidden],
+  .poc3d-subpart-tag[hidden],
+  .poc3d-context-notice[hidden] {
+    display: none !important;
+  }
+
+  .poc3d-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    touch-action: none;
+  }
+
+  .poc3d-html-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .poc3d-anchor-pin {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 9px;
+    border: 1px solid rgba(96, 165, 250, 0.55);
+    background: rgba(9, 19, 38, 0.88);
+    color: #f8fafc;
+    font-family: 'Manrope', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(2, 6, 23, 0.45);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  :global([data-theme='light']) .poc3d-anchor-pin {
+    background: rgba(255, 255, 255, 0.94);
+    color: #0f172a;
+    border-color: rgba(37, 99, 235, 0.45);
+  }
+
+  .poc3d-anchor-pin.is-feedback {
+    border-color: rgba(16, 185, 129, 0.65);
+  }
+
+  .poc3d-anchor-pin.is-selected {
+    background: var(--accent-strong, #2563eb);
+    color: #ffffff;
+    border-color: #ffffff;
+  }
+
+  .poc3d-pin-badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  .poc3d-pin-title {
+    font-size: 11.5px;
+    font-weight: 800;
+  }
+
+  .poc3d-subpart-tag {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid var(--accent-strong, #3b82f6);
+    color: #f8fafc;
+    font-family: 'Manrope', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  :global([data-theme='light']) .poc3d-subpart-tag {
+    background: rgba(255, 255, 255, 0.95);
+    color: #0f172a;
+  }
+
+  .poc3d-subpart-code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--accent-strong, #2563eb);
+    color: #ffffff;
+    font-size: 9.5px;
+  }
+
+  .poc3d-hud-legend {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(9, 19, 38, 0.78);
+    color: #cbd5e1;
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    pointer-events: none;
+  }
+
+  :global([data-theme='light']) .poc3d-hud-legend {
+    background: rgba(255, 255, 255, 0.88);
+    color: #334155;
+  }
+
+  .poc3d-fallback-view {
+    padding: 20px;
+  }
+
+  .poc3d-fallback-header {
+    margin-bottom: 16px;
+  }
+
+  .poc3d-fallback-badge {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent-text, #60a5fa);
+    margin-bottom: 4px;
+  }
+
+  .poc3d-fallback-flow-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .poc3d-fallback-card {
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: rgba(15, 29, 56, 0.65);
+    cursor: pointer;
+  }
+
+  :global([data-theme='light']) .poc3d-fallback-card {
+    background: #ffffff;
+  }
+
+  .poc3d-fallback-card.is-active {
+    border-color: var(--accent-strong, #3b82f6);
+    box-shadow: 0 0 0 2px var(--accent-strong, #3b82f6);
+  }
+
+  .poc3d-fallback-card.is-feedback-card {
+    border-color: rgba(16, 185, 129, 0.55);
+  }
+
+  .poc3d-fallback-step {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent-text, #60a5fa);
+  }
+
+  .poc3d-fallback-parts {
+    margin: 10px 0 0;
+    padding-left: 16px;
+    font-size: 12px;
+  }
+
+  .poc3d-inspector {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(13, 25, 48, 0.78);
+  }
+
+  :global([data-theme='light']) .poc3d-inspector {
+    background: #ffffff;
+    border-color: rgba(100, 116, 139, 0.25);
+  }
+
+  .poc3d-insp-top {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .poc3d-insp-tag {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent-text, #60a5fa);
+  }
+
+  .poc3d-insp-role {
+    font-size: 11px;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  .poc3d-insp-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.25rem;
+    margin: 0;
+    color: var(--text-primary, #f8fafc);
+  }
+
+  .poc3d-insp-summary {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0;
+    color: var(--text-secondary, #cbd5e1);
+  }
+
+  .poc3d-insp-box {
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  :global([data-theme='light']) .poc3d-insp-box {
+    background: #f8fafc;
+    border-color: rgba(100, 116, 139, 0.2);
+  }
+
+  .poc3d-box-label {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent-text, #60a5fa);
+    margin-bottom: 4px;
+  }
+
+  .poc3d-insp-box p {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--text-primary, #f1f5f9);
+  }
+
+  :global([data-theme='light']) .poc3d-insp-box p {
+    color: #1e293b;
+  }
+
+  .poc3d-parts-section {
+    margin-top: 2px;
+  }
+
+  .poc3d-parts-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  .poc3d-parts-state {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary, #94a3b8);
+  }
+
+  .poc3d-parts-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .poc3d-part-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    font-size: 0.8rem;
+  }
+
+  :global([data-theme='light']) .poc3d-part-item {
+    background: #f8fafc;
+  }
+
+  .poc3d-part-code {
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: var(--accent-strong, #2563eb);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 10.5px;
+  }
+
+  .poc3d-part-item strong {
+    display: block;
+    color: var(--text-primary, #f8fafc);
+    font-size: 0.81rem;
+  }
+
+  :global([data-theme='light']) .poc3d-part-item strong {
+    color: #0f172a;
+  }
+
+  .poc3d-part-item p {
+    margin: 2px 0 0;
+    color: var(--text-secondary, #cbd5e1);
+    font-size: 0.76rem;
+  }
+
+  :global([data-theme='light']) .poc3d-part-item p {
+    color: #475569;
+  }
+
+  .poc3d-insp-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 8px;
+  }
+
+  .poc3d-nav-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: transparent;
+    color: var(--text-primary, #f8fafc);
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  :global([data-theme='light']) .poc3d-nav-btn {
+    color: #0f172a;
+  }
+
+  @media (max-width: 980px) {
+    .poc3d-stage-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .poc3d-canvas-container {
+      height: 360px;
+    }
+
+    .poc3d-fallback-flow-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,38 @@
+---
+/**
+ * OPEX LÍDER — VISUAL-3D-04 (Ruta Experimental Aislada)
+ * Accesible exclusivamente en /lab/anatomia-proceso-3d, fuera de la navegación oficial del libro (00–09).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProcessAnatomy3DPoc from '../../components/experiments/ProcessAnatomy3DPoc.astro';
+---
+
+<BaseLayout
+  title="LAB 3D · Anatomía de un proceso (Prototipo VISUAL-3D-04)"
+  description="Prueba de concepto tridimensional aislada inspirada en la Página 04: Entrada, Actividades de transformación, Salida y mecanismo conectado de Control y retroalimentación."
+  currentPath="/lab/anatomia-proceso-3d"
+>
+  <article class="page chapter-page" aria-labelledby="poc3d-page-heading">
+    <header class="chapter-lead-grid">
+      <div class="editorial-heading">
+        <p class="eyebrow">ENTORNO EXPERIMENTAL AISLADO · VISUAL-3D-04 (v1.1)</p>
+        <h1 id="poc3d-page-heading">
+          Anatomía espacial de un proceso<br />
+          <em>y su control conectado.</em>
+        </h1>
+        <p class="lead">
+          Prueba de concepto tridimensional inspirada en la Página 04. Explora cómo una solicitud de trabajo atraviesa la Entrada, las Actividades de transformación y la Salida mientras un mecanismo de Control y retroalimentación conectado al sistema evalúa el resultado y ajusta el origen.
+        </p>
+      </div>
+
+      <aside class="chapter-purpose-pill" aria-label="Alcance experimental">
+        <span>PROTOTIPO AISLADO</span>
+        <p>
+          Ruta fuera de la navegación principal de las páginas 00–09. Permite validar selección espacial, enfoque GSAP, despiece de componentes, adaptación de paletas y alternativa sin WebGL antes de autorizar cualquier reemplazo en producción.
+        </p>
+      </aside>
+    </header>
+
+    <ProcessAnatomy3DPoc />
+  </article>
+</BaseLayout>
