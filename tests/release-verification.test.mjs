@@ -461,4 +461,24 @@ describe('7. Evolución editorial 3D de las cuatro tarjetas de Página 01 (PAGE-
     assert.match(introPageSrc, /PRINCIPIO CLAVE/);
     assert.match(introPageSrc, /Explora la anatomía del sistema/);
   });
+
+  test('Cumple el estándar PAGE-01-UX-3D-02: presupuesto vertical sin zoom artificial y docs/UX_PRESENTATION_STANDARD.md', () => {
+    const cssSrc = fs.readFileSync(
+      path.join(ROOT_DIR, 'src/styles/page-01-cards-3d.css'),
+      'utf8'
+    );
+    const stdDocPath = path.join(ROOT_DIR, 'docs/UX_PRESENTATION_STANDARD.md');
+    assert.ok(fs.existsSync(stdDocPath), 'Falta el documento estándar docs/UX_PRESENTATION_STANDARD.md');
+
+    const stdDoc = fs.readFileSync(stdDocPath, 'utf8');
+    assert.match(stdDoc, /100 % de zoom/);
+    assert.match(stdDoc, /presentationEngine\.ts/);
+    assert.match(stdDoc, /16:9/);
+    assert.match(stdDoc, /4:3/);
+
+    // Prohibido usar zoom: 0.9 o transform: scale(0.9) global para enmascarar problemas de proporción
+    assert.doesNotMatch(cssSrc, /\bzoom\s*:\s*0\.\d+/i);
+    assert.match(cssSrc, /100dvh/);
+    assert.match(cssSrc, /grid-template-rows:\s*auto\s+auto\s+minmax\(0,\s*1fr\)\s+auto/);
+  });
 });
