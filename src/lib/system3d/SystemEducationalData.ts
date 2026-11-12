@@ -73,6 +73,7 @@ export const SYSTEM_FORCE_CONCEPTS: SystemForceConcept[] = [
     actionBeats: [
       'Observa la solicitud',
       'Detecta una anomalía',
+      'Señala el problema',
       'Comunica la situación',
       'Activa relaciones operacionales',
     ],
@@ -161,7 +162,7 @@ export const SYSTEM_FORCE_CONCEPTS: SystemForceConcept[] = [
       'Examinan evidencia',
       'Formulan hipótesis',
       'Proponen ajuste',
-      'Conectan de vuelta al proceso',
+      'Pendiente de verificación',
     ],
   },
 ];

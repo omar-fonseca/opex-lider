@@ -22,12 +22,15 @@ import {
 } from './SystemGeometry.ts';
 import { SystemForceStoryDirector } from './SystemForceStories.ts';
 import {
-  FORCE_CAMERA_POSES,
+  computePoseForBox3,
+  expandBoxFromObject,
+  unionBoxes,
+} from './SystemCameraFraming.ts';
+import {
   OVERVIEW_CAMERA_POSE,
   clampOrbitOffsets,
   computeForceHighlightMap,
   isGenuinePointerClick,
-  overviewPoseForAspect,
   type CameraFocusPose,
   type ForceVisualState,
 } from './SystemInteraction.ts';
@@ -59,6 +62,11 @@ export interface SystemSceneDiagnosticSnapshot {
   connectionCount: number;
   currentBeat: string | null;
   labels: ProjectedForceLabel[];
+  /** Todas las etiquetas de la vista activa quedan dentro de [0–100] con margen. */
+  labelsFramed: boolean;
+  canvasWidth: number;
+  canvasHeight: number;
+  aspect: number;
 }
 
 export class SystemScene3DController {
@@ -102,6 +110,9 @@ export class SystemScene3DController {
   private tabHiddenPaused = false;
   private captureFrozen = false;
   private lastLabels: ProjectedForceLabel[] = [];
+  private presentationMode = false;
+  private readonly scratchBox = new THREE.Box3();
+  private readonly scratchBoxes: THREE.Box3[] = [];
 
   private disconnectThemeObserver: (() => void) | null = null;
   private resizeObserver: ResizeObserver | null = null;
@@ -141,7 +152,9 @@ export class SystemScene3DController {
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.12;
+    renderer.toneMappingExposure = 1.08;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     const scene = new THREE.Scene();
     this.scene = scene;
@@ -157,16 +170,25 @@ export class SystemScene3DController {
     scene.add(built.world.root);
     this.storyDirector = new SystemForceStoryDirector(built.world);
 
-    this.ambientLight = new THREE.AmbientLight(palette.ambientLightHex, 1.2);
+    this.ambientLight = new THREE.AmbientLight(palette.ambientLightHex, 0.95);
     scene.add(this.ambientLight);
-    this.keyLight = new THREE.DirectionalLight(palette.keyLightHex, 2.2);
-    this.keyLight.position.set(4.5, 8.5, 3.5);
+    this.keyLight = new THREE.DirectionalLight(palette.keyLightHex, 1.85);
+    this.keyLight.position.set(5.2, 9.5, 4.2);
+    this.keyLight.castShadow = true;
+    this.keyLight.shadow.mapSize.set(1024, 1024);
+    this.keyLight.shadow.camera.near = 1;
+    this.keyLight.shadow.camera.far = 28;
+    this.keyLight.shadow.camera.left = -10;
+    this.keyLight.shadow.camera.right = 10;
+    this.keyLight.shadow.camera.top = 10;
+    this.keyLight.shadow.camera.bottom = -10;
+    this.keyLight.shadow.bias = -0.0008;
     scene.add(this.keyLight);
-    this.fillLight = new THREE.DirectionalLight(palette.warmRimLightHex, 1.1);
-    this.fillLight.position.set(-5, 3.5, -2);
+    this.fillLight = new THREE.DirectionalLight(palette.warmRimLightHex, 0.85);
+    this.fillLight.position.set(-5.5, 4.2, -2.4);
     scene.add(this.fillLight);
-    this.rimLight = new THREE.PointLight(palette.coolRimLightHex, 3.2, 18, 1.5);
-    this.rimLight.position.set(0, 4.5, 0);
+    this.rimLight = new THREE.PointLight(palette.coolRimLightHex, 2.4, 18, 1.5);
+    this.rimLight.position.set(0, 4.8, 0);
     scene.add(this.rimLight);
 
     this.applyPalette(palette);
@@ -208,7 +230,7 @@ export class SystemScene3DController {
     );
 
     if (forceId) {
-      this.tweenCamera(FORCE_CAMERA_POSES[forceId]);
+      this.tweenCamera(this.currentForcePose(forceId));
       if (playStory) {
         this.storyDirector.playForce(forceId, {
           onBeat: (id, idx, label) => {
@@ -289,6 +311,20 @@ export class SystemScene3DController {
   }
 
   public getDiagnosticSnapshot(): SystemSceneDiagnosticSnapshot {
+    const margin = 1;
+    const relevant = this.activeForce
+      ? this.lastLabels.filter((label) => label.id === this.activeForce || label.id === 'sistema')
+      : this.lastLabels;
+    const labelsFramed =
+      relevant.length > 0 &&
+      relevant.every(
+        (label) =>
+          label.xPercent >= margin &&
+          label.xPercent <= 100 - margin &&
+          label.yPercent >= margin &&
+          label.yPercent <= 100 - margin
+      );
+    const size = this.renderer?.getSize(new THREE.Vector2());
     return {
       initialized: this.initialized,
       activeForce: this.activeForce,
@@ -299,7 +335,32 @@ export class SystemScene3DController {
       connectionCount: this.world?.connectionMeshes.length ?? 0,
       currentBeat: this.currentBeat,
       labels: this.lastLabels,
+      labelsFramed,
+      canvasWidth: size?.x ?? 0,
+      canvasHeight: size?.y ?? 0,
+      aspect: this.camera?.aspect ?? 0,
     };
+  }
+
+  /**
+   * Recalcula renderer + cámara tras cambios de layout (modo presentación, resize, etc.).
+   */
+  public notifyLayoutChange(presentationMode?: boolean): void {
+    if (typeof presentationMode === 'boolean') {
+      this.presentationMode = presentationMode;
+    }
+    requestAnimationFrame(() => {
+      this.updateSize();
+      this.refitActiveCamera(false);
+      this.projectLabels();
+      this.renderSingleFrame(0);
+      requestAnimationFrame(() => {
+        this.updateSize();
+        this.refitActiveCamera(false);
+        this.projectLabels();
+        this.renderSingleFrame(0);
+      });
+    });
   }
 
   public dispose(): void {
@@ -483,6 +544,9 @@ export class SystemScene3DController {
     if (typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver(() => {
         this.updateSize();
+        if (this.activeForce) {
+          this.refitActiveCamera(false);
+        }
         this.projectLabels();
         this.renderSingleFrame(0);
       });
@@ -650,19 +714,85 @@ export class SystemScene3DController {
     this.renderer.setSize(width, height, false);
     canvas.style.width = '100%';
     canvas.style.height = '100%';
-    this.camera.aspect = width / height;
-    if (!this.activeForce && !this.inspectEnabled) {
-      const fitted = overviewPoseForAspect(this.camera.aspect);
+    this.camera.aspect = width / Math.max(1, height);
+    this.camera.updateProjectionMatrix();
+    // En overview, reajustar al aspect real del contenedor (crítico en presentación).
+    if (!this.activeForce) {
+      const fitted = this.currentOverviewPose();
       Object.assign(this.cameraPose, fitted);
       this.camera.fov = fitted.fov ?? 36;
+      this.camera.updateProjectionMatrix();
+      this.applyCameraPose(this.cameraPose);
     }
-    this.camera.updateProjectionMatrix();
-    this.applyCameraPose(this.cameraPose);
+  }
+
+  private refitActiveCamera(animate: boolean): void {
+    const pose = this.activeForce
+      ? this.currentForcePose(this.activeForce)
+      : this.currentOverviewPose();
+    if (animate) this.tweenCamera(pose);
+    else {
+      this.cameraTween?.kill();
+      Object.assign(this.cameraPose, pose);
+      if (this.camera && pose.fov) this.camera.fov = pose.fov;
+      this.camera?.updateProjectionMatrix();
+      this.applyCameraPose(this.cameraPose);
+    }
   }
 
   private currentOverviewPose(): CameraFocusPose {
     const aspect = this.camera?.aspect ?? 1.4;
-    return overviewPoseForAspect(aspect);
+    const box = this.computeOverviewBox();
+    const padding = this.presentationMode ? 0.06 : aspect < 1 ? 0.09 : 0.065;
+    const fov = this.presentationMode ? (aspect < 1.25 ? 38 : 34) : aspect < 1 ? 40 : 34;
+    return computePoseForBox3(box, aspect, {
+      padding,
+      distanceScale: this.presentationMode ? 0.78 : 0.82,
+      fovDeg: fov,
+      viewDirection: new THREE.Vector3(0.12, 0.82, 0.55),
+      minDistance: 6.5,
+      maxDistance: 28,
+    });
+  }
+
+  private currentForcePose(forceId: ForceId): CameraFocusPose {
+    if (!this.world) return { ...OVERVIEW_CAMERA_POSE };
+    const aspect = this.camera?.aspect ?? 1.4;
+    const bundle = this.world.forces[forceId];
+    expandBoxFromObject(bundle.root, this.scratchBox);
+    // Incluye un poco del nexo para contexto espacial sin perder al protagonista.
+    const centerBox = expandBoxFromObject(this.world.center.root, new THREE.Box3());
+    const blended = this.scratchBox.clone();
+    blended.expandByPoint(centerBox.getCenter(new THREE.Vector3()));
+    blended.expandByScalar(0.35);
+
+    const views: Record<ForceId, THREE.Vector3> = {
+      personas: new THREE.Vector3(0.35, 0.55, 0.76),
+      procesos: new THREE.Vector3(-0.72, 0.52, 0.45),
+      liderazgo: new THREE.Vector3(0.4, 0.55, -0.72),
+      mejora: new THREE.Vector3(0.72, 0.52, 0.42),
+    };
+    return computePoseForBox3(blended, aspect, {
+      padding: this.presentationMode ? 0.1 : 0.08,
+      fovDeg: this.presentationMode ? 34 : 32,
+      viewDirection: views[forceId],
+      minDistance: 3.8,
+      maxDistance: 16,
+    });
+  }
+
+  private computeOverviewBox(): THREE.Box3 {
+    if (!this.world) return new THREE.Box3();
+    this.scratchBoxes.length = 0;
+    this.scratchBoxes.push(expandBoxFromObject(this.world.center.root, new THREE.Box3()));
+    (Object.keys(this.world.forces) as ForceId[]).forEach((id) => {
+      this.scratchBoxes.push(expandBoxFromObject(this.world!.forces[id].root, new THREE.Box3()));
+    });
+    const box = unionBoxes(this.scratchBoxes);
+    // Reserva moderada para etiquetas HTML encima de las plataformas.
+    box.max.y += 0.55;
+    box.min.y -= 0.08;
+    return box;
   }
 
   private projectLabels(): void {

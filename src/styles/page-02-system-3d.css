@@ -223,37 +223,120 @@
   position: relative;
 }
 
-.system-immersive-shell[data-presentation-mode='true'] {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  width: 100vw;
-  height: 100dvh;
+/* Anula el layout flex genérico de pages-03-09 (.expandable-workbench[data-presentation-mode]). */
+html[data-presentation-active='true'] .page-stage {
+  transform: none !important;
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+#interactive-system.system-immersive-shell.expandable-workbench[data-presentation-mode='true'] {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 10000 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  display: grid !important;
+  flex-direction: unset !important;
+  justify-content: unset !important;
+  /* topbar | selector | escenario | brief | hud */
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 0.35rem !important;
+  background: var(--ink) !important;
+  background-image: none !important;
+  padding: clamp(0.45rem, 1dvh, 0.85rem) clamp(0.7rem, 1.4vw, 1.15rem) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+#interactive-system[data-presentation-mode='true'] .system-stage-topbar,
+#interactive-system[data-presentation-mode='true'] .system3d-controls,
+#interactive-system[data-presentation-mode='true'] .system3d-tour-bar,
+#interactive-system[data-presentation-mode='true'] .focus-mode-toggle-btn {
+  display: none !important;
+}
+
+/* Reabre el selector de fuerzas (pages-03-09 lo oculta vía .stage-selector-bar). */
+#interactive-system[data-presentation-mode='true'] .system-selector-bar.stage-selector-bar {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: center;
   margin: 0;
-  border-radius: 0;
-  display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-  background: var(--ink);
-  padding: clamp(0.5rem, 1.2dvh, 1rem) clamp(0.75rem, 1.5vw, 1.25rem);
-  box-sizing: border-box;
-  overflow: hidden;
+  flex: 0 0 auto !important;
 }
 
-.system-immersive-shell[data-presentation-mode='true'] .system-stage-topbar,
-.system-immersive-shell[data-presentation-mode='true'] .system3d-controls,
-.system-immersive-shell[data-presentation-mode='true'] .system3d-tour-bar {
-  display: none;
+#interactive-system[data-presentation-mode='true'] .system-stage-viewport {
+  min-height: 0 !important;
+  height: 100% !important;
+  flex: 1 1 auto !important;
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden !important;
 }
 
-.system-immersive-shell[data-presentation-mode='true'] .system-stage-viewport,
-.system-immersive-shell[data-presentation-mode='true'] .system3d-stage {
-  min-height: 0;
-  height: 100%;
+#interactive-system[data-presentation-mode='true'] .system3d-stage {
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: none !important;
+  border-radius: 12px;
 }
 
-.system-immersive-shell[data-presentation-mode='true'] .system3d-brief {
-  max-height: 28dvh;
+#interactive-system[data-presentation-mode='true'] .diagram-canvas {
+  display: none !important;
+}
+
+#interactive-system[data-presentation-mode='true'] .system3d-brief {
+  display: block !important;
+  max-height: min(22dvh, 210px);
   overflow: auto;
+  margin-top: 0;
+  flex: 0 0 auto !important;
+}
+
+#interactive-system[data-presentation-mode='true'][data-expanded='true'] .system-card-panel {
+  max-height: min(42dvh, 420px);
+  overflow-y: auto;
+}
+
+#interactive-system[data-presentation-mode='true'] .system-pres-topbar,
+#interactive-system[data-presentation-mode='true'] .system-pres-hud {
+  display: flex !important;
+  flex: 0 0 auto !important;
+}
+
+@media (min-width: 1200px) {
+  #interactive-system.system-immersive-shell.expandable-workbench[data-presentation-mode='true'] {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 34%) !important;
+    grid-template-rows: auto auto minmax(0, 1fr) auto !important;
+  }
+
+  #interactive-system[data-presentation-mode='true'] .system-pres-topbar,
+  #interactive-system[data-presentation-mode='true'] .system-selector-bar,
+  #interactive-system[data-presentation-mode='true'] .system-pres-hud {
+    grid-column: 1 / -1;
+  }
+
+  #interactive-system[data-presentation-mode='true'] .system-stage-viewport {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  #interactive-system[data-presentation-mode='true'] .system3d-brief {
+    grid-column: 2;
+    grid-row: 3;
+    max-height: none;
+    height: 100%;
+    align-self: stretch;
+  }
 }
 
 .system-pres-topbar {

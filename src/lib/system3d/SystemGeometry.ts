@@ -105,97 +105,121 @@ function createStylizedHuman(options: {
   const human = new THREE.Group();
   human.scale.setScalar(scale);
 
-  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.17, 0.36, 4, 8), clothing);
-  torso.position.y = 0.74;
+  // Cadena articula: pelvis → torso → cuello → cabeza; brazos en hombros.
+  const pelvis = new THREE.Group();
+  pelvis.position.y = 0.42;
+  human.add(pelvis);
+
+  const hips = new THREE.Mesh(new THREE.CapsuleGeometry(0.16, 0.14, 4, 10), materials.propDark);
+  hips.castShadow = true;
+  pelvis.add(hips);
+
+  const torsoPivot = new THREE.Group();
+  torsoPivot.position.y = 0.18;
+  pelvis.add(torsoPivot);
+
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.19, 0.42, 5, 10), clothing);
+  torso.position.y = 0.28;
   torso.castShadow = true;
-  human.add(torso);
+  torsoPivot.add(torso);
 
   if (options.vest) {
-    const vest = new THREE.Mesh(
-      new THREE.BoxGeometry(0.28, 0.28, 0.16),
-      materials.clothingB
-    );
-    vest.position.y = 0.78;
-    human.add(vest);
+    const vest = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.34, 0.2), materials.clothingB);
+    vest.position.y = 0.3;
+    vest.castShadow = true;
+    torsoPivot.add(vest);
   }
 
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.145, 16, 12), materials.skin);
-  head.position.y = 1.16;
-  head.castShadow = true;
-  human.add(head);
+  const shoulderL = new THREE.Group();
+  shoulderL.position.set(-0.24, 0.42, 0);
+  torsoPivot.add(shoulderL);
+  const shoulderR = new THREE.Group();
+  shoulderR.position.set(0.24, 0.42, 0);
+  torsoPivot.add(shoulderR);
 
-  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 });
-  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 8), eyeMat);
-  eyeL.position.set(-0.045, 0.02, 0.125);
+  const armL = new THREE.Mesh(new THREE.CapsuleGeometry(0.055, 0.34, 4, 8), clothing);
+  armL.position.set(0, -0.2, 0);
+  armL.rotation.z = 0.22;
+  armL.castShadow = true;
+  shoulderL.add(armL);
+  const handL = new THREE.Mesh(new THREE.SphereGeometry(0.055, 10, 8), materials.skin);
+  handL.position.set(0, -0.4, 0);
+  shoulderL.add(handL);
+
+  const armR = new THREE.Mesh(new THREE.CapsuleGeometry(0.055, 0.34, 4, 8), clothing);
+  armR.position.set(0, -0.2, 0);
+  armR.rotation.z = -0.22;
+  armR.castShadow = true;
+  shoulderR.add(armR);
+  const handR = new THREE.Mesh(new THREE.SphereGeometry(0.055, 10, 8), materials.skin);
+  handR.position.set(0, -0.4, 0);
+  shoulderR.add(handR);
+
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.1, 8), materials.skin);
+  neck.position.y = 0.58;
+  torsoPivot.add(neck);
+
+  const head = new THREE.Group();
+  head.position.y = 0.72;
+  torsoPivot.add(head);
+  const skull = new THREE.Mesh(new THREE.SphereGeometry(0.155, 18, 14), materials.skin);
+  skull.castShadow = true;
+  head.add(skull);
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.35 });
+  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), eyeMat);
+  eyeL.position.set(-0.05, 0.02, 0.13);
   const eyeR = eyeL.clone();
-  eyeR.position.x = 0.045;
+  eyeR.position.x = 0.05;
   head.add(eyeL, eyeR);
 
   if (options.headgear === 'hardhat') {
     const hat = new THREE.Mesh(
-      new THREE.SphereGeometry(0.16, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.SphereGeometry(0.17, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2),
       materials.warning
     );
-    hat.position.y = 0.04;
+    hat.position.y = 0.05;
     head.add(hat);
-    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.025, 12), materials.warning);
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.03, 14), materials.warning);
     brim.position.y = 0.02;
     head.add(brim);
   } else if (options.headgear === 'cap') {
     const cap = new THREE.Mesh(
-      new THREE.SphereGeometry(0.15, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2.2),
+      new THREE.SphereGeometry(0.16, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2.2),
       clothing
     );
     cap.position.y = 0.05;
     head.add(cap);
   }
 
-  const hips = new THREE.Mesh(new THREE.CapsuleGeometry(0.145, 0.12, 3, 8), materials.propDark);
-  hips.position.y = 0.42;
-  human.add(hips);
-
-  const legL = new THREE.Mesh(new THREE.CapsuleGeometry(0.062, 0.3, 3, 6), materials.propDark);
-  legL.position.set(-0.08, 0.18, 0);
+  const legL = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 0.36, 4, 8), materials.propDark);
+  legL.position.set(-0.09, 0.18, 0);
+  legL.castShadow = true;
   human.add(legL);
   const legR = legL.clone();
-  legR.position.x = 0.08;
+  legR.position.x = 0.09;
   human.add(legR);
 
-  const armL = new THREE.Mesh(new THREE.CapsuleGeometry(0.048, 0.28, 3, 6), clothing);
-  armL.position.set(-0.26, 0.8, 0);
-  armL.rotation.z = 0.28;
-  human.add(armL);
-  const armR = armL.clone();
-  armR.position.x = 0.26;
-  armR.rotation.z = -0.28;
-  human.add(armR);
-
   if (pose === 'sitting') {
-    torso.position.y = 0.58;
-    head.position.y = 1.0;
-    hips.position.y = 0.34;
-    legL.rotation.x = Math.PI / 2.15;
-    legL.position.set(-0.08, 0.24, 0.16);
-    legR.rotation.x = Math.PI / 2.15;
-    legR.position.set(0.08, 0.24, 0.16);
-    armL.rotation.x = -0.7;
-    armR.rotation.x = -0.65;
+    pelvis.position.y = 0.34;
+    legL.rotation.x = Math.PI / 2.1;
+    legL.position.set(-0.09, 0.22, 0.18);
+    legR.rotation.x = Math.PI / 2.1;
+    legR.position.set(0.09, 0.22, 0.18);
+    shoulderL.rotation.x = -0.85;
+    shoulderR.rotation.x = -0.75;
   } else if (pose === 'leaning') {
-    torso.rotation.x = 0.28;
-    head.position.z = 0.08;
-    head.rotation.x = -0.2;
-    armR.rotation.x = -1.05;
-    armR.rotation.z = -0.05;
+    torsoPivot.rotation.x = 0.32;
+    head.rotation.x = -0.18;
+    shoulderR.rotation.x = -1.05;
   } else if (pose === 'pointing') {
-    armR.rotation.x = -1.25;
-    armR.rotation.z = -0.15;
-    armR.position.set(0.24, 0.9, 0.1);
+    shoulderR.rotation.set(-1.35, 0.15, -0.2);
   }
 
-  human.userData.armL = armL;
-  human.userData.armR = armR;
+  human.userData.armL = shoulderL;
+  human.userData.armR = shoulderR;
   human.userData.head = head;
-  human.userData.torso = torso;
+  human.userData.torso = torsoPivot;
+  human.userData.pelvis = pelvis;
   return human;
 }
 
@@ -286,16 +310,16 @@ function createChartBoard(
 export function createSystemSharedMaterials(accentHex: number): SystemSharedMaterials {
   return {
     platformBody: new THREE.MeshStandardMaterial({
-      color: 0x1c2433,
-      metalness: 0.42,
-      roughness: 0.48,
+      color: 0x1a2230,
+      metalness: 0.55,
+      roughness: 0.38,
     }),
     platformEdge: new THREE.MeshStandardMaterial({
       color: accentHex,
-      metalness: 0.55,
-      roughness: 0.32,
+      metalness: 0.62,
+      roughness: 0.28,
       emissive: accentHex,
-      emissiveIntensity: 0.22,
+      emissiveIntensity: 0.28,
     }),
     platformGlow: new THREE.MeshStandardMaterial({
       color: accentHex,
@@ -451,7 +475,7 @@ function buildPersonasBundle(materials: SystemSharedMaterials): ForcePlatformBun
     materials,
     clothing: materials.clothingA,
     pose: 'sitting',
-    scale: 1.05,
+    scale: 1.18,
     headgear: 'hardhat',
   });
   observer.position.set(-0.28, 0.28, 0.05);
@@ -463,7 +487,7 @@ function buildPersonasBundle(materials: SystemSharedMaterials): ForcePlatformBun
     materials,
     clothing: materials.clothingLeader,
     pose: 'sitting',
-    scale: 1.02,
+    scale: 1.14,
     vest: true,
     headgear: 'cap',
   });
@@ -476,7 +500,7 @@ function buildPersonasBundle(materials: SystemSharedMaterials): ForcePlatformBun
     materials,
     clothing: materials.clothingB,
     pose: 'standing',
-    scale: 1,
+    scale: 1.12,
     headgear: 'hardhat',
     vest: true,
   });
@@ -541,7 +565,7 @@ function buildProcesosBundle(materials: SystemSharedMaterials): ForcePlatformBun
     materials,
     clothing: materials.clothingA,
     pose: 'leaning',
-    scale: 1.05,
+    scale: 1.18,
     headgear: 'hardhat',
     vest: true,
   });
@@ -619,7 +643,7 @@ function buildLiderazgoBundle(materials: SystemSharedMaterials): ForcePlatformBu
     materials,
     clothing: materials.clothingLeader,
     pose: 'sitting',
-    scale: 1.08,
+    scale: 1.2,
     headgear: 'none',
   });
   leader.position.set(0.35, 0.28, 0.15);
@@ -631,7 +655,7 @@ function buildLiderazgoBundle(materials: SystemSharedMaterials): ForcePlatformBu
     materials,
     clothing: materials.clothingA,
     pose: 'sitting',
-    scale: 1.02,
+    scale: 1.14,
     vest: true,
     headgear: 'cap',
   });
@@ -693,7 +717,7 @@ function buildMejoraBundle(materials: SystemSharedMaterials): ForcePlatformBundl
     materials,
     clothing: materials.clothingA,
     pose: 'sitting',
-    scale: 1.02,
+    scale: 1.14,
     headgear: 'none',
   });
   analyst.position.set(-0.35, 0.28, 0.2);
@@ -705,7 +729,7 @@ function buildMejoraBundle(materials: SystemSharedMaterials): ForcePlatformBundl
     materials,
     clothing: materials.clothingB,
     pose: 'pointing',
-    scale: 1.05,
+    scale: 1.18,
     vest: true,
     headgear: 'hardhat',
   });

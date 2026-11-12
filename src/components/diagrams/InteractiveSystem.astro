@@ -304,6 +304,7 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
       dispose: () => void;
       getDiagnosticSnapshot: () => unknown;
       setCaptureFreeze: (v: boolean) => void;
+      notifyLayoutChange: (presentationMode?: boolean) => void;
     } | null = null;
 
     let isCardOpen = false;
@@ -354,12 +355,14 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
         if (isOverview || !scene || scene.id === 'overview') {
           appState.restore();
           sceneCtrl?.restoreOverview();
+          sceneCtrl?.notifyLayoutChange(true);
           return;
         }
         if (scene.id === 'integration') {
           appState.setRelationsVisible(true);
           sceneCtrl?.setRelationsMode(true);
           sceneCtrl?.selectForce(null, false);
+          sceneCtrl?.notifyLayoutChange(true);
           return;
         }
         const forceId = scene.id as ForceId;
@@ -367,6 +370,7 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
           appState.selectForce(forceId, { keepTour: true });
           sceneCtrl?.selectForce(forceId, true);
           syncFallbackSelection(forceId, false);
+          sceneCtrl?.notifyLayoutChange(true);
         }
         void index;
       },
@@ -374,11 +378,13 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
         shell.setAttribute('data-presentation-mode', 'true');
         document.getElementById('system-ctrl-present')?.classList.add('is-active');
         document.getElementById('system-ctrl-present')?.setAttribute('aria-pressed', 'true');
+        sceneCtrl?.notifyLayoutChange(true);
       },
       onExit: () => {
         shell.setAttribute('data-presentation-mode', 'false');
         document.getElementById('system-ctrl-present')?.classList.remove('is-active');
         document.getElementById('system-ctrl-present')?.setAttribute('aria-pressed', 'false');
+        sceneCtrl?.notifyLayoutChange(false);
       },
     });
 

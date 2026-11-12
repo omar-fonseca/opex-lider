@@ -17,9 +17,23 @@ async function waitForSystem3D(page: Page) {
   return shell;
 }
 
-async function getSnapshot(page: Page) {
+type SystemSnap = {
+  initialized?: boolean;
+  activeForce?: string | null;
+  relationsMode?: boolean;
+  platformCount?: number;
+  connectionCount?: number;
+  currentBeat?: string | null;
+  labelsFramed?: boolean;
+  canvasWidth?: number;
+  canvasHeight?: number;
+  aspect?: number;
+  labels?: Array<{ id: string; xPercent: number; yPercent: number }>;
+};
+
+async function getSnapshot(page: Page): Promise<SystemSnap | null> {
   return page.evaluate(() => {
-    const ctrl = (window as unknown as { __opexSystem3D?: { getDiagnosticSnapshot: () => unknown } })
+    const ctrl = (window as unknown as { __opexSystem3D?: { getDiagnosticSnapshot: () => SystemSnap } })
       .__opexSystem3D;
     return ctrl?.getDiagnosticSnapshot?.() ?? null;
   });
@@ -218,6 +232,12 @@ test.describe('OPEX LÍDER — PAGE-02-SYSTEM-3D-01', () => {
       'data-presentation-mode',
       'true'
     );
+    await page.waitForTimeout(450);
+    const snap16 = await getSnapshot(page);
+    if (snap16?.initialized) {
+      expect(snap16.labelsFramed).toBe(true);
+      expect((snap16.canvasHeight ?? 0) > 400).toBeTruthy();
+    }
     await page.screenshot({
       path: path.join(ARTIFACT_DIR, '09-presentation-16x9.png'),
     });
@@ -229,10 +249,61 @@ test.describe('OPEX LÍDER — PAGE-02-SYSTEM-3D-01', () => {
 
     await page.setViewportSize({ width: 1440, height: 1080 });
     await page.locator('#system-ctrl-present').click();
+    await page.waitForTimeout(450);
+    const snap43 = await getSnapshot(page);
+    if (snap43?.initialized) {
+      expect(snap43.labelsFramed).toBe(true);
+    }
     await page.screenshot({
       path: path.join(ARTIFACT_DIR, '10-presentation-4x3.png'),
     });
     await page.keyboard.press('Escape');
+  });
+
+  test('7. Encuadre adaptativo Box3, restauración y pausa de animación', async ({ page }) => {
+    await gotoSistema(page);
+    const shell = await waitForSystem3D(page);
+    const mode = await shell.getAttribute('data-system3d-mode');
+    test.skip(mode !== '3d', 'WebGL no disponible en este entorno');
+
+    await expect.poll(async () => (await getSnapshot(page))?.labelsFramed).toBe(true);
+
+    await page.locator('[data-force-pill="personas"]').click();
+    await page.waitForTimeout(700);
+    await expect.poll(async () => (await getSnapshot(page))?.activeForce).toBe('personas');
+    await expect.poll(async () => (await getSnapshot(page))?.currentBeat).toBeTruthy();
+
+    await page.locator('#system-ctrl-pause').click();
+    await expect(page.locator('#system-ctrl-pause')).toHaveAttribute('aria-pressed', 'true');
+    const pausedBeat = (await getSnapshot(page))?.currentBeat;
+
+    await page.locator('[data-force-pill="procesos"]').click();
+    await page.waitForTimeout(500);
+    await expect.poll(async () => (await getSnapshot(page))?.activeForce).toBe('procesos');
+    // Al cambiar de fuerza se cancela la timeline anterior y comienza otra.
+    await expect
+      .poll(async () => (await getSnapshot(page))?.currentBeat, { timeout: 4_000 })
+      .not.toBe(pausedBeat ?? '__none__');
+
+    await page.locator('#system-ctrl-restore').click();
+    await page.waitForTimeout(400);
+    const restored = await getSnapshot(page);
+    expect(restored?.activeForce).toBeNull();
+    expect(restored?.labelsFramed).toBe(true);
+
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.locator('#system-ctrl-present').click();
+    await page.waitForTimeout(500);
+    const inPres = await getSnapshot(page);
+    expect(inPres?.labelsFramed).toBe(true);
+    await page.locator('#system-pres-next').click();
+    await page.waitForTimeout(700);
+    const forceInPres = await getSnapshot(page);
+    expect(forceInPres?.activeForce === 'personas' || forceInPres?.labelsFramed).toBeTruthy();
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(400);
+    const afterExit = await getSnapshot(page);
+    expect(afterExit?.labelsFramed).toBe(true);
   });
 
   test('6. No regresión páginas 00 y 01 + puente a 03', async ({ page }) => {
