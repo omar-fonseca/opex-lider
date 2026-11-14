@@ -4,12 +4,15 @@ trigger: always_on
 
 # OPEX LÍDER — Gobierno de Ingeniería y Continuidad Permanente (GOV-01)
 
+> **Addendum 2026-11-14 (AI-TEAM-01):** Las referencias a `integration/v1-interactive-book` describen el **estado integrado de la 1ª edición**. Para trabajo visual 00–02 y worktrees locales, consultar el mapa de etiquetas en `docs/ai/GOVERNANCE_BRANCH_MAP.md` (producción publicada · base aprobada local · experimental · página bloqueada · integrado). Este addendum **no** cambia la rama canónica de producción ni las políticas de despliegue.
+
 ## 1. Fuente de Verdad y Verificación de Inicio de Sesión
 
 - **Repositorio oficial:** `omar-fonseca/opex-lider`
 - **Rama integrada vigente:** `integration/v1-interactive-book`
 - **Worktree oficial de integración:** `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration`
 - **Estado de referencia documentado:** Consultar siempre `docs/PROJECT_STATE.md` al iniciar sesión.
+- **Mapa de ramas locales / 2ª edición visual:** `docs/ai/GOVERNANCE_BRANCH_MAP.md`
 
 ### Protocolo obligatorio antes de iniciar cualquier tarea
 Antes de modificar archivos, ejecutar servidores o proponer cambios en cada sesión:
