@@ -170,9 +170,9 @@ export class SystemScene3DController {
     scene.add(built.world.root);
     this.storyDirector = new SystemForceStoryDirector(built.world);
 
-    this.ambientLight = new THREE.AmbientLight(palette.ambientLightHex, 0.95);
+    this.ambientLight = new THREE.AmbientLight(palette.ambientLightHex, 1.25);
     scene.add(this.ambientLight);
-    this.keyLight = new THREE.DirectionalLight(palette.keyLightHex, 1.85);
+    this.keyLight = new THREE.DirectionalLight(palette.keyLightHex, 2.15);
     this.keyLight.position.set(5.2, 9.5, 4.2);
     this.keyLight.castShadow = true;
     this.keyLight.shadow.mapSize.set(1024, 1024);
@@ -184,12 +184,15 @@ export class SystemScene3DController {
     this.keyLight.shadow.camera.bottom = -10;
     this.keyLight.shadow.bias = -0.0008;
     scene.add(this.keyLight);
-    this.fillLight = new THREE.DirectionalLight(palette.warmRimLightHex, 0.85);
+    this.fillLight = new THREE.DirectionalLight(palette.warmRimLightHex, 1.15);
     this.fillLight.position.set(-5.5, 4.2, -2.4);
     scene.add(this.fillLight);
-    this.rimLight = new THREE.PointLight(palette.coolRimLightHex, 2.4, 18, 1.5);
+    this.rimLight = new THREE.PointLight(palette.coolRimLightHex, 2.8, 20, 1.5);
     this.rimLight.position.set(0, 4.8, 0);
     scene.add(this.rimLight);
+    const warmWash = new THREE.PointLight(0xff7a2e, 1.1, 28, 2);
+    warmWash.position.set(0, 6.5, -8);
+    scene.add(warmWash);
 
     this.applyPalette(palette);
     this.setupListeners();
@@ -445,13 +448,22 @@ export class SystemScene3DController {
     this.world.connectionMeshes.forEach((mesh) => {
       const pair = mesh.userData.pair as Array<ForceId | 'sistema'>;
       const mat = mesh.material as THREE.MeshStandardMaterial;
+      const isArrow = mesh.userData.connectionStyle === 'arrow';
       const relevant =
         map.relationsMode ||
         (active && pair.includes(active) && pair.some((p) => connected.has(p)));
-      const opacity = relevant ? 0.85 : map.activeForce ? 0.08 : 0.28;
-      const intensity = relevant ? 0.85 : 0.25;
+      const idle = isArrow ? 0.62 : 0.18;
+      const opacity = relevant ? (isArrow ? 0.92 : 0.75) : map.activeForce ? 0.06 : idle;
+      const intensity = relevant ? 1.05 : isArrow ? 0.55 : 0.22;
       mat.opacity = opacity;
       mat.emissiveIntensity = intensity;
+      mesh.traverse((child) => {
+        if (child === mesh || !(child as THREE.Mesh).isMesh) return;
+        const childMat = (child as THREE.Mesh).material as THREE.MeshStandardMaterial;
+        if (!childMat || !('opacity' in childMat)) return;
+        childMat.opacity = Math.min(1, opacity + 0.08);
+        childMat.emissiveIntensity = intensity;
+      });
     });
   }
 
@@ -478,8 +490,9 @@ export class SystemScene3DController {
     if (!this.world) return;
     this.world.connectionMeshes.forEach((mesh) => {
       const mat = mesh.material as THREE.MeshStandardMaterial;
-      mat.opacity = strong ? 0.8 : 0.28;
-      mat.emissiveIntensity = strong ? 0.8 : 0.25;
+      const isArrow = mesh.userData.connectionStyle === 'arrow';
+      mat.opacity = strong ? 0.9 : isArrow ? 0.62 : 0.2;
+      mat.emissiveIntensity = strong ? 1 : isArrow ? 0.55 : 0.22;
     });
   }
 
@@ -743,15 +756,16 @@ export class SystemScene3DController {
   private currentOverviewPose(): CameraFocusPose {
     const aspect = this.camera?.aspect ?? 1.4;
     const box = this.computeOverviewBox();
-    const padding = this.presentationMode ? 0.06 : aspect < 1 ? 0.09 : 0.065;
-    const fov = this.presentationMode ? (aspect < 1.25 ? 38 : 34) : aspect < 1 ? 40 : 34;
+    // Encuadre tipo Imagen 1: semisométrico, las 5 plataformas legibles.
+    const padding = this.presentationMode ? 0.16 : aspect < 1 ? 0.12 : 0.09;
+    const fov = this.presentationMode ? (aspect < 1.25 ? 38 : 34) : aspect < 1 ? 38 : 34;
     return computePoseForBox3(box, aspect, {
       padding,
-      distanceScale: this.presentationMode ? 0.78 : 0.82,
+      distanceScale: this.presentationMode ? 0.98 : 0.9,
       fovDeg: fov,
-      viewDirection: new THREE.Vector3(0.12, 0.82, 0.55),
-      minDistance: 6.5,
-      maxDistance: 28,
+      viewDirection: new THREE.Vector3(0.18, 0.58, 0.79),
+      minDistance: 9.5,
+      maxDistance: 30,
     });
   }
 
@@ -871,6 +885,10 @@ export class SystemScene3DController {
   private updateAmbientMotion(dt: number): void {
     if (!this.world || prefersReducedMotion()) return;
     const core = this.world.center.storyNodes.core;
+    const gear = this.world.center.storyNodes.gear;
+    if (gear) {
+      gear.rotation.y += dt * 0.35;
+    }
     if (core) {
       core.rotation.y += dt * 0.55;
       core.position.y = 0.55 + Math.sin(this.ambientPhase * 1.2) * 0.04;

@@ -47,46 +47,46 @@ export interface SystemGeometryWorld {
   ambientProps: THREE.Group;
 }
 
-function hexRoundedPlatform(
+/** Plataforma circular metálica con anillo neón (composición de referencia Imagen A). */
+function circularPlatform(
   radius: number,
   height: number,
   bodyMat: THREE.Material,
-  edgeMat: THREE.Material
+  edgeMat: THREE.Material,
+  glowMat: THREE.Material
 ): THREE.Group {
   const group = new THREE.Group();
-  const shape = new THREE.Shape();
-  const sides = 6;
-  for (let i = 0; i < sides; i++) {
-    const a = (i / sides) * Math.PI * 2 - Math.PI / 2;
-    const x = Math.cos(a) * radius;
-    const y = Math.sin(a) * radius;
-    if (i === 0) shape.moveTo(x, y);
-    else shape.lineTo(x, y);
-  }
-  shape.closePath();
 
-  const geom = new THREE.ExtrudeGeometry(shape, {
-    depth: height,
-    bevelEnabled: true,
-    bevelThickness: 0.06,
-    bevelSize: 0.07,
-    bevelSegments: 2,
-  });
-  geom.rotateX(-Math.PI / 2);
-  geom.translate(0, height / 2, 0);
-
-  const body = new THREE.Mesh(geom, bodyMat);
+  const body = new THREE.Mesh(
+    new THREE.CylinderGeometry(radius, radius * 1.02, height, 48),
+    bodyMat
+  );
+  body.position.y = height / 2;
   body.castShadow = true;
   body.receiveShadow = true;
   group.add(body);
 
-  const rim = new THREE.Mesh(
-    new THREE.TorusGeometry(radius * 0.92, 0.045, 8, 6),
-    edgeMat
+  const topDisk = new THREE.Mesh(
+    new THREE.CircleGeometry(radius * 0.96, 48),
+    bodyMat
   );
+  topDisk.rotation.x = -Math.PI / 2;
+  topDisk.position.y = height + 0.01;
+  topDisk.receiveShadow = true;
+  group.add(topDisk);
+
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(radius * 0.98, 0.055, 10, 48), edgeMat);
   rim.rotation.x = Math.PI / 2;
-  rim.position.y = height + 0.02;
+  rim.position.y = height + 0.03;
   group.add(rim);
+
+  const underGlow = new THREE.Mesh(
+    new THREE.RingGeometry(radius * 0.55, radius * 1.18, 48),
+    glowMat
+  );
+  underGlow.rotation.x = -Math.PI / 2;
+  underGlow.position.y = 0.02;
+  group.add(underGlow);
 
   return group;
 }
@@ -98,6 +98,7 @@ function createStylizedHuman(options: {
   pose?: 'standing' | 'sitting' | 'leaning' | 'pointing';
   headgear?: 'none' | 'cap' | 'hardhat';
   vest?: boolean;
+  hairColor?: number;
 }): THREE.Group {
   const { materials, clothing } = options;
   const scale = options.scale ?? 1;
@@ -105,12 +106,18 @@ function createStylizedHuman(options: {
   const human = new THREE.Group();
   human.scale.setScalar(scale);
 
+  const hairMat = new THREE.MeshStandardMaterial({
+    color: options.hairColor ?? 0x1f2937,
+    roughness: 0.82,
+    metalness: 0.04,
+  });
+
   // Cadena articula: pelvis → torso → cuello → cabeza; brazos en hombros.
   const pelvis = new THREE.Group();
   pelvis.position.y = 0.42;
   human.add(pelvis);
 
-  const hips = new THREE.Mesh(new THREE.CapsuleGeometry(0.16, 0.14, 4, 10), materials.propDark);
+  const hips = new THREE.Mesh(new THREE.CapsuleGeometry(0.17, 0.16, 5, 12), materials.propDark);
   hips.castShadow = true;
   pelvis.add(hips);
 
@@ -118,93 +125,135 @@ function createStylizedHuman(options: {
   torsoPivot.position.y = 0.18;
   pelvis.add(torsoPivot);
 
-  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.19, 0.42, 5, 10), clothing);
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.2, 0.44, 6, 12), clothing);
   torso.position.y = 0.28;
   torso.castShadow = true;
   torsoPivot.add(torso);
 
+  const collar = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.025, 8, 16), clothing);
+  collar.rotation.x = Math.PI / 2;
+  collar.position.y = 0.52;
+  torsoPivot.add(collar);
+
   if (options.vest) {
-    const vest = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.34, 0.2), materials.clothingB);
+    const vest = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.36, 0.22), materials.clothingB);
     vest.position.y = 0.3;
     vest.castShadow = true;
     torsoPivot.add(vest);
+    const stripe = new THREE.Mesh(
+      new THREE.BoxGeometry(0.38, 0.04, 0.24),
+      new THREE.MeshStandardMaterial({ color: 0xf8fafc, emissive: 0xf8fafc, emissiveIntensity: 0.15 })
+    );
+    stripe.position.y = 0.38;
+    torsoPivot.add(stripe);
   }
 
   const shoulderL = new THREE.Group();
-  shoulderL.position.set(-0.24, 0.42, 0);
+  shoulderL.position.set(-0.26, 0.44, 0);
   torsoPivot.add(shoulderL);
   const shoulderR = new THREE.Group();
-  shoulderR.position.set(0.24, 0.42, 0);
+  shoulderR.position.set(0.26, 0.44, 0);
   torsoPivot.add(shoulderR);
 
-  const armL = new THREE.Mesh(new THREE.CapsuleGeometry(0.055, 0.34, 4, 8), clothing);
-  armL.position.set(0, -0.2, 0);
+  const armL = new THREE.Mesh(new THREE.CapsuleGeometry(0.058, 0.36, 5, 10), clothing);
+  armL.position.set(0, -0.22, 0);
   armL.rotation.z = 0.22;
   armL.castShadow = true;
   shoulderL.add(armL);
-  const handL = new THREE.Mesh(new THREE.SphereGeometry(0.055, 10, 8), materials.skin);
-  handL.position.set(0, -0.4, 0);
+  const handL = new THREE.Mesh(new THREE.SphereGeometry(0.058, 12, 10), materials.skin);
+  handL.position.set(0, -0.42, 0);
   shoulderL.add(handL);
 
-  const armR = new THREE.Mesh(new THREE.CapsuleGeometry(0.055, 0.34, 4, 8), clothing);
-  armR.position.set(0, -0.2, 0);
+  const armR = new THREE.Mesh(new THREE.CapsuleGeometry(0.058, 0.36, 5, 10), clothing);
+  armR.position.set(0, -0.22, 0);
   armR.rotation.z = -0.22;
   armR.castShadow = true;
   shoulderR.add(armR);
-  const handR = new THREE.Mesh(new THREE.SphereGeometry(0.055, 10, 8), materials.skin);
-  handR.position.set(0, -0.4, 0);
+  const handR = new THREE.Mesh(new THREE.SphereGeometry(0.058, 12, 10), materials.skin);
+  handR.position.set(0, -0.42, 0);
   shoulderR.add(handR);
 
-  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.1, 8), materials.skin);
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.07, 0.11, 10), materials.skin);
   neck.position.y = 0.58;
   torsoPivot.add(neck);
 
   const head = new THREE.Group();
-  head.position.y = 0.72;
+  head.position.y = 0.74;
   torsoPivot.add(head);
-  const skull = new THREE.Mesh(new THREE.SphereGeometry(0.155, 18, 14), materials.skin);
+  const skull = new THREE.Mesh(new THREE.SphereGeometry(0.16, 22, 18), materials.skin);
   skull.castShadow = true;
   head.add(skull);
-  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.35 });
-  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), eyeMat);
-  eyeL.position.set(-0.05, 0.02, 0.13);
+
+  const jaw = new THREE.Mesh(new THREE.SphereGeometry(0.11, 14, 12), materials.skin);
+  jaw.scale.set(0.92, 0.72, 0.85);
+  jaw.position.set(0, -0.08, 0.02);
+  head.add(jaw);
+
+  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.165, 18, 14, 0, Math.PI * 2, 0, Math.PI / 1.55), hairMat);
+  hair.position.y = 0.04;
+  head.add(hair);
+
+  const eyeWhite = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.35 });
+  const eyeIris = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.28 });
+  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.028, 10, 8), eyeWhite);
+  eyeL.position.set(-0.052, 0.02, 0.135);
+  const irisL = new THREE.Mesh(new THREE.SphereGeometry(0.014, 8, 8), eyeIris);
+  irisL.position.set(-0.052, 0.02, 0.155);
   const eyeR = eyeL.clone();
-  eyeR.position.x = 0.05;
-  head.add(eyeL, eyeR);
+  eyeR.position.x = 0.052;
+  const irisR = irisL.clone();
+  irisR.position.x = 0.052;
+  head.add(eyeL, irisL, eyeR, irisR);
+
+  const brow = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.016, 0.02), hairMat);
+  brow.position.set(0, 0.055, 0.14);
+  head.add(brow);
 
   if (options.headgear === 'hardhat') {
     const hat = new THREE.Mesh(
-      new THREE.SphereGeometry(0.17, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.SphereGeometry(0.18, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2),
       materials.warning
     );
-    hat.position.y = 0.05;
+    hat.position.y = 0.06;
     head.add(hat);
-    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.03, 14), materials.warning);
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.21, 0.03, 16), materials.warning);
     brim.position.y = 0.02;
     head.add(brim);
   } else if (options.headgear === 'cap') {
     const cap = new THREE.Mesh(
-      new THREE.SphereGeometry(0.16, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2.2),
+      new THREE.SphereGeometry(0.17, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2.2),
       clothing
     );
     cap.position.y = 0.05;
     head.add(cap);
+    const bill = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.02, 0.1), clothing);
+    bill.position.set(0, 0.02, 0.14);
+    head.add(bill);
   }
 
-  const legL = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 0.36, 4, 8), materials.propDark);
-  legL.position.set(-0.09, 0.18, 0);
+  const legL = new THREE.Mesh(new THREE.CapsuleGeometry(0.072, 0.38, 5, 10), materials.propDark);
+  legL.position.set(-0.1, 0.18, 0);
   legL.castShadow = true;
   human.add(legL);
   const legR = legL.clone();
-  legR.position.x = 0.09;
+  legR.position.x = 0.1;
   human.add(legR);
+
+  const shoeL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.06, 0.16), materials.propDark);
+  shoeL.position.set(-0.1, 0.03, 0.03);
+  human.add(shoeL);
+  const shoeR = shoeL.clone();
+  shoeR.position.x = 0.1;
+  human.add(shoeR);
 
   if (pose === 'sitting') {
     pelvis.position.y = 0.34;
     legL.rotation.x = Math.PI / 2.1;
-    legL.position.set(-0.09, 0.22, 0.18);
+    legL.position.set(-0.1, 0.22, 0.18);
     legR.rotation.x = Math.PI / 2.1;
-    legR.position.set(0.09, 0.22, 0.18);
+    legR.position.set(0.1, 0.22, 0.18);
+    shoeL.position.set(-0.1, 0.14, 0.38);
+    shoeR.position.set(0.1, 0.14, 0.38);
     shoulderL.rotation.x = -0.85;
     shoulderR.rotation.x = -0.75;
   } else if (pose === 'leaning') {
@@ -221,6 +270,36 @@ function createStylizedHuman(options: {
   human.userData.torso = torsoPivot;
   human.userData.pelvis = pelvis;
   return human;
+}
+
+/** Engranaje central del hub SISTEMA OPERACIONAL. */
+function createOperationalGear(mat: THREE.Material): THREE.Group {
+  const group = new THREE.Group();
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.16, 24), mat);
+  hub.castShadow = true;
+  group.add(hub);
+
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.36, 0.07, 10, 28), mat);
+  ring.rotation.x = Math.PI / 2;
+  ring.castShadow = true;
+  group.add(ring);
+
+  const teeth = 10;
+  for (let i = 0; i < teeth; i++) {
+    const a = (i / teeth) * Math.PI * 2;
+    const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.14, 0.18), mat);
+    tooth.position.set(Math.cos(a) * 0.42, 0, Math.sin(a) * 0.42);
+    tooth.lookAt(0, 0, 0);
+    tooth.castShadow = true;
+    group.add(tooth);
+  }
+
+  const bore = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.08, 0.08, 0.2, 16),
+    new THREE.MeshStandardMaterial({ color: 0x0b1220, metalness: 0.4, roughness: 0.45 })
+  );
+  group.add(bore);
+  return group;
 }
 
 function createVeil(radius: number): THREE.Mesh {
@@ -324,11 +403,11 @@ export function createSystemSharedMaterials(accentHex: number): SystemSharedMate
     platformGlow: new THREE.MeshStandardMaterial({
       color: accentHex,
       emissive: accentHex,
-      emissiveIntensity: 0.55,
+      emissiveIntensity: 0.85,
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.7,
       metalness: 0.2,
-      roughness: 0.6,
+      roughness: 0.55,
     }),
     skin: new THREE.MeshStandardMaterial({
       color: 0xc68662,
@@ -417,23 +496,31 @@ function buildCenterBundle(materials: SystemSharedMaterials): ForcePlatformBundl
     CENTER_PLATFORM_POSITION.z
   );
 
-  const platform = hexRoundedPlatform(1.15, 0.28, materials.platformBody, materials.platformEdge);
+  const platform = circularPlatform(1.2, 0.28, materials.platformBody, materials.platformEdge, materials.platformGlow);
   const actors = new THREE.Group();
   const props = new THREE.Group();
 
-  const dome = new THREE.Mesh(new THREE.SphereGeometry(0.55, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2), materials.domeGlass);
-  dome.position.y = 0.35;
-  props.add(dome);
+  const gear = createOperationalGear(materials.accentEmissive);
+  gear.position.y = 0.55;
+  gear.rotation.x = 0.18;
+  props.add(gear);
 
-  const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.28, 1), materials.accentEmissive);
+  const core = new THREE.Mesh(new THREE.SphereGeometry(0.22, 20, 16), materials.accentEmissive);
   core.position.y = 0.55;
   props.add(core);
+
+  const dome = new THREE.Mesh(
+    new THREE.SphereGeometry(0.62, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+    materials.domeGlass
+  );
+  dome.position.y = 0.32;
+  props.add(dome);
 
   const glowRing = uniqueGlow(materials, 1.05, 1.28);
   props.add(glowRing);
 
-  const underLight = new THREE.PointLight(0x38bdf8, 1.4, 4.5, 2);
-  underLight.position.y = 0.35;
+  const underLight = new THREE.PointLight(0x38bdf8, 1.8, 5.2, 2);
+  underLight.position.y = 0.4;
 
   const veil = createVeil(1.35);
   root.add(platform, actors, props, underLight, veil);
@@ -451,7 +538,7 @@ function buildCenterBundle(materials: SystemSharedMaterials): ForcePlatformBundl
     glowRing,
     underLight,
     veil,
-    storyNodes: { dome, core },
+    storyNodes: { dome, core, gear },
   };
 }
 
@@ -462,7 +549,7 @@ function buildPersonasBundle(materials: SystemSharedMaterials): ForcePlatformBun
   const pos = FORCE_PLATFORM_POSITIONS[id];
   root.position.set(pos.x, pos.y, pos.z);
 
-  const platform = hexRoundedPlatform(1.45, 0.32, materials.platformBody, materials.platformEdge);
+  const platform = circularPlatform(1.48, 0.3, materials.platformBody, materials.platformEdge, materials.platformGlow);
   const actors = new THREE.Group();
   const props = new THREE.Group();
   const storyNodes: Record<string, THREE.Object3D> = {};
@@ -556,7 +643,7 @@ function buildProcesosBundle(materials: SystemSharedMaterials): ForcePlatformBun
   const pos = FORCE_PLATFORM_POSITIONS[id];
   root.position.set(pos.x, pos.y, pos.z);
 
-  const platform = hexRoundedPlatform(1.45, 0.32, materials.platformBody, materials.platformEdge);
+  const platform = circularPlatform(1.48, 0.3, materials.platformBody, materials.platformEdge, materials.platformGlow);
   const actors = new THREE.Group();
   const props = new THREE.Group();
   const storyNodes: Record<string, THREE.Object3D> = {};
@@ -630,7 +717,7 @@ function buildLiderazgoBundle(materials: SystemSharedMaterials): ForcePlatformBu
   const pos = FORCE_PLATFORM_POSITIONS[id];
   root.position.set(pos.x, pos.y, pos.z);
 
-  const platform = hexRoundedPlatform(1.45, 0.32, materials.platformBody, materials.platformEdge);
+  const platform = circularPlatform(1.48, 0.3, materials.platformBody, materials.platformEdge, materials.platformGlow);
   const actors = new THREE.Group();
   const props = new THREE.Group();
   const storyNodes: Record<string, THREE.Object3D> = {};
@@ -703,7 +790,7 @@ function buildMejoraBundle(materials: SystemSharedMaterials): ForcePlatformBundl
   const pos = FORCE_PLATFORM_POSITIONS[id];
   root.position.set(pos.x, pos.y, pos.z);
 
-  const platform = hexRoundedPlatform(1.45, 0.32, materials.platformBody, materials.platformEdge);
+  const platform = circularPlatform(1.48, 0.3, materials.platformBody, materials.platformEdge, materials.platformGlow);
   const actors = new THREE.Group();
   const props = new THREE.Group();
   const storyNodes: Record<string, THREE.Object3D> = {};
@@ -782,25 +869,130 @@ function buildMejoraBundle(materials: SystemSharedMaterials): ForcePlatformBundl
   return { id, root, platform, actors, props, hitTarget, glowRing, underLight, veil, storyNodes };
 }
 
+/** Flecha neón entre hubs (ciclo horario) o radio fino hacia el centro. */
 function createConnectionBeam(
   from: THREE.Vector3,
   to: THREE.Vector3,
-  material: THREE.MeshStandardMaterial
+  material: THREE.MeshStandardMaterial,
+  style: 'arrow' | 'spoke' = 'spoke'
 ): THREE.Mesh {
-  const dir = new THREE.Vector3().subVectors(to, from);
-  const length = dir.length();
-  const mid = new THREE.Vector3().addVectors(from, to).multiplyScalar(0.5);
-  const mesh = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.035, 0.035, length, 10),
-    material.clone()
+  const start = from.clone().lerp(to, style === 'arrow' ? 0.18 : 0.12);
+  const end = from.clone().lerp(to, style === 'arrow' ? 0.82 : 0.88);
+  if (style === 'arrow') {
+    const bulge = start.clone().add(end).multiplyScalar(0.5);
+    bulge.y = 0;
+    if (bulge.lengthSq() > 0.01) bulge.setLength(0.35);
+    start.add(bulge);
+    end.add(bulge);
+  }
+
+  const dir = new THREE.Vector3().subVectors(end, start);
+  const length = Math.max(dir.length(), 0.2);
+  const midPoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+  const mat = material.clone();
+  mat.transparent = true;
+  mat.opacity = style === 'arrow' ? 0.72 : 0.22;
+  mat.emissiveIntensity = style === 'arrow' ? 0.85 : 0.28;
+
+  const radius = style === 'arrow' ? 0.055 : 0.028;
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 12), mat);
+  shaft.position.copy(midPoint);
+  shaft.position.y += 0.48;
+  shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+  shaft.userData.baseOpacity = mat.opacity;
+  shaft.userData.connectionStyle = style;
+
+  if (style === 'arrow') {
+    const tipMat = mat.clone();
+    tipMat.opacity = 0.92;
+    tipMat.emissiveIntensity = 1.05;
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.3, 12), tipMat);
+    tip.position.y = length * 0.5;
+    tip.userData.syncOpacity = true;
+    shaft.add(tip);
+  }
+
+  return shaft;
+}
+
+function buildWarehouseAtmosphere(accentHex: number): THREE.Group {
+  const ambientProps = new THREE.Group();
+  ambientProps.name = 'warehouse-atmosphere';
+
+  const floor = new THREE.Mesh(
+    new THREE.CircleGeometry(9.2, 64),
+    new THREE.MeshStandardMaterial({
+      color: 0x0a0f18,
+      roughness: 0.94,
+      metalness: 0.06,
+      transparent: true,
+      opacity: 0.68,
+    })
   );
-  mesh.position.copy(mid);
-  mesh.position.y += 0.45;
-  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
-  mesh.userData.baseOpacity = 0.28;
-  (mesh.material as THREE.MeshStandardMaterial).opacity = 0.28;
-  (mesh.material as THREE.MeshStandardMaterial).transparent = true;
-  return mesh;
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -0.02;
+  floor.receiveShadow = true;
+  ambientProps.add(floor);
+
+  const backdrop = new THREE.Mesh(
+    new THREE.PlaneGeometry(28, 12),
+    new THREE.MeshStandardMaterial({
+      color: 0x1c140f,
+      roughness: 1,
+      metalness: 0,
+      emissive: 0x3a2212,
+      emissiveIntensity: 0.28,
+    })
+  );
+  backdrop.position.set(0, 4.8, -12);
+  ambientProps.add(backdrop);
+
+  const sideL = backdrop.clone();
+  sideL.position.set(-14, 4.5, -4);
+  sideL.rotation.y = Math.PI / 2.4;
+  ambientProps.add(sideL);
+  const sideR = backdrop.clone();
+  sideR.position.set(14, 4.5, -4);
+  sideR.rotation.y = -Math.PI / 2.4;
+  ambientProps.add(sideR);
+
+  const warmMat = new THREE.MeshBasicMaterial({ color: 0xff8a3c });
+  for (let i = 0; i < 7; i++) {
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 10), warmMat);
+    lamp.position.set(-9 + i * 3, 7.2, -11.5);
+    ambientProps.add(lamp);
+    const glow = new THREE.PointLight(0xff7a2e, 0.55, 14, 2);
+    glow.position.copy(lamp.position);
+    ambientProps.add(glow);
+  }
+
+  const pillarMat = new THREE.MeshStandardMaterial({
+    color: 0x243044,
+    metalness: 0.35,
+    roughness: 0.7,
+  });
+  // Pilares solo al fondo para no tapar las plataformas del ciclo.
+  for (let i = 0; i < 4; i++) {
+    const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.28, 7.2, 0.28), pillarMat);
+    pillar.position.set(-7.5 + i * 5, 3.5, -9.5);
+    ambientProps.add(pillar);
+  }
+
+  const haze = new THREE.Mesh(
+    new THREE.RingGeometry(5.8, 9.5, 64),
+    new THREE.MeshBasicMaterial({
+      color: accentHex,
+      transparent: true,
+      opacity: 0.08,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    })
+  );
+  haze.rotation.x = -Math.PI / 2;
+  haze.position.y = 0.04;
+  ambientProps.add(haze);
+
+  return ambientProps;
 }
 
 export function buildSystemGeometryWorld(accentHex: number): {
@@ -826,11 +1018,13 @@ export function buildSystemGeometryWorld(accentHex: number): {
   connections.name = 'connections';
   const connectionMeshes: THREE.Mesh[] = [];
 
-  const pairs: Array<[ForceId | 'sistema', ForceId | 'sistema', string]> = [
+  const cyclePairs: Array<[ForceId, ForceId, string]> = [
     ['personas', 'procesos', 'personas-procesos'],
     ['procesos', 'liderazgo', 'procesos-liderazgo'],
     ['liderazgo', 'mejora', 'liderazgo-mejora'],
     ['mejora', 'personas', 'mejora-personas'],
+  ];
+  const spokePairs: Array<['sistema', ForceId, string]> = [
     ['sistema', 'personas', 'nexus-personas'],
     ['sistema', 'procesos', 'nexus-procesos'],
     ['sistema', 'liderazgo', 'nexus-liderazgo'],
@@ -843,8 +1037,15 @@ export function buildSystemGeometryWorld(accentHex: number): {
     return new THREE.Vector3(p.x, 0.35, p.z);
   };
 
-  pairs.forEach(([a, b, key]) => {
-    const mesh = createConnectionBeam(posOf(a), posOf(b), materials.connection);
+  cyclePairs.forEach(([a, b, key]) => {
+    const mesh = createConnectionBeam(posOf(a), posOf(b), materials.connection, 'arrow');
+    mesh.name = key;
+    mesh.userData.pair = [a, b];
+    connections.add(mesh);
+    connectionMeshes.push(mesh);
+  });
+  spokePairs.forEach(([a, b, key]) => {
+    const mesh = createConnectionBeam(posOf(a), posOf(b), materials.connection, 'spoke');
     mesh.name = key;
     mesh.userData.pair = [a, b];
     connections.add(mesh);
@@ -852,22 +1053,7 @@ export function buildSystemGeometryWorld(accentHex: number): {
   });
   root.add(connections);
 
-  const ambientProps = new THREE.Group();
-  // Suelo atmosférico discreto (multisectorial, no fábrica especializada)
-  const floor = new THREE.Mesh(
-    new THREE.CircleGeometry(8.5, 48),
-    new THREE.MeshStandardMaterial({
-      color: 0x0b1220,
-      roughness: 0.92,
-      metalness: 0.08,
-      transparent: true,
-      opacity: 0.55,
-    })
-  );
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -0.02;
-  floor.receiveShadow = true;
-  ambientProps.add(floor);
+  const ambientProps = buildWarehouseAtmosphere(accentHex);
   root.add(ambientProps);
 
   return {
