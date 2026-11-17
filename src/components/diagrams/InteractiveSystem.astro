@@ -30,7 +30,7 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
 
   <div class="system-stage-topbar">
     <div class="system-stage-meta">
-      <span class="canvas-kicker">SISTEMA DE 4 FUERZAS · ESCENARIO 3D</span>
+      <span class="canvas-kicker">LAS 4 FUERZAS DE LA EXCELENCIA OPERACIONAL</span>
       <span class="canvas-hint" id="system-stage-hint">
         Explora cómo Personas, Procesos, Liderazgo y Mejora intervienen ante una solicitud con riesgo de retraso
       </span>
@@ -84,11 +84,12 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
     <button type="button" class="sys-ctrl-btn" id="system-tour-next">Siguiente</button>
   </div>
 
+  <div class="system-composition" id="system-composition">
   <div class="system-stage-viewport" id="system-stage-viewport">
     <div class="system3d-stage" id="system3d-stage" aria-label="Escenario tridimensional del sistema operacional">
       <canvas class="system3d-canvas" id="system3d-canvas" aria-label="Escena 3D interactiva de las cuatro fuerzas"></canvas>
       <div class="system3d-labels" id="system3d-labels" aria-hidden="true">
-        <span class="system3d-label" data-id="sistema">SISTEMA</span>
+        <span class="system3d-label" data-id="sistema">SISTEMA OPERACIONAL</span>
         <span class="system3d-label" data-id="personas">PERSONAS</span>
         <span class="system3d-label" data-id="procesos">PROCESOS</span>
         <span class="system3d-label" data-id="liderazgo">LIDERAZGO</span>
@@ -207,17 +208,35 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
     </article>
   </div>
 
-  <aside class="system3d-brief" id="system3d-brief" hidden aria-live="polite">
-    <span class="system3d-brief-kicker" id="brief-kicker">CASO COMPARTIDO</span>
-    <h3 id="brief-title">{sharedCase.title}</h3>
+  <aside class="system3d-brief system3d-dock" id="system3d-brief" aria-live="polite">
+    <div class="system3d-dock-meta">
+      <span class="system3d-brief-kicker" id="brief-kicker">01 / 04 · PERSONAS</span>
+      <span class="system3d-dock-tag">Criterio y energía</span>
+    </div>
+    <h3 id="brief-title">{concepts[0].title}</h3>
     <span class="system3d-beat" id="brief-beat" hidden></span>
-    <p id="brief-body">{sharedCase.situation}</p>
-    <p id="brief-learning"></p>
+    <p id="brief-body">{concepts[0].briefContext}</p>
+    <p id="brief-learning">{concepts[0].learningOutcome}</p>
+    <div class="system3d-dock-flow" aria-hidden="true">
+      <span>Procesos</span><i></i><span>Liderazgo</span><i></i><span>Mejora</span>
+    </div>
     <div class="system3d-brief-actions">
       <button type="button" class="sys-ctrl-btn" id="system-open-card-btn">Ver explicación completa</button>
       <button type="button" class="sys-ctrl-btn" id="system-close-brief-btn">Ocultar</button>
     </div>
   </aside>
+  </div>
+
+  <footer class="system-scenario-strip" id="system-scenario-strip" aria-label="Escenario en acción">
+    <span class="system-scenario-kicker">Escenario en acción</span>
+    <ol class="system-scenario-flow">
+      <li>Personas</li>
+      <li>Procesos</li>
+      <li>Liderazgo</li>
+      <li>Mejora</li>
+      <li class="is-result">Resultado</li>
+    </ol>
+  </footer>
 
   <div class="system-pres-hud" id="system-pres-hud">
     <button type="button" class="sys-ctrl-btn" id="system-pres-prev">Anterior</button>
@@ -378,7 +397,11 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
         shell.setAttribute('data-presentation-mode', 'true');
         document.getElementById('system-ctrl-present')?.classList.add('is-active');
         document.getElementById('system-ctrl-present')?.setAttribute('aria-pressed', 'true');
+        appState.restore();
+        sceneCtrl?.restoreOverview();
         sceneCtrl?.notifyLayoutChange(true);
+        // Segundo refit cuando el grid de presentación ya midió ancho real.
+        window.setTimeout(() => sceneCtrl?.notifyLayoutChange(true), 120);
       },
       onExit: () => {
         shell.setAttribute('data-presentation-mode', 'false');
@@ -505,24 +528,26 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
     function updateBriefFromState() {
       const snap = appState.getSnapshot();
       if (!briefEl) return;
-      if (!snap.briefOpen && !snap.concept && snap.tourStep.id !== 'integration') {
-        briefEl.hidden = true;
-        return;
-      }
       briefEl.hidden = false;
       if (snap.concept) {
-        if (briefKicker) briefKicker.textContent = `${snap.concept.badge}`;
-        if (briefTitle) briefTitle.textContent = `${snap.concept.number} · ${snap.concept.title}`;
+        if (briefKicker) briefKicker.textContent = `${snap.concept.number} / 04 · ${snap.concept.title}`;
+        if (briefTitle) briefTitle.textContent = snap.concept.title;
         if (briefBody) briefBody.textContent = snap.concept.briefContext;
         if (briefLearning) briefLearning.textContent = snap.concept.learningOutcome;
       } else if (snap.tourStep.id === 'integration') {
-        if (briefKicker) briefKicker.textContent = 'INTEGRACIÓN';
+        if (briefKicker) briefKicker.textContent = '05 / 05 · INTEGRACIÓN';
         if (briefTitle) briefTitle.textContent = snap.tourStep.label;
         if (briefBody) briefBody.textContent = snap.tourStep.summary;
         if (briefLearning) {
           briefLearning.textContent =
             'Caso compartido: una solicitud con riesgo de retraso. Las fuerzas se relacionan; no son una secuencia obligatoria.';
         }
+      } else {
+        const fallback = concepts[0];
+        if (briefKicker) briefKicker.textContent = `${fallback.number} / 04 · ${fallback.title}`;
+        if (briefTitle) briefTitle.textContent = fallback.title;
+        if (briefBody) briefBody.textContent = fallback.briefContext;
+        if (briefLearning) briefLearning.textContent = fallback.learningOutcome;
       }
       if (briefBeat) {
         if (snap.currentBeatLabel) {
@@ -569,7 +594,6 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
       document.getElementById('system-ctrl-relations')?.classList.remove('is-active');
       document.getElementById('system-ctrl-relations')?.setAttribute('aria-pressed', 'false');
       document.getElementById('system-ctrl-tour')?.setAttribute('aria-pressed', 'false');
-      if (briefEl) briefEl.hidden = true;
       if (stageHint) {
         stageHint.textContent =
           'Explora cómo Personas, Procesos, Liderazgo y Mejora intervienen ante una solicitud con riesgo de retraso';
