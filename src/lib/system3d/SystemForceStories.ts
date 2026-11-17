@@ -17,6 +17,10 @@ export interface StoryPlaybackCallbacks {
 function reveal(obj: THREE.Object3D | undefined, duration = 0.35): gsap.core.Tween | null {
   if (!obj) return null;
   obj.visible = true;
+  if (prefersReducedMotion()) {
+    obj.scale.setScalar(1);
+    return null;
+  }
   return gsap.fromTo(
     obj.scale,
     { x: 0.001, y: 0.001, z: 0.001 },
@@ -75,17 +79,11 @@ function resetForceStoryVisuals(bundle: ForcePlatformBundle): void {
 
 export class SystemForceStoryDirector {
   private timeline: gsap.core.Timeline | null = null;
-  private activeForce: ForceId | null = null;
-  private pausedByUser = false;
 
   constructor(private readonly world: SystemGeometryWorld) {}
 
   public isPlaying(): boolean {
     return Boolean(this.timeline && this.timeline.isActive() && !this.timeline.paused());
-  }
-
-  public getActiveForce(): ForceId | null {
-    return this.activeForce;
   }
 
   public cancel(): void {
@@ -96,33 +94,18 @@ export class SystemForceStoryDirector {
     (Object.keys(this.world.forces) as ForceId[]).forEach((id) => {
       resetForceStoryVisuals(this.world.forces[id]);
     });
-    this.activeForce = null;
-    this.pausedByUser = false;
   }
 
   public pause(): void {
-    this.pausedByUser = true;
     this.timeline?.pause();
   }
 
   public resume(): void {
-    this.pausedByUser = false;
     this.timeline?.resume();
-  }
-
-  public togglePause(): boolean {
-    if (!this.timeline) return false;
-    if (this.timeline.paused()) {
-      this.resume();
-      return true;
-    }
-    this.pause();
-    return false;
   }
 
   public playForce(forceId: ForceId, callbacks: StoryPlaybackCallbacks = {}): void {
     this.cancel();
-    this.activeForce = forceId;
     const bundle = this.world.forces[forceId];
     const reduced = prefersReducedMotion();
 
@@ -131,7 +114,9 @@ export class SystemForceStoryDirector {
       return;
     }
 
+    // Playback is derived from application/visibility state by the scene adapter.
     const tl = gsap.timeline({
+      paused: true,
       defaults: { ease: 'power2.inOut' },
       onComplete: () => callbacks.onComplete?.(forceId),
     });

@@ -40,6 +40,8 @@ import {
   isGenuinePointerClick,
 } from '../src/lib/gears3d/GearInteraction.ts';
 
+import { SystemAppStateController } from '../src/lib/system3d/SystemAppState.ts';
+
 import { resolveGearVisualPalette } from '../src/lib/gears3d/GearThemeBridge.ts';
 
 const ROOT_DIR = process.cwd();
@@ -480,5 +482,77 @@ describe('7. Evolución editorial 3D de las cuatro tarjetas de Página 01 (PAGE-
     assert.doesNotMatch(cssSrc, /\bzoom\s*:\s*0\.\d+/i);
     assert.match(cssSrc, /100dvh/);
     assert.match(cssSrc, /grid-template-rows:\s*auto\s+auto\s+minmax\(0,\s*1fr\)\s+auto/);
+  });
+});
+
+describe('8. Estado funcional único de la página 02', () => {
+  test('La pausa persiste al cambiar de fuerza; restaurar reanuda y borra selección/ficha/relaciones', () => {
+    const state = new SystemAppStateController();
+    state.selectForce('personas');
+    state.setPaused(true);
+    state.setRelationsVisible(true);
+    state.openCard();
+    state.selectForce('procesos');
+    assert.equal(state.getSnapshot().isPaused, true);
+    assert.equal(state.getSnapshot().activeForce, 'procesos');
+    assert.equal(state.getSnapshot().cardOpen, false);
+    state.restore();
+    const restored = state.getSnapshot();
+    assert.equal(restored.activeForce, null);
+    assert.equal(restored.isPaused, false);
+    assert.equal(restored.cardOpen, false);
+    assert.equal(restored.relationsVisible, false);
+    assert.equal(restored.briefOpen, false);
+    assert.equal(restored.currentBeatLabel, null);
+  });
+
+  test('Beats y ficha no reproducen una selección; la misma fuerza puede volver a seleccionarse', () => {
+    const state = new SystemAppStateController();
+    state.selectForce('personas');
+    const revision = state.getSnapshot().selectionRevision;
+    state.setBeatLabel('Observa la solicitud');
+    state.openCard();
+    state.setPaused(true);
+    assert.equal(state.getSnapshot().selectionRevision, revision);
+    state.selectForce('personas', { keepCard: true });
+    assert.equal(state.getSnapshot().selectionRevision, revision + 1);
+    assert.equal(state.getSnapshot().cardOpen, true);
+    assert.equal(state.getSnapshot().currentBeatLabel, null);
+  });
+
+  test('El recorrido reanuda, normaliza índices inválidos y mantiene la selección educativa', () => {
+    const state = new SystemAppStateController();
+    for (const index of [NaN, Infinity, -Infinity, -1, 0.8]) {
+      state.setPaused(true);
+      state.startTour(index);
+      assert.equal(state.getSnapshot().tourStepIndex, 0);
+      assert.equal(state.getSnapshot().isPaused, false);
+    }
+    state.nextTourStep();
+    assert.equal(state.getSnapshot().activeForce, 'personas');
+    state.startTour(999);
+    assert.equal(state.getSnapshot().tourStep.id, 'integration');
+    assert.equal(state.getSnapshot().activeForce, null);
+    assert.equal(state.getSnapshot().relationsVisible, true);
+    state.selectForce('mejora', { keepTour: true });
+    assert.equal(state.getSnapshot().tourStepIndex, 4);
+    assert.equal(state.getSnapshot().tourStep.forceId, 'mejora');
+    assert.equal(state.getSnapshot().viewMode, 'tour');
+    state.nextTourStep();
+    assert.equal(state.getSnapshot().tourStep.id, 'integration');
+  });
+
+  test('Cerrar la explicación breve no cambia selección; unsubscribe deja de recibir cambios', () => {
+    const state = new SystemAppStateController();
+    const seen = [];
+    const unsubscribe = state.subscribe((snapshot) => seen.push(snapshot));
+    state.selectForce('mejora');
+    state.closeBrief();
+    assert.equal(state.getSnapshot().activeForce, 'mejora');
+    assert.equal(state.getSnapshot().briefOpen, false);
+    const before = seen.length;
+    unsubscribe();
+    state.restore();
+    assert.equal(seen.length, before);
   });
 });

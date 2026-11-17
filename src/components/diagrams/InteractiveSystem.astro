@@ -258,6 +258,8 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
   } from '../../lib/expandableCardEngine';
   import { createPresentationController, type PresentationScene } from '../../lib/presentationEngine';
   import { SystemAppStateController } from '../../lib/system3d/SystemAppState';
+  import type { SystemScene3DController } from '../../lib/system3d/SystemScene3D';
+  import type { SystemAppSnapshot } from '../../lib/system3d/SystemAppState';
   import type { ForceId, SystemForceConcept } from '../../lib/system3d/SystemEducationalData';
 
   function setupInteractiveSystem() {
@@ -313,21 +315,15 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
     const nextBtn = document.getElementById('system-next-btn');
     const synthesisCols = document.querySelectorAll<HTMLElement>('.synthesis-col[data-concept-id]');
 
-    let sceneCtrl: {
-      selectForce: (id: ForceId | null, playStory?: boolean) => void;
-      setRelationsMode: (v: boolean) => void;
-      restoreOverview: () => void;
-      togglePause: () => boolean;
-      pauseStories: () => void;
-      resumeStories: () => void;
-      dispose: () => void;
-      getDiagnosticSnapshot: () => unknown;
-      setCaptureFreeze: (v: boolean) => void;
-      notifyLayoutChange: (presentationMode?: boolean) => void;
-    } | null = null;
-
-    let isCardOpen = false;
-    let currentIdx = 0;
+    let sceneCtrl: SystemScene3DController | null = null;
+    let disposed = false;
+    let cardGeneration = 0;
+    let renderedCardOpen = false;
+    let renderedSelectionRevision = -1;
+    const lifecycle = new AbortController();
+    const currentIndex = () => Math.max(0, concepts.findIndex(
+      (concept) => concept.id === appState.getSnapshot().activeForce
+    ));
     let lastOriginBtn: HTMLButtonElement | null = null;
 
     const presentationScenes: PresentationScene[] = [
@@ -373,22 +369,17 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
         }
         if (isOverview || !scene || scene.id === 'overview') {
           appState.restore();
-          sceneCtrl?.restoreOverview();
           sceneCtrl?.notifyLayoutChange(true);
           return;
         }
         if (scene.id === 'integration') {
-          appState.setRelationsVisible(true);
-          sceneCtrl?.setRelationsMode(true);
-          sceneCtrl?.selectForce(null, false);
+          appState.startTour(presentationScenes.length - 1);
           sceneCtrl?.notifyLayoutChange(true);
           return;
         }
         const forceId = scene.id as ForceId;
         if (concepts.some((c) => c.id === forceId)) {
           appState.selectForce(forceId, { keepTour: true });
-          sceneCtrl?.selectForce(forceId, true);
-          syncFallbackSelection(forceId, false);
           sceneCtrl?.notifyLayoutChange(true);
         }
         void index;
@@ -398,10 +389,7 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
         document.getElementById('system-ctrl-present')?.classList.add('is-active');
         document.getElementById('system-ctrl-present')?.setAttribute('aria-pressed', 'true');
         appState.restore();
-        sceneCtrl?.restoreOverview();
         sceneCtrl?.notifyLayoutChange(true);
-        // Segundo refit cuando el grid de presentación ya midió ancho real.
-        window.setTimeout(() => sceneCtrl?.notifyLayoutChange(true), 120);
       },
       onExit: () => {
         shell.setAttribute('data-presentation-mode', 'false');
@@ -441,7 +429,6 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
     function syncFallbackSelection(forceId: ForceId, openCard: boolean) {
       const idx = concepts.findIndex((c) => c.id === forceId);
       if (idx < 0) return;
-      currentIdx = idx;
       const concept = concepts[idx];
       lastOriginBtn = buttons[idx] || null;
 
@@ -487,48 +474,47 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
       }
 
       fillCard(concept);
-      if (openCard) openCardPanel(true);
     }
 
     function openCardPanel(focusClose = true) {
-      if (!panel || !shell) return;
-      const concept = concepts[currentIdx];
-      if (!concept) return;
-      const wasOpen = isCardOpen;
-      isCardOpen = true;
+      if (!panel || !appState.getSnapshot().activeForce) return;
       appState.openCard();
-      shell.setAttribute('data-expanded', 'true');
-      shell.setAttribute('data-active-force', concept.id);
-      panel.hidden = false;
-      panel.setAttribute('aria-hidden', 'false');
-      if (!wasOpen) {
-        animateFlipOpen(lastOriginBtn, panel, { durationOpen: 390 });
-      } else {
-        panel.classList.remove('is-updated');
-        void panel.offsetWidth;
-        panel.classList.add('is-updated');
-      }
-      if (focusClose) setTimeout(() => closeBtn?.focus({ preventScroll: true }), 60);
+      if (focusClose) closeBtn?.focus({ preventScroll: true });
     }
 
     function closeCardPanel() {
-      if (!isCardOpen || !panel || !shell) return;
-      const originToFocus = lastOriginBtn || buttons[currentIdx] || null;
-      animateFlipClose(originToFocus, panel, () => {
-        isCardOpen = false;
-        appState.closeCard();
-        dragCtrl?.resetPosition(false);
-        shell.setAttribute('data-expanded', 'false');
-        panel.hidden = true;
-        panel.setAttribute('aria-hidden', 'true');
-        originToFocus?.focus({ preventScroll: true });
-      });
+      appState.closeCard();
+    }
+
+    function renderCard(snapshot: SystemAppSnapshot) {
+      if (!panel) return;
+      if (snapshot.cardOpen) shell.setAttribute('data-active-force', snapshot.activeForce ?? '');
+      if (snapshot.cardOpen === renderedCardOpen) return;
+      renderedCardOpen = snapshot.cardOpen;
+      const generation = ++cardGeneration;
+      if (snapshot.cardOpen) {
+        shell.setAttribute('data-expanded', 'true');
+        shell.setAttribute('data-active-force', snapshot.activeForce ?? '');
+        panel.hidden = false;
+        panel.setAttribute('aria-hidden', 'false');
+        animateFlipOpen(lastOriginBtn, panel, { durationOpen: 390 });
+      } else {
+        const origin = lastOriginBtn || buttons[currentIndex()] || null;
+        animateFlipClose(origin, panel, () => {
+          if (disposed || generation !== cardGeneration || appState.getSnapshot().cardOpen) return;
+          dragCtrl?.resetPosition(false);
+          shell.setAttribute('data-expanded', 'false');
+          panel.hidden = true;
+          panel.setAttribute('aria-hidden', 'true');
+          origin?.focus({ preventScroll: true });
+        });
+      }
     }
 
     function updateBriefFromState() {
       const snap = appState.getSnapshot();
       if (!briefEl) return;
-      briefEl.hidden = false;
+      briefEl.hidden = !snap.briefOpen;
       if (snap.concept) {
         if (briefKicker) briefKicker.textContent = `${snap.concept.number} / 04 · ${snap.concept.title}`;
         if (briefTitle) briefTitle.textContent = snap.concept.title;
@@ -560,11 +546,8 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
       }
     }
 
-    function selectForce(forceId: ForceId, fromTour = false) {
-      appState.selectForce(forceId, { keepTour: fromTour });
-      sceneCtrl?.selectForce(forceId, true);
-      syncFallbackSelection(forceId, false);
-      updateBriefFromState();
+    function selectForce(forceId: ForceId, fromTour = false, keepCard = false) {
+      appState.selectForce(forceId, { keepTour: fromTour, keepCard });
       if (stageHint) {
         const concept = concepts.find((c) => c.id === forceId);
         stageHint.textContent = concept
@@ -575,38 +558,51 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
 
     function restoreAll() {
       appState.restore();
-      sceneCtrl?.restoreOverview();
-      closeCardPanel();
-      buttons.forEach((btn) => {
-        btn.classList.remove('active', 'is-connected', 'is-dimmed');
-        btn.setAttribute('aria-pressed', 'false');
-        btn.setAttribute('aria-expanded', 'false');
-      });
-      forcePills.forEach((p) => {
-        p.classList.remove('is-active');
-        p.setAttribute('aria-selected', 'false');
-      });
-      labelEls.forEach((l) => l.classList.remove('is-active'));
-      svgLines.forEach((line) => line.classList.remove('active'));
-      if (nexusKicker) nexusKicker.textContent = 'NEXO VIVO · 00';
-      if (tourBar) tourBar.hidden = true;
-      document.getElementById('system-ctrl-tour')?.classList.remove('is-active');
-      document.getElementById('system-ctrl-relations')?.classList.remove('is-active');
-      document.getElementById('system-ctrl-relations')?.setAttribute('aria-pressed', 'false');
-      document.getElementById('system-ctrl-tour')?.setAttribute('aria-pressed', 'false');
-      if (stageHint) {
-        stageHint.textContent =
-          'Explora cómo Personas, Procesos, Liderazgo y Mejora intervienen ante una solicitud con riesgo de retraso';
-      }
-      updateBriefFromState();
     }
 
-    appState.subscribe((snap) => {
+    const unsubscribeView = appState.subscribe((snap) => {
       if (tourBar) tourBar.hidden = !snap.isTourActive;
       tourChips.forEach((chip) => {
-        const idx = Number(chip.getAttribute('data-tour-step'));
-        chip.classList.toggle('is-active', snap.isTourActive && idx === snap.tourStepIndex);
+        const index = Number(chip.getAttribute('data-tour-step'));
+        chip.classList.toggle('is-active', snap.isTourActive && index === snap.tourStepIndex);
       });
+      for (const [id, active] of [
+        ['system-ctrl-relations', snap.relationsVisible],
+        ['system-ctrl-tour', snap.isTourActive],
+        ['system-ctrl-pause', snap.isPaused],
+      ] as const) {
+        const button = document.getElementById(id);
+        button?.classList.toggle('is-active', active);
+        button?.setAttribute('aria-pressed', String(active));
+      }
+      const pause = document.getElementById('system-ctrl-pause');
+      if (pause) pause.textContent = snap.isPaused ? 'Reanudar' : 'Pausar';
+      if (snap.selectionRevision !== renderedSelectionRevision) {
+        renderedSelectionRevision = snap.selectionRevision;
+        if (snap.activeForce) {
+          syncFallbackSelection(snap.activeForce, snap.cardOpen);
+        } else {
+          buttons.forEach((button) => {
+            button.classList.remove('active', 'is-connected', 'is-dimmed');
+            button.setAttribute('aria-pressed', 'false');
+            button.setAttribute('aria-expanded', 'false');
+          });
+          forcePills.forEach((pill) => {
+            pill.classList.remove('is-active');
+            pill.setAttribute('aria-selected', 'false');
+          });
+          synthesisCols.forEach((column) => column.classList.remove('is-active'));
+          labelEls.forEach((label) => label.classList.remove('is-active'));
+          svgLines.forEach((line) => line.classList.remove('active'));
+          if (nexusKicker) nexusKicker.textContent = 'NEXO VIVO · 00';
+          if (stageHint) stageHint.textContent =
+            'Explora cómo Personas, Procesos, Liderazgo y Mejora intervienen ante una solicitud con riesgo de retraso';
+        }
+      }
+      buttons.forEach((button) => button.setAttribute('aria-expanded', String(
+        snap.cardOpen && button.getAttribute('data-id') === snap.activeForce
+      )));
+      renderCard(snap);
       updateBriefFromState();
     });
 
@@ -614,7 +610,7 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
       btn.addEventListener('click', () => {
         const id = btn.getAttribute('data-id') as ForceId | null;
         if (!id) return;
-        if (isCardOpen && currentIdx === idx) closeCardPanel();
+        if (appState.getSnapshot().cardOpen && currentIndex() === idx) closeCardPanel();
         else selectForce(id, false);
       });
       btn.addEventListener('keydown', (e) => {
@@ -624,14 +620,14 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
           const next = buttons[(idx + 1) % buttons.length];
           next?.focus();
           const nextId = next?.getAttribute('data-id') as ForceId | null;
-          if (nextId && (isCardOpen || appState.getSnapshot().activeForce)) selectForce(nextId, false);
+          if (nextId && (appState.getSnapshot().cardOpen || appState.getSnapshot().activeForce)) selectForce(nextId, false);
         } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
           e.preventDefault();
           e.stopPropagation();
           const prev = buttons[(idx - 1 + buttons.length) % buttons.length];
           prev?.focus();
           const prevId = prev?.getAttribute('data-id') as ForceId | null;
-          if (prevId && (isCardOpen || appState.getSnapshot().activeForce)) selectForce(prevId, false);
+          if (prevId && (appState.getSnapshot().cardOpen || appState.getSnapshot().activeForce)) selectForce(prevId, false);
         }
       });
     });
@@ -664,26 +660,23 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
     scrim?.addEventListener('click', closeCardPanel);
 
     prevBtn?.addEventListener('click', () => {
-      const nextIdx = (currentIdx - 1 + concepts.length) % concepts.length;
-      selectForce(concepts[nextIdx].id, false);
-      if (isCardOpen) openCardPanel(false);
+      const nextIdx = (currentIndex() - 1 + concepts.length) % concepts.length;
+      selectForce(concepts[nextIdx].id, false, true);
     });
     nextBtn?.addEventListener('click', () => {
-      const nextIdx = (currentIdx + 1) % concepts.length;
-      selectForce(concepts[nextIdx].id, false);
-      if (isCardOpen) openCardPanel(false);
+      const nextIdx = (currentIndex() + 1) % concepts.length;
+      selectForce(concepts[nextIdx].id, false, true);
     });
 
     document.getElementById('system-open-card-btn')?.addEventListener('click', () => {
       if (appState.getSnapshot().activeForce) openCardPanel(true);
     });
     document.getElementById('system-close-brief-btn')?.addEventListener('click', () => {
-      if (briefEl) briefEl.hidden = true;
+      appState.closeBrief();
     });
 
     document.getElementById('system-ctrl-relations')?.addEventListener('click', () => {
       const enabled = appState.toggleRelations();
-      sceneCtrl?.setRelationsMode(enabled);
       const btn = document.getElementById('system-ctrl-relations');
       btn?.classList.toggle('is-active', enabled);
       btn?.setAttribute('aria-pressed', enabled ? 'true' : 'false');
@@ -693,62 +686,14 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
       }
     });
 
-    document.getElementById('system-ctrl-tour')?.addEventListener('click', () => {
-      appState.startTour(0);
-      sceneCtrl?.restoreOverview();
-      const btn = document.getElementById('system-ctrl-tour');
-      btn?.classList.add('is-active');
-      btn?.setAttribute('aria-pressed', 'true');
-      if (tourBar) tourBar.hidden = false;
-    });
-
-    document.getElementById('system-tour-next')?.addEventListener('click', () => {
-      appState.nextTourStep();
-      const snap = appState.getSnapshot();
-      if (snap.activeForce) {
-        sceneCtrl?.selectForce(snap.activeForce, true);
-        syncFallbackSelection(snap.activeForce, false);
-      } else if (snap.tourStep.id === 'integration') {
-        sceneCtrl?.setRelationsMode(true);
-        sceneCtrl?.selectForce(null, false);
-      } else {
-        sceneCtrl?.restoreOverview();
-      }
-    });
-    document.getElementById('system-tour-prev')?.addEventListener('click', () => {
-      appState.prevTourStep();
-      const snap = appState.getSnapshot();
-      if (snap.activeForce) {
-        sceneCtrl?.selectForce(snap.activeForce, true);
-        syncFallbackSelection(snap.activeForce, false);
-      } else {
-        sceneCtrl?.restoreOverview();
-        sceneCtrl?.setRelationsMode(snap.relationsVisible);
-      }
-    });
+    document.getElementById('system-ctrl-tour')?.addEventListener('click', () => appState.startTour(0));
+    document.getElementById('system-tour-next')?.addEventListener('click', () => appState.nextTourStep());
+    document.getElementById('system-tour-prev')?.addEventListener('click', () => appState.prevTourStep());
     tourChips.forEach((chip) => {
-      chip.addEventListener('click', () => {
-        const idx = Number(chip.getAttribute('data-tour-step'));
-        appState.startTour(idx);
-        const snap = appState.getSnapshot();
-        if (snap.activeForce) {
-          sceneCtrl?.selectForce(snap.activeForce, true);
-          syncFallbackSelection(snap.activeForce, false);
-        } else if (snap.tourStep.id === 'integration') {
-          sceneCtrl?.setRelationsMode(true);
-        } else {
-          sceneCtrl?.restoreOverview();
-        }
-      });
+      chip.addEventListener('click', () => appState.startTour(Number(chip.getAttribute('data-tour-step'))));
     });
-
     document.getElementById('system-ctrl-pause')?.addEventListener('click', () => {
-      const playing = sceneCtrl?.togglePause() ?? false;
-      appState.setPaused(!playing);
-      const btn = document.getElementById('system-ctrl-pause');
-      btn?.classList.toggle('is-active', !playing);
-      btn?.setAttribute('aria-pressed', (!playing).toString());
-      if (btn) btn.textContent = playing ? 'Pausar' : 'Reanudar';
+      appState.setPaused(!appState.getSnapshot().isPaused);
     });
 
     document.getElementById('system-ctrl-restore')?.addEventListener('click', restoreAll);
@@ -779,12 +724,23 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
           presentation.exit();
           return;
         }
-        if (isCardOpen) {
+        if (appState.getSnapshot().cardOpen) {
           e.preventDefault();
           closeCardPanel();
         }
       }
-    });
+    }, { signal: lifecycle.signal });
+
+    document.addEventListener('astro:before-swap', () => {
+      disposed = true;
+      cardGeneration += 1;
+      lifecycle.abort();
+      unsubscribeView();
+      sceneCtrl?.dispose();
+      presentation.destroy();
+      delete (window as unknown as Record<string, unknown>).__opexSystem3D;
+      delete (window as unknown as Record<string, unknown>).__opexSystemAppState;
+    }, { once: true });
 
     const urlParams = new URLSearchParams(window.location.search);
     const requestedConcept = urlParams.get('concept');
@@ -797,7 +753,9 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
     } else {
       import('../../lib/system3d/SystemScene3D')
         .then(({ SystemScene3DController }) => {
+          if (disposed) return;
           const ctrl = new SystemScene3DController({
+            appState,
             canvas,
             container: stageEl,
             onSelectForce: (forceId) => selectForce(forceId, false),
@@ -823,10 +781,6 @@ const sharedCase = SHARED_OPERATIONAL_CASE;
                 el.style.top = `${item.yPercent}%`;
                 el.style.opacity = onScreen ? '1' : '0';
               });
-            },
-            onStoryBeat: (forceId, _idx, label) => {
-              appState.setBeatLabel(label);
-              void forceId;
             },
             onWebGLFallback: () => {
               shell.setAttribute('data-system3d-mode', 'fallback-2d');

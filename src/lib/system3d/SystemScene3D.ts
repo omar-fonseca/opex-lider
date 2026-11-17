@@ -12,6 +12,7 @@ import {
 } from '../gears3d/GearThemeBridge.ts';
 import { prefersReducedMotion } from '../presentationEngine.ts';
 import type { ForceId } from './SystemEducationalData.ts';
+import type { SystemAppStateController, SystemAppSnapshot } from './SystemAppState.ts';
 import { getForceById } from './SystemEducationalData.ts';
 import {
   buildSystemGeometryWorld,
@@ -42,6 +43,7 @@ export interface ProjectedForceLabel {
 }
 
 export interface SystemScene3DOptions {
+  appState: SystemAppStateController;
   canvas: HTMLCanvasElement;
   container: HTMLElement;
   onSelectForce: (forceId: ForceId) => void;
@@ -67,6 +69,10 @@ export interface SystemSceneDiagnosticSnapshot {
   canvasWidth: number;
   canvasHeight: number;
   aspect: number;
+  cameraSettled: boolean;
+  renderedFrames: number;
+  renderCalls: number;
+  triangles: number;
 }
 
 export class SystemScene3DController {
@@ -95,17 +101,28 @@ export class SystemScene3DController {
   private readonly cameraPose: CameraFocusPose = { ...OVERVIEW_CAMERA_POSE };
   private cameraTween: gsap.core.Tween | null = null;
 
-  private activeForce: ForceId | null = null;
+  // Effect cache only: the application controller remains the selection authority.
+  private appliedSelectionRevision = -1;
+  private appliedRelations: boolean | null = null;
+  private unsubscribeState: (() => void) | null = null;
+  private cameraSettled = true;
+  private get activeForce(): ForceId | null {
+    return this.options.appState.getSnapshot().activeForce;
+  }
+  private get relationsMode(): boolean {
+    return this.options.appState.getSnapshot().relationsVisible;
+  }
+  private get isUserPaused(): boolean {
+    return this.options.appState.getSnapshot().isPaused;
+  }
   private hoveredForce: ForceId | null = null;
-  private relationsMode = false;
-  private currentBeat: string | null = null;
 
   private rafId: number | null = null;
   private lastFrameMs = 0;
   private ambientPhase = 0;
+  private renderedFrames = 0;
   private disposed = false;
   private initialized = false;
-  private isUserPaused = false;
   private viewportPaused = false;
   private tabHiddenPaused = false;
   private captureFrozen = false;
@@ -201,6 +218,7 @@ export class SystemScene3DController {
     this.renderSingleFrame(0);
 
     this.initialized = true;
+    this.unsubscribeState = this.options.appState.subscribe((snapshot) => this.applyAppState(snapshot));
     this.lastFrameMs = performance.now();
     this.startLoop();
     this.notifyMotion();
@@ -219,87 +237,47 @@ export class SystemScene3DController {
     return true;
   }
 
-  public selectForce(forceId: ForceId | null, playStory = true): void {
-    if (!this.world || !this.storyDirector) return;
-    this.activeForce = forceId;
-    this.inspectEnabled = Boolean(forceId);
-    this.orbitYaw = 0;
-    this.orbitPitch = 0;
-    this.currentBeat = null;
+  private applyAppState(snapshot: SystemAppSnapshot): void {
+    if (!this.world || !this.storyDirector || this.disposed) return;
+    const selectionChanged = snapshot.selectionRevision !== this.appliedSelectionRevision;
+    const relationsChanged = snapshot.relationsVisible !== this.appliedRelations;
+    // Set caches before GSAP effects: reduced-motion callbacks may emit synchronously.
+    this.appliedSelectionRevision = snapshot.selectionRevision;
+    this.appliedRelations = snapshot.relationsVisible;
 
-    const connected = forceId ? getForceById(forceId).connectedIds : [];
-    this.applyHighlights(
-      computeForceHighlightMap(forceId, this.hoveredForce, connected, this.relationsMode)
-    );
-
-    if (forceId) {
-      this.tweenCamera(this.currentForcePose(forceId));
-      if (playStory) {
+    if (selectionChanged || relationsChanged) {
+      const connected = snapshot.activeForce ? getForceById(snapshot.activeForce).connectedIds : [];
+      this.applyHighlights(computeForceHighlightMap(
+        snapshot.activeForce, this.hoveredForce, connected, snapshot.relationsVisible
+      ));
+    }
+    if (selectionChanged) {
+      this.inspectEnabled = Boolean(snapshot.activeForce);
+      this.orbitYaw = 0;
+      this.orbitPitch = 0;
+      if (snapshot.activeForce) {
+        const forceId = snapshot.activeForce;
+        this.tweenCamera(this.currentForcePose(forceId));
         this.storyDirector.playForce(forceId, {
-          onBeat: (id, idx, label) => {
-            this.currentBeat = label;
-            this.options.onStoryBeat?.(id, idx, label);
+          onBeat: (id, index, label) => {
+            if (this.disposed || this.activeForce !== id) return;
+            this.options.appState.setBeatLabel(label);
+            this.options.onStoryBeat?.(id, index, label);
           },
           onComplete: () => this.notifyMotion(),
         });
       } else {
         this.storyDirector.cancel();
+        this.tweenCamera(this.currentOverviewPose());
+        this.pulseAllConnections(snapshot.relationsVisible);
       }
-    } else {
-      this.storyDirector.cancel();
-      this.tweenCamera(this.currentOverviewPose());
+      this.projectLabels();
+      this.renderSingleFrame(0);
+    } else if (relationsChanged) {
+      if (!snapshot.activeForce) this.pulseAllConnections(snapshot.relationsVisible);
+      this.renderSingleFrame(0);
     }
-    this.notifyMotion();
-    this.projectLabels();
-  }
-
-  public setRelationsMode(enabled: boolean): void {
-    this.relationsMode = enabled;
-    const connected = this.activeForce ? getForceById(this.activeForce).connectedIds : [];
-    this.applyHighlights(
-      computeForceHighlightMap(this.activeForce, this.hoveredForce, connected, enabled)
-    );
-    if (enabled && !this.activeForce) {
-      this.pulseAllConnections(true);
-    }
-  }
-
-  public restoreOverview(): void {
-    this.storyDirector?.cancel();
-    this.activeForce = null;
-    this.relationsMode = false;
-    this.inspectEnabled = false;
-    this.orbitYaw = 0;
-    this.orbitPitch = 0;
-    this.currentBeat = null;
-    this.applyHighlights(computeForceHighlightMap(null, null, [], false));
-    this.tweenCamera(this.currentOverviewPose());
-    this.pulseAllConnections(false);
-    this.notifyMotion();
-    this.projectLabels();
-  }
-
-  public pauseStories(): void {
-    this.isUserPaused = true;
-    this.storyDirector?.pause();
-    this.notifyMotion();
-  }
-
-  public resumeStories(): void {
-    this.isUserPaused = false;
-    this.storyDirector?.resume();
-    this.lastFrameMs = performance.now();
-    this.startLoop();
-    this.notifyMotion();
-  }
-
-  public togglePause(): boolean {
-    if (this.isUserPaused) {
-      this.resumeStories();
-      return true;
-    }
-    this.pauseStories();
-    return false;
+    this.syncLoop();
   }
 
   public setCaptureFreeze(frozen: boolean): void {
@@ -311,6 +289,7 @@ export class SystemScene3DController {
       this.stopLoop();
       this.renderSingleFrame(0);
     }
+    this.syncLoop();
   }
 
   public getDiagnosticSnapshot(): SystemSceneDiagnosticSnapshot {
@@ -336,12 +315,16 @@ export class SystemScene3DController {
       storyPlaying: Boolean(this.storyDirector?.isPlaying()),
       platformCount: this.world ? 5 : 0,
       connectionCount: this.world?.connectionMeshes.length ?? 0,
-      currentBeat: this.currentBeat,
+      currentBeat: this.options.appState.getSnapshot().currentBeatLabel,
       labels: this.lastLabels,
       labelsFramed,
       canvasWidth: size?.x ?? 0,
       canvasHeight: size?.y ?? 0,
       aspect: this.camera?.aspect ?? 0,
+      cameraSettled: this.cameraSettled,
+      renderedFrames: this.renderedFrames,
+      renderCalls: this.renderer?.info.render.calls ?? 0,
+      triangles: this.renderer?.info.render.triangles ?? 0,
     };
   }
 
@@ -369,12 +352,20 @@ export class SystemScene3DController {
   public dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
+    this.unsubscribeState?.();
+    this.unsubscribeState = null;
     this.stopLoop();
-    this.cameraTween?.kill();
+    this.cancelCameraTween();
     this.storyDirector?.cancel();
     this.teardownListeners();
 
     if (this.world) {
+      this.world.root.traverse((object) => {
+        gsap.killTweensOf(object.scale);
+        const material = (object as THREE.Mesh).material;
+        if (Array.isArray(material)) material.forEach((item) => gsap.killTweensOf(item));
+        else if (material) gsap.killTweensOf(material);
+      });
       disposeObject3D(this.world.root, this.materials ?? undefined);
       this.scene?.remove(this.world.root);
     }
@@ -391,6 +382,7 @@ export class SystemScene3DController {
     this.camera = null;
 
     this.renderer?.dispose();
+    this.renderer?.forceContextLoss();
     this.renderer = null;
     this.initialized = false;
   }
@@ -473,17 +465,23 @@ export class SystemScene3DController {
   ): void {
     const scale =
       state === 'active' ? 1.06 : state === 'hovered' ? 1.03 : state === 'dimmed' ? 0.96 : 1;
-    gsap.to(bundle.root.scale, { x: scale, y: scale, z: scale, duration: 0.35, overwrite: true });
     const glow = state === 'active' || state === 'hovered' ? 0.95 : state === 'connected' ? 0.6 : 0.28;
     const mat = bundle.glowRing.material as THREE.MeshStandardMaterial;
-    gsap.to(mat, { emissiveIntensity: glow, opacity: Math.min(0.8, glow), duration: 0.35, overwrite: true });
-    bundle.underLight.intensity = state === 'dimmed' ? 0.25 : state === 'active' ? 2.4 : 1.15;
     const veilMat = bundle.veil.material as THREE.MeshBasicMaterial;
-    gsap.to(veilMat, {
-      opacity: state === 'dimmed' ? 0.62 : 0,
-      duration: 0.35,
-      overwrite: true,
-    });
+    bundle.underLight.intensity = state === 'dimmed' ? 0.25 : state === 'active' ? 2.4 : 1.15;
+    if (prefersReducedMotion()) {
+      gsap.killTweensOf(bundle.root.scale);
+      gsap.killTweensOf(mat);
+      gsap.killTweensOf(veilMat);
+      bundle.root.scale.setScalar(scale);
+      mat.emissiveIntensity = glow;
+      mat.opacity = Math.min(0.8, glow);
+      veilMat.opacity = state === 'dimmed' ? 0.62 : 0;
+    } else {
+      gsap.to(bundle.root.scale, { x: scale, y: scale, z: scale, duration: 0.35, overwrite: true });
+      gsap.to(mat, { emissiveIntensity: glow, opacity: Math.min(0.8, glow), duration: 0.35, overwrite: true });
+      gsap.to(veilMat, { opacity: state === 'dimmed' ? 0.62 : 0, duration: 0.35, overwrite: true });
+    }
   }
 
   private pulseAllConnections(strong: boolean): void {
@@ -498,12 +496,17 @@ export class SystemScene3DController {
 
   private tweenCamera(pose: CameraFocusPose): void {
     if (!this.camera) return;
-    this.cameraTween?.kill();
+    this.cancelCameraTween();
     if (prefersReducedMotion()) {
       Object.assign(this.cameraPose, pose);
+      if (pose.fov) this.camera.fov = pose.fov;
+      this.camera.updateProjectionMatrix();
       this.applyCameraPose(this.cameraPose);
+      this.projectLabels();
+      this.renderSingleFrame(0);
       return;
     }
+    this.cameraSettled = false;
     const proxy = { ...this.cameraPose };
     this.cameraTween = gsap.to(proxy, {
       positionX: pose.positionX,
@@ -520,8 +523,22 @@ export class SystemScene3DController {
         this.applyCameraPose(this.cameraPose);
         this.camera?.updateProjectionMatrix();
         this.projectLabels();
+        // Pausing a story must not leave navigation displaying an old GPU frame.
+        if (!this.shouldRunLoop()) this.renderSingleFrame(0);
+      },
+      onComplete: () => {
+        this.cameraTween = null;
+        this.cameraSettled = true;
+        this.projectLabels();
+        this.renderSingleFrame(0);
       },
     });
+  }
+
+  private cancelCameraTween(): void {
+    this.cameraTween?.kill();
+    this.cameraTween = null;
+    this.cameraSettled = true;
   }
 
   private applyCameraPose(pose: CameraFocusPose): void {
@@ -557,9 +574,7 @@ export class SystemScene3DController {
     if (typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver(() => {
         this.updateSize();
-        if (this.activeForce) {
-          this.refitActiveCamera(false);
-        }
+        this.refitActiveCamera(false);
         this.projectLabels();
         this.renderSingleFrame(0);
       });
@@ -607,11 +622,17 @@ export class SystemScene3DController {
   }
 
   private readonly handleReducedMotion = (): void => {
+    this.refitActiveCamera(false);
+    const connected = this.activeForce ? getForceById(this.activeForce).connectedIds : [];
+    this.applyHighlights(computeForceHighlightMap(this.activeForce, this.hoveredForce, connected, this.relationsMode));
+    this.syncLoop();
+    this.projectLabels();
     this.renderSingleFrame(0);
   };
 
   private readonly handleResize = (): void => {
     this.updateSize();
+    this.refitActiveCamera(false);
     this.projectLabels();
     this.renderSingleFrame(0);
   };
@@ -731,6 +752,7 @@ export class SystemScene3DController {
     this.camera.updateProjectionMatrix();
     // En overview, reajustar al aspect real del contenedor (crítico en presentación).
     if (!this.activeForce) {
+      this.cancelCameraTween();
       const fitted = this.currentOverviewPose();
       Object.assign(this.cameraPose, fitted);
       this.camera.fov = fitted.fov ?? 36;
@@ -745,7 +767,7 @@ export class SystemScene3DController {
       : this.currentOverviewPose();
     if (animate) this.tweenCamera(pose);
     else {
-      this.cameraTween?.kill();
+      this.cancelCameraTween();
       Object.assign(this.cameraPose, pose);
       if (this.camera && pose.fov) this.camera.fov = pose.fov;
       this.camera?.updateProjectionMatrix();
@@ -844,11 +866,17 @@ export class SystemScene3DController {
       !this.captureFrozen &&
       !this.isUserPaused &&
       !this.viewportPaused &&
-      !this.tabHiddenPaused
+      !this.tabHiddenPaused &&
+      !this.reducedMotionQuery?.matches
     );
   }
 
   private syncLoop(): void {
+    const suspended = this.isUserPaused || this.viewportPaused || this.tabHiddenPaused || this.captureFrozen || this.reducedMotionQuery?.matches;
+    if (suspended) this.storyDirector?.pause();
+    else this.storyDirector?.resume();
+    // Camera navigation remains available during manual story pause.
+    this.cameraTween?.paused(this.viewportPaused || this.tabHiddenPaused || this.captureFrozen);
     if (this.shouldRunLoop()) this.startLoop();
     else this.stopLoop();
   }
@@ -900,6 +928,7 @@ export class SystemScene3DController {
   private renderSingleFrame(_dt: number): void {
     if (!this.renderer || !this.scene || !this.camera) return;
     this.renderer.render(this.scene, this.camera);
+    this.renderedFrames += 1;
   }
 
   private notifyMotion(): void {

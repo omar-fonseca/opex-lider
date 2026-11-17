@@ -14,6 +14,8 @@ import {
 export type SystemViewMode = 'overview' | 'force' | 'relations' | 'tour' | 'inspect';
 
 export interface SystemAppSnapshot {
+  /** Changes only for an explicit selection/restore/tour intent, never for a beat. */
+  selectionRevision: number;
   viewMode: SystemViewMode;
   activeForce: ForceId | null;
   tourStepIndex: number;
@@ -30,6 +32,7 @@ export interface SystemAppSnapshot {
 type Listener = (snapshot: SystemAppSnapshot) => void;
 
 export class SystemAppStateController {
+  private selectionRevision = 0;
   private viewMode: SystemViewMode = 'overview';
   private activeForce: ForceId | null = null;
   private tourStepIndex = 0;
@@ -50,6 +53,7 @@ export class SystemAppStateController {
   public getSnapshot(): SystemAppSnapshot {
     const tourStep = GUIDED_TOUR_STEPS[this.tourStepIndex] ?? GUIDED_TOUR_STEPS[0];
     return {
+      selectionRevision: this.selectionRevision,
       viewMode: this.viewMode,
       activeForce: this.activeForce,
       tourStepIndex: this.tourStepIndex,
@@ -73,19 +77,24 @@ export class SystemAppStateController {
     return [...getForceById(this.activeForce).connectedIds];
   }
 
-  public selectForce(forceId: ForceId, options?: { keepTour?: boolean }): void {
+  public selectForce(forceId: ForceId, options?: { keepTour?: boolean; keepCard?: boolean }): void {
+    this.selectionRevision += 1;
     this.activeForce = forceId;
     this.briefOpen = true;
-    this.cardOpen = false;
-    this.viewMode = 'force';
+    this.cardOpen = Boolean(options?.keepCard && this.cardOpen);
     this.currentBeatLabel = null;
-    if (!options?.keepTour) {
+    if (options?.keepTour && this.isTourActive) {
+      this.tourStepIndex = GUIDED_TOUR_STEPS.findIndex((step) => step.forceId === forceId);
+      this.viewMode = 'tour';
+    } else {
       this.isTourActive = false;
+      this.viewMode = 'force';
     }
     this.emit();
   }
 
   public clearForceSelection(): void {
+    this.selectionRevision += 1;
     this.activeForce = null;
     this.briefOpen = false;
     this.cardOpen = false;
@@ -120,12 +129,19 @@ export class SystemAppStateController {
     this.emit();
   }
 
+  public closeBrief(): void {
+    this.briefOpen = false;
+    this.emit();
+  }
+
   public setBeatLabel(label: string | null): void {
+    if (label === this.currentBeatLabel) return;
     this.currentBeatLabel = label;
     this.emit();
   }
 
   public setPaused(paused: boolean): void {
+    if (this.isPaused === paused) return;
     this.isPaused = paused;
     this.emit();
   }
@@ -133,7 +149,8 @@ export class SystemAppStateController {
   public startTour(fromIndex = 0): void {
     this.isTourActive = true;
     this.isPaused = false;
-    this.tourStepIndex = Math.max(0, Math.min(GUIDED_TOUR_STEPS.length - 1, fromIndex));
+    const index = Number.isFinite(fromIndex) ? Math.trunc(fromIndex) : 0;
+    this.tourStepIndex = Math.max(0, Math.min(GUIDED_TOUR_STEPS.length - 1, index));
     this.applyTourStep();
   }
 
@@ -161,6 +178,7 @@ export class SystemAppStateController {
   }
 
   public restore(): void {
+    this.selectionRevision += 1;
     this.viewMode = 'overview';
     this.activeForce = null;
     this.tourStepIndex = 0;
@@ -178,6 +196,7 @@ export class SystemAppStateController {
   }
 
   private applyTourStep(): void {
+    this.selectionRevision += 1;
     const step = GUIDED_TOUR_STEPS[this.tourStepIndex];
     this.cardOpen = false;
     this.currentBeatLabel = null;
