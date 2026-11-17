@@ -12,7 +12,7 @@ Lee solo lo relevante y versionado:
 - `docs/PRODUCT_VISION.md`
 - `docs/TECH_ARCHITECTURE.md`
 - `docs/ai/ARCHITECTURE_BOUNDARIES.md`
-- `docs/ai/ADR/README.md` y ADR citados
+- `docs/ai/adr/README.md` y ADR citados
 - `docs/PROJECT_STATE.md` (estado; no lo dupliques)
 - `docs/UX_PRESENTATION_STANDARD.md` cuando el cambio afecte UX/presentación
 - Código real en `src/lib/`, `src/components/`, `package.json`

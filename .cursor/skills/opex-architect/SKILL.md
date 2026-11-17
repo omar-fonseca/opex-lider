@@ -22,7 +22,7 @@ Una Skill no equivale a un subagente autónomo. Responde el mismo agente que car
 
 ## Contrato
 
-Lee y aplica el archivo `.cursor/agents/opex-architect.md` del worktree que contiene esta Skill (`opex-ai-agents-v1/`), aunque la ventana de Cursor esté abierta en el directorio padre. No copies aquí ese contrato.
+Lee el [contrato del arquitecto](../../agents/opex-architect.md) en la raíz oficial `E:\opexLider`. Para revisar propuestas desde cualquier IDE existe `.agents/skills/opex-architecture-review/SKILL.md`. No copies aquí las instrucciones completas ni uses la ruta del worktree histórico.
 
 ## Contexto
 

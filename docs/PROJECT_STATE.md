@@ -1,40 +1,36 @@
 # OPEX LÍDER — Estado Oficial del Proyecto (`PROJECT_STATE.md`)
 
-**Última actualización:** 2026-11-07 (Directiva `RELEASE-01 / Fase 2`)
-**Estado:** Release Candidate verificada con CI y cabeceras Cloudflare (`RELEASE-01`)
+**Última actualización:** 2026-11-17 — `REPOSITORY-HARDENING-02`
+**Estado:** desarrollo consolidado; página 02 experimental. Esta actualización de contexto no aprueba visualmente la página 02 ni autoriza una publicación de producción.
 
 ---
 
-## 1. Fuente de Verdad Actual
+## 1. Fuente de verdad y continuidad
 
-| Parámetro | Valor oficial verificado |
-| :--- | :--- |
-| **Repositorio remoto** | `omar-fonseca/opex-lider` (`https://github.com/omar-fonseca/opex-lider.git`) |
-| **Rama integrada vigente** | `integration/v1-interactive-book` |
-| **Commit Kanban 2.8D integrado (`EDU-UX-02`)** | `fa3e035` (`fa3e035df8a5658055e2a1cb3b1a3403189270f1`) |
-| **Worktree oficial de referencia** | `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration` |
-| **Último hito validado** | `RELEASE-01 / Fase 2` — Integración de `EDU-UX-02` (Kanban 2.8D), correcciones de estabilidad en `KpiAlignmentTree.astro` y `BaseLayout.astro`, suite de pruebas `node:test`, pipeline CI en `.github/workflows/ci.yml` y cabeceras `public/_headers` con CSP por hash SHA-256 |
+- **Repositorio:** `https://github.com/omar-fonseca/opex-lider.git` (OPEX LÍDER — Interactive Digital Book).
+- **Única carpeta habitual de desarrollo:** `E:\opexLider`.
+- **Rama de desarrollo:** `feature/opex-dev-unified`; base consolidada de esta fase: `54922d6acf63f6593cd891f41eee0e3823bd75cc`.
+- **Producción estable:** `main` en `0c189ddc5989007dcec583509c37bd5daec6172b`; no se modifica ni se fusiona automáticamente.
+- **Estado Git vigente:** ejecutar `git status -sb`, `git rev-parse HEAD` y `git worktree list` desde la carpeta oficial. El HEAD puede avanzar con commits locales pequeños; no volver a una rama histórica por seguir un documento antiguo.
+- **Respaldo remoto:** a la entrada de HARDENING-02 faltaban nueve commits de la rama consolidada y los históricos `032a31c`/`47337f5` en referencias remotas. La publicación y retirada local siguen condicionadas a verificar Cloudflare Workers Builds y los SHAs remotos. Consultar la entrega de la fase para resultados, sin asumir que se publicaron.
 
-> [!IMPORTANT]
-> No utilizar `refine_ui_ux_v2` (`966083d`) ni ramas de funcionalidades aisladas ya fusionadas como punto de partida para nuevos desarrollos. Todo trabajo de integración parte de `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration` en la rama `integration/v1-interactive-book`.
+`integration/v1-interactive-book` conserva la primera edición integrada y documentación histórica; ya no es el punto de arranque del desarrollo visual. La documentación de esa época permanece en Git.
 
----
+## 2. Worktrees y recuperación
 
-## 2. Mapa de Worktrees en el Entorno Local
+Al inicio de HARDENING-02 Git registra:
 
-| Worktree | Rama asociada | Commit | Rol actual |
-| :--- | :--- | :--- | :--- |
-| `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration` | `integration/v1-interactive-book` | `d8b5dec` ( + commit `GOV-01`) | **Worktree principal activo (Fuente de verdad integrada)** |
-| `E:\opexLider` | `feature/exp-01-presentation-mode` | `0ee088c` | Rama de funcionalidad ya integrada en `INT-01` |
-| `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\kanban` | `feature/edu-ux-01-kanban` | `a61273b` | Rama de funcionalidad ya integrada en `INT-01` |
-| `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\kpi` | `feature/kpi-ux-01` | `fdd2958` | Rama de funcionalidad ya integrada en `INT-01` |
-| `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\refine_ui_ux_v2` | `refine_ui_ux_v2` | `966083d` | Base histórica inicial de 10 páginas (**obsoleta para nuevas mejoras**) |
+- `E:\opexLider`: desarrollo consolidado.
+- `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration`: referencia histórica limpia en `ad478aa`.
+- `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\visual_3d_04_poc`: PoC aislado limpio en `47337f5`.
+
+No abrir los worktrees históricos como workspace habitual ni crear otros. Su retirada requiere recuperación remota comprobada, inventario de ignorados y ausencia de uso activo. El backup existente `E:\opexLider-backups` se conserva hasta cumplir esas condiciones. `032a31c` mantiene la identidad histórica del WIP; sus cuatro archivos ya estaban incluidos en la consolidación `54922d6`.
 
 ---
 
 ## 3. Arquitectura Técnica Verificada
 
-- **Stack base:** Astro `^6.1.3` (salida estática `output: "static"`) + TypeScript + HTML/CSS/SVG nativo. Cero dependencias de UI pesadas en el cliente.
+- **Stack base:** Astro `^7.4.2` (salida estática `output: "static"`) + TypeScript + HTML/CSS/SVG nativo. Cero dependencias de UI pesadas en el cliente.
 - **Motores modulares en `src/lib/`:**
   - `src/lib/bookManifest.ts`: Manifiesto centralizado de las 10 páginas de la Primera Edición (`00–09`), metadatos de bloques, rutas y corpus de búsqueda (`Ctrl + K`).
   - `src/lib/expandableCardEngine.ts`: Motor de transiciones espaciales FLIP (*First, Last, Invert, Play*) con Web Animations API, iluminación escalonada de trazos SVG (`animateProgressiveConnections`), arrastre por *Pointer Events* y acoplamiento rápido (`makeCardDraggable`).
@@ -52,11 +48,11 @@
 
 ## 4. Funcionalidades Existentes por Página (Páginas `00–09`)
 
-| Página | Ruta | Componente principal | Estado funcional verificado en `integration/v1-interactive-book` |
+| Página | Ruta | Componente principal | Estado de referencia; madurez vigente en `docs/ai/PAGE_STATUS_00_19.md` |
 | :--- | :--- | :--- | :--- |
-| **00 · Cubierta** | `/` | `Constellation.astro` | Órbita interactiva de 6 nodos conceptuales con conexiones relacionales, transición FLIP hacia ficha conceptual (`#node-insight`) y soporte de arrastre/acoplamiento en escritorio. |
-| **01 · Excelencia operacional** | `/introduccion` | `introduccion.astro` | Capítulo editorial de fundamentación (4 bloques de lectura, caso breve comparativo, cita clave y puente hacia el sistema interactivo). |
-| **02 · Sistema interactivo** | `/sistema` | `InteractiveSystem.astro` | Escenario 2.5D de las 4 fuerzas (*Personas, Procesos, Liderazgo, Mejora*), modo enfoque, conexiones progresivas y tarjeta expandible desplazable (`#system-card-panel`). |
+| **00 · Cubierta** | `/` | `Constellation.astro` | Cubierta aprobada con siete engranajes 3D sincronizados, seis conceptos, tarjetas FLIP y fallback; congelada. |
+| **01 · Excelencia operacional** | `/introduccion` | `introduccion.astro` | Cuatro tarjetas editoriales 3D, ilustraciones contextuales y modo auditorio; aprobada y congelada. |
+| **02 · Sistema interactivo** | `/sistema` | `InteractiveSystem.astro` | Escena 3D experimental de cuatro fuerzas y nexo central, relatos GSAP, modo presentación y fallback 2D. HARDENING-02 estabiliza estado/pausa/URL; la evolución artística de personajes sigue pendiente. |
 | **03 · El líder en el proceso** | `/lider-proceso` | `LeaderProcessMap.astro` | **Modernizado (`EXP-01 v2.0`):** Mapa 2.5D del Gemba con recorrido secuencial animado, **Modo Presentación Inmersivo (`🖥️ Presentar`)**, teleprompter lateral, barra HUD inferior, revelados ASCII y tarjeta FLIP desplazable con micro-diagrama SVG. |
 | **04 · Anatomía de un proceso** | `/anatomia-proceso` | `ProcessAnatomyFlow.astro` | Flujo interactivo de 5 etapas (*Entrada, Actividades, Transformación, Salida, Retroalimentación*) con aproximación de cámara SVG, pulso viajero y tarjeta FLIP con subdiagrama vectorial. |
 | **05 · Gestión visual** | `/gestion-visual` | `VisualManagementBoard.astro` | Tablero físico realista de piso (bastidor 2.5D) con 5 zonas clicables (`Z1–Z5`), pulso horario, matriz SQDC, semáforos y tarjeta técnica FLIP desplazable (`#vm-inspector`). |
@@ -82,31 +78,24 @@
 4. **Selección directa de otro nodo en el lienzo cuando una carta está abierta:**
    - En los bancos de trabajo que utilizan `.expandable-scrim` (`03, 04, 06, 08, 09`), el velo cubre el lienzo con `z-index: 10`, por lo que hacer clic sobre otro nodo del SVG mientras la carta está abierta cierra primero la carta en lugar de conmutar directamente al nodo clicado.
 5. **Protección ante cierre/reapertura ultrarrápida en `expandableCardEngine.ts`:**
-   - Si el usuario cierra una tarjeta y vuelve a abrir un nodo antes de que transcurran los `~290 ms` de `animateFlipClose`, el temporizador de limpieza del cierre puede solaparse con la nueva apertura. Conviene cancelar cualquier cierre pendiente mediante un registro por tarjeta (`WeakMap`).
+   - El motor ya cancela cierres pendientes mediante un registro por tarjeta. Página 02 debe además cancelar callbacks de vista obsoletos al cerrar/reabrir; esa secuencia forma parte de las regresiones de HARDENING-02. No volver a implementar un segundo motor FLIP.
 6. **Atajo global de flechas (`ArrowLeft` / `ArrowRight`) en `BaseLayout.astro`:**
    - Asegurar que pulsar las flechas del teclado mientras una tarjeta modal (`[data-expanded="true"]`) está abierta o cuando el foco reside en un nodo SVG (`role="button"`) no dispare la navegación al capítulo anterior/siguiente del libro.
 
 ---
 
-## 6. Procedimiento Estándar para Retomar el Desarrollo
+## 6. Retomar desde Cursor, Antigravity o VS Code
 
-Al iniciar cualquier nueva sesión en Antigravity:
+Abrir únicamente `E:\opexLider`, verificar rama/HEAD/estado/worktrees/remotos y leer este estado, `AGENTS.md`, `.agents/rules/` y `docs/ai/README.md`. No crear worktrees para continuar esta fase.
 
-1. **Verificar carpeta y worktree activos:**
-   ```powershell
-   Set-Location "C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration"
-   git status -sb
-   git rev-parse --short HEAD
-   git log -1 --oneline
-   ```
-   *(Nota sobre Antigravity IDE: el workspace predeterminado de una ventana depende de la carpeta abierta en el IDE. Si Antigravity abre `refine_ui_ux_v2` u otra carpeta por defecto, usar `File -> Open Folder...` y seleccionar `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration`).*
-2. **Verificar que no existan servidores antiguos en conflicto en los puertos `4321`, `4324` o `4328`:**
-   ```powershell
-   Get-NetTCPConnection -LocalPort 4321, 4324, 4328 -State Listen -ErrorAction SilentlyContinue
-   ```
-3. **Levantar el servidor de desarrollo desde el worktree `integration`:**
-   ```powershell
-   Set-Location "C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration"
-   npm run dev -- --port 4321
-   ```
-4. **Comprobar en navegador (`http://localhost:4321/`)** la presencia del selector de 4 paletas y las experiencias integradas antes de crear una rama de trabajo o iniciar un nuevo incremento.
+```powershell
+Set-Location E:\opexLider
+git status -sb
+git rev-parse HEAD
+git worktree list
+npm run dev -- --background --host 127.0.0.1
+```
+
+Controlar con `npm run astro -- dev status`, `npm run astro -- dev logs` y `npm run astro -- dev stop`. Para validar: build, npm test, Playwright, npm audit y diff --check. Playwright gestiona un servidor de preview propio y no reutiliza un servidor ajeno.
+
+Los informes y ADR históricos no autorizan cambiar a carpetas anteriores. Los resultados de cada fase deben identificarse mediante su SHA; no equivalen a aprobación visual ni a publicación en producción.

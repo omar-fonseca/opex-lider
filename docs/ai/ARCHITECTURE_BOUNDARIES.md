@@ -37,3 +37,9 @@
 - Nueva experiencia compleja: `src/components/diagrams/` + `src/lib/<feature>/` + `src/styles/page-XX-*.css`.
 - Reutilizar `presentationEngine` y tokens de paleta/tema.
 - Registrar ADR si se introduce loader GLB compartido o un runtime 3D común.
+
+## Estado funcional de página 02 — HARDENING-02
+
+`SystemAppStateController` es la autoridad de selección, pausa, relaciones, recorrido y ficha. La vista envía intenciones al controlador; `SystemScene3D` se suscribe al snapshot incluso si se inicializa después de aplicar una URL. Su caché de revisión solo evita repetir efectos, no mantiene otra selección funcional. El director GSAP ejecuta o pausa la timeline según el estado aplicado y la visibilidad. Cámara/hover/medidas GPU son estado de presentación; no deben modificar la selección educativa.
+
+La pausa persiste al cambiar de fuerza; restaurar o iniciar un recorrido reanuda. El encuadre mantiene las poses y geometría existentes, cancela interpolaciones incompatibles al recalcular layout y expone finalización real para las pruebas. No implica aprobación visual de los personajes.

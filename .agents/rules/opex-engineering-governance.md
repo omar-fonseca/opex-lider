@@ -4,25 +4,18 @@ trigger: always_on
 
 # OPEX LÍDER — Gobierno de Ingeniería y Continuidad Permanente (GOV-01)
 
-> **Addendum 2026-11-14 (AI-TEAM-01):** Las referencias a `integration/v1-interactive-book` describen el **estado integrado de la 1ª edición**. Para trabajo visual 00–02 y worktrees locales, consultar el mapa de etiquetas en `docs/ai/GOVERNANCE_BRANCH_MAP.md` (producción publicada · base aprobada local · experimental · página bloqueada · integrado). Este addendum **no** cambia la rama canónica de producción ni las políticas de despliegue.
+> **Actualización 2026-11-17 — HARDENING-02:** `docs/PROJECT_STATE.md` es el estado canónico. `integration/v1-interactive-book` es una referencia histórica de la primera edición; el desarrollo continúa en la rama consolidada, sin cambiar producción.
 
-## 1. Fuente de Verdad y Verificación de Inicio de Sesión
+## 1. Fuente de verdad y arranque de sesión
 
-- **Repositorio oficial:** `omar-fonseca/opex-lider`
-- **Rama integrada vigente:** `integration/v1-interactive-book`
-- **Worktree oficial de integración:** `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration`
-- **Estado de referencia documentado:** Consultar siempre `docs/PROJECT_STATE.md` al iniciar sesión.
-- **Mapa de ramas locales / 2ª edición visual:** `docs/ai/GOVERNANCE_BRANCH_MAP.md`
-
-### Protocolo obligatorio antes de iniciar cualquier tarea
-Antes de modificar archivos, ejecutar servidores o proponer cambios en cada sesión:
-
-1. **Identificar el directorio y worktree activos** (`Get-Location` y `git worktree list`).
-2. **Comprobar estado local y remoto:** ejecutar `git status -sb`, `git rev-parse HEAD` y contrastar con la rama remota (`origin/integration/v1-interactive-book`).
-3. **Verificar nuevos commits publicados:** comprobar si existen commits más recientes en el remoto antes de seleccionar el punto de partida.
-4. **Confirmar la versión integrada y validada:** utilizar siempre la última versión integrada y validada en `integration/v1-interactive-book` (registrada en `docs/PROJECT_STATE.md`), no simplemente una rama aislada con fecha reciente ni un worktree experimental antiguo.
-5. **Prohibición de acciones destructivas automáticas:** no cambiar de rama, no descartar modificaciones (`reset`, `checkout --`, `clean`), ni ejecutar `merge` o `rebase` automáticamente sin autorización explícita.
-6. **Bloqueo ante worktree incorrecto:** si el IDE abre `refine_ui_ux_v2` u otro worktree antiguo como directorio activo, **detener cualquier implementación**, advertir inmediatamente al usuario e indicarle abrir `C:\Users\ASUS\.gemini\antigravity\worktrees\opexLider\integration` como carpeta de trabajo (o ejecutar los comandos apuntando explícitamente a dicho worktree tras confirmación).
+- Repositorio: `omar-fonseca/opex-lider`.
+- Carpeta oficial habitual: `E:\opexLider`.
+- Rama de desarrollo: `feature/opex-dev-unified`; producción estable: `main`.
+- Leer `docs/PROJECT_STATE.md` y `docs/ai/GOVERNANCE_BRANCH_MAP.md`; verificar ubicación, rama, HEAD, estado, worktrees y remotos antes de modificar o iniciar servidores.
+- Consultar el remoto antes de publicar; no asumir respaldo por la existencia de un tracking ref local.
+- No crear otros repositorios/worktrees ni seguir rutas históricas de informes como instrucciones operativas. Si el IDE abre otra carpeta, ejecutar las tareas autorizadas apuntando explícitamente a la carpeta oficial.
+- No descartar WIP, cambiar de rama, reescribir historia, fusionar ni desplegar sin autorización. Un bloqueo de publicación no impide continuar correcciones locales independientes y reversibles dentro del alcance.
+- Retirar worktrees/ramas/backups solo tras verificar referencias remotas recuperables y ausencia de archivos únicos o uso activo.
 
 ---
 
@@ -69,4 +62,4 @@ Cada incremento de ingeniería debe seguir rigurosamente la secuencia:
   1. Archivos modificados.
   2. Pruebas y verificaciones realizadas.
   3. SHA local y estado de sincronización remota.
-- Actualizar `docs/PROJECT_STATE.md` únicamente cuando se apruebe e integre un nuevo hito validado (nunca registrar versiones experimentales como aprobadas).
+- Actualizar `docs/PROJECT_STATE.md` ante un hito validado o una corrección de contexto/rutas expresamente autorizada. Nunca registrar una página experimental como aprobada ni declarar respaldo remoto sin verificarlo.
