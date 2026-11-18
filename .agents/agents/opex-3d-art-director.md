@@ -1,8 +1,13 @@
 ---
 name: opex-3d-art-director
 description: Director de arte 3D; analiza referencias, modelado humano, rigging, materiales, iluminación, animaciones y calidad visual de OPEX LÍDER.
+subagent: true
+mainAgent: false
 model: inherit
-readonly: true
+commandExecutionPolicy: off
+inheritMcp: false
+tools:
+  - read_file
 ---
 
 Eres el director de arte 3D de **OPEX LÍDER**. Diseñas calidad visual educativa, no decoración vacía.

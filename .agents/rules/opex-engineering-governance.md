@@ -14,8 +14,9 @@ trigger: always_on
 - Leer `docs/PROJECT_STATE.md` y `docs/ai/GOVERNANCE_BRANCH_MAP.md`; verificar ubicación, rama, HEAD, estado, worktrees y remotos antes de modificar o iniciar servidores.
 - Consultar el remoto antes de publicar; no asumir respaldo por la existencia de un tracking ref local.
 - No crear otros repositorios/worktrees ni seguir rutas históricas de informes como instrucciones operativas. Si el IDE abre otra carpeta, ejecutar las tareas autorizadas apuntando explícitamente a la carpeta oficial.
-- No descartar WIP, cambiar de rama, reescribir historia, fusionar ni desplegar sin autorización. Un bloqueo de publicación no impide continuar correcciones locales independientes y reversibles dentro del alcance.
+- No descartar WIP, ejecutar reset destructivo ni clean forzado, cambiar de rama, reescribir historia, fusionar ni desplegar sin autorización explícita del usuario. Un bloqueo de publicación no impide continuar correcciones locales independientes y reversibles dentro del alcance.
 - Retirar worktrees/ramas/backups solo tras verificar referencias remotas recuperables y ausencia de archivos únicos o uso activo.
+- **Alcance autorizado y páginas congeladas:** trabajar estrictamente dentro del alcance autorizado por el usuario. Consultar y respetar la política de congelación en `docs/ai/PAGE_STATUS_00_19.md` y `docs/ai/APPROVAL_AND_FREEZE_POLICY.md`; prohibido modificar páginas 00–19 o escenas 3D salvo autorización explícita por página.
 
 ---
 
@@ -26,7 +27,7 @@ En cada modificación de código se debe cumplir:
 - **Arquitectura modular y alta cohesión:** mantener responsabilidades estrictamente separadas entre contenido editorial, lógica de dominio/cálculo (`src/lib/`), motores de interacción/presentación y componentes visuales (`src/components/`).
 - **TypeScript tipado y mantenible:** escribir código TypeScript legible, con interfaces explícitas y sin `any` injustificados.
 - **Reutilización sin duplicación:** reutilizar los motores existentes (`expandableCardEngine.ts`, `presentationEngine.ts`, `otifEngine.ts`, `bookManifest.ts`) y componentes compartidos; nunca duplicar implementaciones ni lógica de negocio.
-- **Cero dependencias innecesarias:** no instalar paquetes externos sin justificación técnica previa y aprobación explícita.
+- **Cero dependencias y assets innecesarios:** no instalar paquetes externos ni descargar assets (modelos 3D, binarios, fuentes) sin justificación técnica previa y aprobación explícita del usuario.
 - **Seguridad, accesibilidad y rendimiento desde el diseño:**
   - Cumplir navegación por teclado (`Tab`, `Enter`, `Escape`, flechas), atributos ARIA, gestión de foco y soporte para `prefers-reduced-motion: reduce`.
   - Evitar fugas de memoria o acumulación de *event listeners* globales.
@@ -57,7 +58,9 @@ Cada incremento de ingeniería debe seguir rigurosamente la secuencia:
 
 - Publicar los incrementos validados en su rama correspondiente.
 - **No fusionar con `main`** sin autorización expresa del usuario y validación completa de la integración.
-- Verificar siempre la interfaz real en navegador (no únicamente el código de estado `HTTP 200`).
+- **Orquestación y concurrencia:** el Agent principal actúa como director técnico (`AGENTS.md`). Mantener un solo agente o proceso escritor a la vez por conjunto de archivos; usar modo de solo lectura (readonly) para auditorías e inspecciones. Delegar a `.agents/agents/*` solo cuando aporte valor claro.
+- **Rigor en pruebas y verificación:** verificar siempre la interfaz real en navegador (no únicamente el código `HTTP 200`). Prohibido inventar resultados de pruebas o de build: ejecutar los comandos reales o marcar como `NO DISPONIBLE` con evidencia comprobable.
+- **Autorización de cierre:** el cierre formal de tareas, commits, push, merge o deploy requiere siempre la aprobación explícita del usuario.
 - Al cierre de cada entrega, reportar siempre:
   1. Archivos modificados.
   2. Pruebas y verificaciones realizadas.

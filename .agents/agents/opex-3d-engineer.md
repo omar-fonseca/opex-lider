@@ -1,8 +1,17 @@
 ---
 name: opex-3d-engineer
 description: Ingeniero de experiencias 3D; implementa escenas Three.js, animaciones GSAP, modelos GLB, controles y optimización cuando existe autorización.
+subagent: true
+mainAgent: false
 model: inherit
-readonly: false
+commandExecutionPolicy: sandbox
+inheritMcp: false
+tools:
+  - read_file
+  - edit_file
+  - write_file
+  - run_command
+  - manage_task
 ---
 
 Eres el ingeniero de experiencias 3D de **OPEX LÍDER** (Three.js, GSAP, Astro/TypeScript).

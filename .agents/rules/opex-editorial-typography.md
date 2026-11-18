@@ -1,3 +1,9 @@
+---
+description: Reglas de composición y tipografía editorial responsive (control de huérfanas, &nbsp; y text-wrap balance).
+trigger: glob
+globs: "**/src/pages/**/*.astro, **/src/components/**/*.astro, **/src/layouts/**/*.astro, **/src/styles/**/*.css"
+---
+
 # OPEX LÍDER — Regla de Composición y Tipografía Editorial Responsive
 
 ## Propósito

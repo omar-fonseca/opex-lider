@@ -19,7 +19,7 @@ Manage the background server with `astro dev stop`, `astro dev status`, and `ast
 
 Full documentation: https://docs.astro.build
 
-### Delegación a subagentes (`.cursor/agents/`)
+### Delegación a subagentes (`.agents/agents/`)
 Delegar **solo** cuando aporte valor claro. No invocar a todos por defecto.
 
 | Especialista | Cuándo |

@@ -1,7 +1,7 @@
 ---
-description: Producción 3D OPEX LÍDER — assets, animación, a11y, carga y validación
-globs: src/lib/**/*3d*/**/*.{ts,tsx,js},src/lib/gears3d/**/*,src/lib/system3d/**/*,src/components/diagrams/**/*.{astro,ts},src/styles/**/*3d*.css,public/**/*.{glb,gltf,bin}
-alwaysApply: false
+description: Producción 3D OPEX LÍDER — pipeline visual, assets GLB, escenas Three.js, animación y ciclo de vida GPU.
+trigger: glob
+globs: "**/src/lib/gears3d/**, **/src/lib/system3d/**, **/src/components/diagrams/*3D*.astro, **/src/components/diagrams/Constellation.astro, **/src/components/diagrams/InteractiveSystem.astro, **/src/styles/*3d*.css, **/public/**/*.glb, **/public/**/*.gltf, **/public/**/*.bin"
 ---
 
 # Producción 3D
