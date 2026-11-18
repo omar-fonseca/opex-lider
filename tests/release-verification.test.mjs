@@ -404,7 +404,7 @@ describe('6. Refinamiento editorial y responsive de Cubierta (COVER-UX-02)', () 
     // Ubicada después del subtítulo dentro de .cover-header-block
     const headerBlockMatch = indexSrc.match(/<div class="cover-header-block">([\s\S]*?)<\/div>\s*<\/div>/);
     assert.ok(headerBlockMatch, 'El bloque .cover-header-block debe contener el crédito de autoría');
-    assert.match(headerBlockMatch[0], /Libro interactivo de liderazgo y excelencia operacional\./);
+    assert.match(headerBlockMatch[0], /Interactive Digital Book de liderazgo y excelencia operacional\./);
     assert.match(headerBlockMatch[0], /Omar Yesid Fonseca/);
 
     // Guía de lectura con texto intacto
